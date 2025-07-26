@@ -1,0 +1,32 @@
+# See the demo docs: https://robot-wranglers.github.io/compose.mk/demos/RAG
+services:
+  ollama: &base
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM ollama/ollama@sha256:476b956cbe76f22494f08400757ba302fd8ab6573965c09f1e1a66b2a7b0eb77
+    working_dir: /workspace
+    entrypoint: ['ollama','serve']
+    ports:
+      - "11434:11434"
+    volumes:
+      # NB: this allows model-sharing for any host-installation of ollama if 
+      # it's available. Probably wrong for non-Linux and also maybe wrong for 
+      # some ollama versions?
+      - /usr/share/ollama/.ollama:/root/.ollama
+      # Share the hosts working directory- this is for document ingestion
+      - ${PWD}:/workspace
+  integration_tests: 
+    <<: *base
+    entrypoint: python3
+    depends_on: ['ollama'] 
+    links: ['ollama']
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    build:
+      context: .
+      # dockerfile_inline: |
+      #   FROM python:3.11-slim-bookworm
+      #   RUN pip install --no-cache-dir ollama==0.4.7
+      #   RUN apt-get update -qq && apt-get install -qq -y \
+      #     make procps curl iputils-ping curl

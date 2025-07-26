@@ -1,0 +1,134 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Epistemics in Model Checkers
+<hr style="width:100%;border-bottom:3px solid black;">
+
+{% include "admonition/generated.md.j2"%}
+
+- **For Academic Research:** MCMAS - Most comprehensive, well-documented, active development
+- **For Integration with Existing SMV Workflows:** MCK - Familiar syntax, good compatibility
+- **For Performance-Critical Applications:** MCMAS - Best symbolic algorithms and optimizations
+
+### MCMAS (Model Checker for Multi-Agent Systems)
+<hr style="width:100%;border-bottom:3px solid black;">
+
+**Official Website:** [https://sail.doc.ic.ac.uk/software/mcmas/](https://sail.doc.ic.ac.uk/software/mcmas/)  
+**Developer:** Imperial College London  
+**Language:** C++  
+**Input Language:** ISPL (Interpreted Systems Programming Language)
+
+MCMAS is one of the most mature and widely-used epistemic model checkers. It's specifically designed for verifying temporal-epistemic properties in multi-agent systems using the interpreted systems semantics.
+
+**Key Features:**
+- Supports temporal-epistemic logic (CTLK - Computational Tree Logic with Knowledge)
+- Uses interpreted systems as the underlying semantic model
+- Handles multiple agents with individual knowledge bases
+- Supports common knowledge and distributed knowledge
+- Includes optimizations like symbolic model checking with BDDs
+- Provides counterexample generation for failed properties
+- Supports fairness constraints
+- Can handle both synchronous and asynchronous systems
+
+**Strengths:**
+- Well-documented with extensive academic backing
+- Efficient symbolic algorithms
+- Good tool support with GUI interface
+- Active development and maintenance
+- Strong theoretical foundation
+
+**Limitations:**
+- Limited to interpreted systems semantics
+- Steep learning curve for ISPL syntax
+- Performance can degrade with large state spaces
+
+### MCK (Model Checker for Knowledge)
+<hr style="width:100%;border-bottom:3px solid black;">
+
+**Official Website:** [https://cgi.cse.unsw.edu.au/~mck/pmck/](https://cgi.cse.unsw.edu.au/~mck/pmck/)<br/>
+**Developer:** University of New South Wales  <br/>
+**Language:** C  <br/>
+**Input Language:** Extended SMV language with epistemic operators<br/>
+
+MCK extends the traditional model checking approach to include epistemic reasoning. It builds upon the SMV framework but adds epistemic operators and semantics.
+
+**Key Features:**
+- Supports epistemic temporal logic
+- Uses Kripke structures with epistemic accessibility relations
+- Handles multiple agents and knowledge modalities
+- Supports both individual and group knowledge concepts
+- Integrates with existing SMV-based workflows
+- Provides epistemic bisimulation checking
+
+**Strengths:**
+- Familiar SMV-like syntax for users of traditional model checkers
+- Good integration with existing verification workflows
+- Supports standard epistemic logic constructs
+
+**Limitations:**
+- Less actively maintained than MCMAS
+- Limited documentation compared to newer tools
+- Performance optimization not as advanced as symbolic approaches
+
+---
+
+### Feature Comparison Matrix
+<hr style="width:100%;border-bottom:3px solid black;">
+
+<strong><center>
+✅ Full Support **|** ⚠️ Limited Support **|** ❌ No Support
+</center></strong><br/>
+
+| Feature | MCMAS | MCK |
+|---------|-------|-----|
+| **Core Logic Support** |
+| Epistemic Logic (K, B) | ✅ Full | ✅ Full |
+| Temporal Logic (CTL/LTL) | ✅ CTLK | ✅ CTL*/LTL* |
+| Common Knowledge | ✅ Yes | ✅ Yes |
+| Distributed Knowledge | ✅ Yes | ✅ Yes |
+| **Technical Approach** |
+| Symbolic Model Checking | ✅ BDD-based | ✅ BDD-based |
+| Explicit State Exploration | ✅ Optional | ✅ Optional |
+| Counterexample Generation | ✅ Yes | ✅ Yes |
+| Bisimulation Checking | ✅ Yes | ✅ Yes |
+| **System Modeling** |
+| Multi-Agent Systems | ✅ Native | ✅ Yes |
+| Synchronous Systems | ✅ Yes | ✅ Yes |
+| Asynchronous Systems | ✅ Yes | ✅ Limited |
+| **Semantics Support** |
+| Interpreted Systems | ✅ Native | ❌ No |
+| Kripke Structures | ✅ Yes | ✅ Native |
+| Perfect Recall | ✅ Yes | ✅ Yes |
+| No Learning | ✅ Yes | ✅ Yes |
+| **Usability & Integration** |
+| GUI Interface | ✅ Yes | ❌ No |
+| Command Line Interface | ✅ Yes | ✅ Yes |
+| Documentation Quality | ✅ Excellent | ⚠️ Fair |
+| Active Development | ✅ Yes | ❌ No |
+| Academic Support | ✅ Strong | ⚠️ Limited |
+| **Performance & Scalability** |
+| Large State Spaces | ✅ Good | ✅ Good |
+| Memory Efficiency | ✅ High | ✅ High |
+| Optimization Features | ✅ Advanced | ✅ Standard |
+| **Platform Support** |
+| Linux | ✅ Yes | ✅ Yes |
+| Windows | ✅ Yes | ⚠️ Limited |
+| macOS | ✅ Yes | ⚠️ Limited |
+| **Input/Output** |
+| Specification Language | ISPL | Extended SMV |
+| Output Formats | Multiple | Standard |
+| Integration APIs | ✅ Yes | ❌ Limited |
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: via [claude://ec0f46bc-3244-46a8-92b9-1f3f35aecb3a](https://claude.ai/public/artifacts/ec0f46bc-3244-46a8-92b9-1f3f35aecb3a)
+[^2]: Official [User Manual]({{jinja.vars.mcmas_manual}})
+[^3]: [See all references from all pages]({{mkdocs.site_relative_url}}/refs)
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('machine-generated-summary','../img/layout-board-split.svg')
+	addImageToHeader('program-structure','../img/abc')
+	addImageToHeader('references','../img/list-details')
+}, 100);});
+</script>

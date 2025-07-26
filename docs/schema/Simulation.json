@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "FormulaeResult": {
+      "description": "FormulaeResult partitions Formulae as True/False.\n\nThis is part of a Simulation object, only available after\nmodel- check runs.",
+      "properties": {
+        "true": {
+          "default": [],
+          "description": "true",
+          "items": {
+            "type": "string"
+          },
+          "title": "True",
+          "type": "array"
+        },
+        "false": {
+          "default": [],
+          "description": "false",
+          "items": {
+            "type": "string"
+          },
+          "title": "False",
+          "type": "array"
+        }
+      },
+      "title": "FormulaeResult",
+      "type": "object"
+    },
+    "SimMetadata": {
+      "description": "SimMetadata describes status-related metadata from a\nsimulation.\n\nThis is part of a Simulation object, only available after\nmodel- check runs.",
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "",
+          "title": "File"
+        },
+        "engine": {
+          "default": "mcmas",
+          "description": "",
+          "title": "Engine",
+          "type": "string"
+        },
+        "parser": {
+          "default": "mcmas.parser",
+          "description": "",
+          "title": "Parser",
+          "type": "string"
+        },
+        "exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "",
+          "title": "Exit Code"
+        },
+        "deadlock": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether the simulation deadlocked",
+          "title": "Deadlock"
+        },
+        "validates": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether the Specification parsed successfully *and* had only has True facts",
+          "title": "Validates"
+        },
+        "parsed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether or not the Specification parsed successfully",
+          "title": "Parsed"
+        },
+        "timing": {
+          "additionalProperties": true,
+          "default": {},
+          "description": "Timing details for execution, compilation, etc",
+          "title": "Timing",
+          "type": "object"
+        }
+      },
+      "title": "SimMetadata",
+      "type": "object"
+    }
+  },
+  "description": "A Simulation object is the result of having run a spec.\n\nIn practice a Simulation in `py-mcmas` is always an ISPL program\nrunning on an MCMAS engine, but see `SimBase` for something more\ngeneric.",
+  "properties": {
+    "text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {},
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "text",
+      "title": "Text"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {},
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "error",
+      "title": "Error"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SimMetadata"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "model"
+    },
+    "state_space": {
+      "additionalProperties": true,
+      "default": {},
+      "description": "",
+      "title": "State Space",
+      "type": "object"
+    },
+    "facts": {
+      "$ref": "#/$defs/FormulaeResult",
+      "default": {
+        "true": [],
+        "false": []
+      },
+      "description": "facts"
+    }
+  },
+  "title": "Simulation",
+  "type": "object"
+}

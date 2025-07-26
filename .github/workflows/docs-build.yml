@@ -1,0 +1,37 @@
+# https://github.com/actions/starter-workflows/blob/main/pages/hugo.yml
+name: Docs Build Check
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: {}
+  workflow_call: {}
+  pull_request:
+    branches: [ "main" ]
+    # paths-ignore:
+    #   - '**.md'    
+    #   - '**.png' 
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Default to bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Build job
+  build:
+    name: Docs Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Initialize
+        run: make clean init
+      - name: Build with mkdocs
+        run: make docs

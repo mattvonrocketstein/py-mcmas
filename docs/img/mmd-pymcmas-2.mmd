@@ -1,0 +1,147 @@
+%%{init: {
+    'theme': 'base',
+    'themeVariables': {
+      'fill':'#efefef',
+      'background':'#efefef',
+       'fontSize': '18px',  
+       'fontFamily': 'JetBrains Mono, monospace',
+    'cLabelFontSize': '16px'
+    }
+}}%%flowchart TD
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    subgraph TopWrapper [" "]
+      TopWrapperTitle
+      %% HLTitle["Agent Object"]---MCMAS
+      %% invisible3["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"]
+      subgraph HLWrapper [" "]
+        subgraph HLSubgraph [" "]
+          SpecFrag1("mcmas.ispl.Agent")--->Spec
+          SpecFrag2("mcmas.ispl.Agent")--->Spec
+          SpecFrag3("mcmas.ispl.Agent")--->Spec
+          HLW1-..->Spec
+          Spec("Partial ISPL Specification")--->|"completion via pydantic_ai"| FullSpec
+          HLW1 -.->  FullSpec
+          %% invisible3----MCMAS
+          FullSpec---Z3----ZONK["specification layer<br/>(py-mcmas)"]
+        end
+      end
+      
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    subgraph MWrapper [" "]
+      %% LLSubgraph----Middle
+      %% subgraph LLSubgraphTitle [" "]
+      %%   %% aaa----------bbbb
+      %%   %% class aaa,bbb invisible
+      %% end
+      Frameworks("Implementation Layer<br/>(Agent Frameworks)")
+      subgraph MSubgraph [" "]
+        Frameworks----pydanticAI[["pydantic_ai . agent"]]--->|"Via reflection/inspection"| SpecFrag1
+        Frameworks---- openAI[["openai . agent"]]--->|"Via reflection"| SpecFrag2
+        Frameworks----camelAI[["camel ai"]]--->|"Via reflection"| SpecFrag3
+      end
+    end
+    subgraph LLWrapper [" "]
+      Frameworks
+      
+      subgraph LLSubgraph [" "]
+        ZONK---LLS2 
+        ZONK---LLS3
+        HLW1["mcmas.models"]
+LLS3 -.-> Note1["📝 Your note text"]
+%% Frameworks----pydanticAI[["pydantic_ai . agent"]]--->SpecFrag1
+        %% Frameworks---- openAI[["openai . agent"]]--->SpecFrag2
+        %% Frameworks----camelAI[["camel ai"]]--->SpecFrag3
+      end
+    end 
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  end
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+linkStyle 0 stroke-width:5px
+linkStyle 1 stroke-width:5px
+linkStyle 2 stroke-width:5px
+linkStyle 3 stroke-width:5px 
+linkStyle 4 stroke-width:5px 
+linkStyle 5 stroke-width:5px
+ 
+linkStyle 9 stroke-width:5px 
+linkStyle 11 stroke-width:5px 
+
+linkStyle 12 stroke-width:5px 
+linkStyle 13 stroke-width:5px 
+linkStyle 13 stroke-width:5px 
+linkStyle 14 stroke-width:5px
+%% stroke:transparent
+%% linkStyle 3 stroke:transparent
+%% linkStyle 4 stroke-width:3px,stroke:black
+%% linkStyle 5,6,7,8 stroke-width:3px,stroke:black
+%% linkStyle 9,10,11,12 stroke-width:3px,fill:none,stroke:black
+
+%% classDef invisibleLine stroke:transparent
+linkStyle 7 stroke-width:5px 
+linkStyle 6 stroke-width:5px,stroke:black
+linkStyle 8 stroke-width:5px,stroke:black 
+linkStyle 10 stroke-width:5px,stroke:black  
+
+classDef TopTitleStyle fill:none,stroke:none,color:#2c3e50,font-size:14px,font-weight:bold
+
+classDef Wrapper fill:#efefef,stroke-width:1px,stroke:black,width:%
+
+classDef Border fill:#efefef,stroke:#ddd,stroke-width:4x,padding:5px,font-size:23px
+
+classDef Blue fill:#dcedfc,stroke:#8795a0
+
+classDef SubgraphTitle fill:transparent,stroke-width:0px,stroke:none,color:black,font-size:28px,font-weight:bold
+
+classDef PageOutline stroke-width:5px,stroke:black,padding:15px,fill:#efefef
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+class TopWrapper PageOutline
+class LLWrapper,HLWrapper Wrapper
+class LLSubgraph,HLSubgraph Blue
+class HLWrapper,LLWrapper,MWrapper,TitleWrapper Border
+class HLSubgraph,LLSubgraph,MSubgraph Blue
+class HLTitle,LLTitle,LLSubgraphTitle,HLSubgraphTitle SubgraphTitle
+class LLM,Dict,Code DataType
+class pydanticAI,camelAI,openAI PydanticType
+class SpecFrag1,SpecFrag2,SpecFrag3,UserConstraints,FullSpec,TopWrapperTitle PydanticType
+class Spec,LLS2,LLS3,LLW1,HLW1,HLS1 PydanticType
+class Frameworks PydanticType
+
+class MCMAS McmasType
+class invisible1,invisible2,invisible3 invisible
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+classDef DataType fill:#ffffff,color:white,font-weight:bolder,font-size:22px,stroke:black,stroke-width:3px,padding:10px
+
+classDef PydanticType fill:white,stroke:black,stroke-width:5px,font-size:16px,color:black,font-weight:bolder,padding:20px
+
+classDef McmasType fill:#efefef,stroke:black,stroke-width:3px,font-weight:bolder,font-size:13px,color:black
+
+classDef invisible fill:transparent,stroke:transparent
+
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+%%rgb(166, 179, 188)
+%% #b9c1c8
+%% #c1c8ce
+%% #c9cfd4
+%% #d0d6da
+%% #d8dde0
+%% #e0e3e6
+%% #e7eaec
+%% #eff1f2
+%% #f7f8f8
+%% #ffffff
+%% 
+%% #8795a0
+%% #96a2ab
+%% #a4aeb7
+%% #b2bbc2
+%% #c0c8cd
+%% #ced4d9
+%% #dde1e4
