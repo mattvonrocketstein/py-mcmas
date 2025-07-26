@@ -1,0 +1,73 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Pythonic ISPL
+<hr style="width:100%;border-bottom:2px solid black;">
+
+Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  
+
+There's several reasons why you might want to do this, including the fact that ISPL fragments generated from python also [have their own algebra](#) and allow for [AI-powered completion](#).  
+
+But the simplest reason is just that ISPL specifications are more like *data* than like programs.  For example, explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
+
+### Flexibile Parsing
+<hr style="width:100%;border-bottom:2px solid black;">
+
+**At a high level,** you'll want to use the pydantic models for [`mcmas.ispl.Environment`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Environment) and [`mcmas.ispl.Agent`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Agent), which mirror have the same structure as their counterpart [primtives in pure-ISPL]({{mkdocs.site_relative_url}}/isplref#Environment).
+
+**For individual blocks though,** although the JSON schema for *output* is strict, parsing input is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block might look like this:
+
+```ispl
+Agent foo 
+...
+Actions = {keep,swap,none};
+...
+end Agent
+```
+
+Translated to python, this could look like 
+
+```python
+from mcmas.ispl import Agent, symbols 
+Agent(...,actions='{keep, swap, none};',...)
+Agent(...,actions=['keep', 'swap', 'none'],...)
+Agent(...,actions=[symbols.keep, symbols.swap,symbols.none],...)
+```
+
+The situation is similar with sections like `Vars`, `ObsVars`, and `Lobsvars`, except that dictionaries are used.Most sections accept strings, sympy symbols or expressions that can be converted to strings, lists of strings and symbols, or dictionaries.
+
+### Logical Expressions
+<hr style="width:100%;border-bottom:2px solid black;">
+
+We've already met `symbols` in the last section, which is basically just a factory for sympy symbols[^1].  Get a symbol by simply mentioning it, and combine them in natural ways like this:
+
+```python
+from mcmas.logic import symbols 
+assert symbols.x + symbols.y == "x+y"
+```
+
+Symbols are actually callable, so that e.g. `symbol.K(symbol.predicate)` is one way to use the [knowledge operator]({{mkdocs.site_relative_url}}/opref).  For other kinds of expressions, you can use things from `mcmas.logic` like this:
+
+```python
+from mcmas import logic
+logic.If(symbols.p, symbols.q) # -> p if q
+logic.Eq(symbols.x, symbols.y) # -> x=y
+logic.And(symbols.x, symbols.y) # -> x and y
+```
+
+Compared to a simple string, this is frequently *harder* to read!  But it's more composable, and now we're closer to a real abstract syntax tree.
+
+### Python Example
+<hr style="width:100%;border-bottom:2px solid black;">
+
+The example below is porting the [minimal.ispl example](#original-ispl) to pure python, and you can run it with the [`ispl` command line tool]({{mkdocs.site_relative_url}}/cli).  This example is *very* pythonic in that it tries to avoid "magic strings" of raw ISPL, and instead makes use of symbols and sympy expressions.
+
+{{site.embed_demo(
+    'tests/data/minimal.py', github=github, type='python')}}
+
+### Original ISPL
+<hr style="width:100%;border-bottom:2px solid black;">
+
+The pure ISPL for the python example above:
+
+{{site.embed_demo(
+    'tests/data/minimal.ispl', github=github, type='python')}}

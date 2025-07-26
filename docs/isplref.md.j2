@@ -1,0 +1,397 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## ISPL Language Reference
+<hr style="width:100%;border-bottom:3px solid black;">
+
+{% include "admonition/generated.md.j2"%}
+
+{#
+{{macros.subheader('Machine Generated Summary',mkdocs)}}
+:  Lightly edited overview that's not intended to authoritative.  
+:  Created via conversation[^1] with official docs[^2] and other resources [^3]
+#}
+
+### Program Structure
+<hr style="width:100%;border-bottom:3px solid black;">
+
+ISPL is a programming language used to describe multi-agent systems for verification with MCMAS. An ISPL program models a system of agents that can interact, communicate, and evolve over time.
+
+{{macros.subheader('ISPL Primitives',mkdocs)}}:
+:  * [**Semantics**](#semantics) (optional)
+:  * [**Environment Agent**](#environment)
+:  * [**Agents**](#agent) (one or more)
+:  * [**Evaluation**](#evaluation)
+:  * [**InitStates**](#init-states)
+:  * [**Groups**](#groups) (optional)
+:  * [**Fairness**](#fairness) (optional)
+:  * [**Formulae**](#formulae)
+
+### Semantics
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Defines how variable assignments are handled during evolution.
+
+The semantics section appears at the beginning of the file and specifies how the evolution functions should be interpreted:
+
+```lua {.snippet}
+Semantics = MultiAssignment | SingleAssignment
+```
+<br/>
+
+- **MultiAssignment (MA)**: Evolution items are mutually exclusive - only one item executes per step, updating its variables while keeping others unchanged
+- **SingleAssignment (SA)**: Evolution items are partitioned by variable - items updating the same variable are mutually exclusive, but items updating different variables can execute simultaneously
+
+If omitted, MultiAssignment is used by default.
+
+### Environment
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Models the shared infrastructure and boundary conditions that all standard agents can observe.
+
+The Environment is a special agent that represents the system's external conditions, communication channels, or shared resources. Unlike standard agents, the Environment can have **observable variables** that other agents can read (but not modify).
+
+```lua {.snippet}
+Agent Environment
+  -- Observable variables - can be seen by other agents
+  Obsvars:
+  end Obsvars
+  
+  -- Private variables - only the Environment can access
+  Vars:
+  end Vars
+  
+  -- Definition of "bad" states for correctness properties
+  RedStates:
+  end RedStates
+  
+  Actions = {...};
+  
+  -- Rules for when actions can be performed
+  Protocol:
+  end Protocol
+  
+  -- How variables change based on actions
+  Evolution:
+  end Evolution
+end Agent
+```
+<br/>
+
+
+- Can have both observable and private variables
+- Observable variables can be referenced by other agents as `Environment.variableName`
+- Represents non-deterministic external conditions
+- Optional - not all models require an environment
+
+### Agent
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Represents individual entities in the multi-agent system with private state and behavior.
+
+Standard agents are the main actors in the system. Each agent has private local state, can perform actions, and evolves according to protocols and evolution functions.
+
+```lua {.snippet}
+Agent AgentName
+  -- Local observable variables from Environment
+  Lobsvars = {...};  
+  
+  -- Private local variables
+  Vars:
+  end Vars
+  
+  -- Definition of incorrect/bad states
+  RedStates:
+  end RedStates
+  
+  Actions = {...};
+  
+  -- Action selection rules
+  Protocol:
+  end Protocol
+  
+  -- State transition rules
+  Evolution:
+  end Evolution
+end Agent
+```
+<br/>
+
+- Have private local state (variables)
+- Can observe specific Environment variables (Lobsvars)
+- Cannot directly access other agents' private variables
+- Can reference other agents' actions in evolution functions
+
+### Variable Types
+<hr style="width:100%;border-bottom:3px solid black;">
+
+ISPL supports three types of variables for modeling agent state.
+
+#### Boolean Variables
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+```lua {.snippet}
+variableName : boolean;
+```
+<br/>
+- Values: `true` or `false`
+- Supports bit operations: `~` (not), `&` (and), `|` (or), `^` (xor)
+- Comparisons: `=`, `!=`
+
+#### Enumeration Variables
+<hr style="width:95%;border-bottom:1px dashed black;">
+```lua {.snippet}
+variableName : {value1, value2, value3};
+```
+<br/>
+- Values: Any of the specified enumeration constants
+- Comparisons: `=`, `!=`
+- Two enumeration types are comparable if one is a subset of the other
+
+#### Bounded Integer Variables
+<hr style="width:95%;border-bottom:1px dashed black;">
+```lua {.snippet}
+variableName : lowerBound .. upperBound;
+```
+<br/>
+- Values: Integers within the specified range
+- Supports arithmetic operations: `+`, `-`, `*`, `/`
+- Comparisons: `=`, `!=`, `<`, `<=`, `>`, `>=`
+
+### Actions
+<hr style="width:100%;border-bottom:3px solid black;">
+Defines the set of actions an agent can perform, which are visible to all other agents.
+
+```lua {.snippet}
+Actions = {action1, action2, action3};
+```
+<br/>
+
+- Actions are "public" - all agents can observe what actions others perform
+- Used in protocols to determine when actions can be taken
+- Used in evolution functions to trigger state changes
+- Referenced in other agents' conditions as `AgentName.Action = actionName`
+
+### Protocol
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Defines the rules for when an agent can perform specific actions based on its current state.
+
+```lua {.snippet}
+Protocol:
+  condition1 : {action1, action2};
+  condition2 : {action3};
+  Other : {defaultAction};
+end Protocol
+```
+<br/>
+
+- Maps boolean conditions over local state to sets of enabled actions
+- Conditions can overlap (enabling non-deterministic choice)
+- `Other` keyword handles all states not covered by explicit conditions
+- Conditions can reference local variables and Environment observable variables
+- Non-deterministic when multiple actions are enabled
+
+```lua {.snippet}
+Protocol:
+  state=ready and Environment.channel=open : {send, wait};
+  state=busy : {process};
+  Other : {idle};
+end Protocol
+```
+<br/>
+
+### Evolution
+<hr style="width:100%;border-bottom:3px solid black;">
+Defines how an agent's local variables change in response to the actions performed by all agents.  Under default MultiAssignment semantics:
+
+```lua {.snippet}
+Evolution:
+  var1=newValue1 and var2=newValue2 if condition1;
+  var3=newValue3 if condition2;
+end Evolution
+```
+<br/>
+
+{#
+#### MultiAssignment Semantics
+<hr style="width:95%;border-bottom:1px dashed black;">
+```lua {.snippet}
+Evolution:
+  var1=newValue1 and var2=newValue2 if condition1;
+  var3=newValue3 if condition2;
+end Evolution
+```
+<br/>
+#### SingleAssignment Semantics
+<hr style="width:95%;border-bottom:1px dashed black;">
+```lua {.snippet}
+Evolution:
+  var1=newValue1 if condition1;
+  var2=newValue2 if condition2;
+end Evolution
+```
+<br/>
+#}
+
+
+- Conditions can reference local variables, Environment observables, and all agents' actions
+- Actions referenced as `AgentName.Action = actionName`
+- Right-hand side can be expressions involving variables and constants
+- If no condition matches, variables retain their current values
+- In MultiAssignment: evolution rules are mutually exclusive
+- In SingleAssignment: rules for different variables can execute simultaneously
+
+<a name=red-states></a>
+### RedStates
+<hr style="width:100%;border-bottom:3px solid black;">
+Defines "incorrect" or "bad" states for an agent, used in correctness verification.
+
+```lua {.snippet}
+RedStates:
+  booleanCondition;
+end RedStates
+```
+<br/>
+
+- Boolean formula over local variables and Environment observables
+- States satisfying the condition are "red" (incorrect)
+- All other states are "green" (correct)
+- Used with deontic operator `O` (ought) in formulae
+- Can be omitted if all states are considered correct
+
+**Built-ins / reserved keywords**: *agentName.GreenStates and agentName.RedStates for every agent, where RedStates holds on all red states of the agent and GreenStates on all green states.*
+
+### Evaluation
+<hr style="width:100%;border-bottom:3px solid black;">
+Defines atomic propositions (boolean predicates) over global system state for use in verification formulae.
+
+```lua {.snippet}
+Evaluation
+  propositionName if booleanCondition;
+  anotherProp if Agent1.var1 = value and Agent2.var2 > threshold;
+end Evaluation
+```
+<br/>
+
+- Creates named boolean propositions for use in formulae
+- Conditions can reference any agent's variables using `AgentName.variableName` syntax
+- Environment variables referenced as `Environment.variableName`
+- Used to make formulae more readable and reusable
+
+<a name=init-states></a>
+### InitStates
+<hr style="width:100%;border-bottom:3px solid black;">
+Specifies the initial global states of the system when verification begins.
+
+```lua {.snippet}
+InitStates
+  Agent1.var1 = value1 and Agent2.var2 = value2 and Environment.var3 = value3;
+end InitStates
+```
+<br/>
+
+
+- Boolean formula over all agents' variables
+- Can specify exact values or relationships between variables
+- Multiple initial states possible if formula is satisfied by multiple variable assignments
+- Can use equality between variables: `Agent1.var = Agent2.var`
+- Must specify initial values for all relevant variables
+
+### Groups
+<hr style="width:100%;border-bottom:3px solid black;">
+Defines collections of agents for use in group-based verification formulae.
+
+```lua {.snippet}
+Groups
+  groupName = {Agent1, Agent2, Environment};
+  anotherGroup = {Agent3, Agent4};
+end Groups
+```
+<br/>
+
+- Used with group epistemic operators: `GK` (group knowledge), `GCK` (common knowledge), `DK` (distributed knowledge)
+- Used with ATL strategy operators: `<groupName>X`, `<groupName>F`, etc.
+- Can include the Environment agent
+- Groups can overlap or be disjoint
+
+### Fairness
+<hr style="width:100%;border-bottom:3px solid black;">
+Specifies conditions that must hold infinitely often along all execution paths, used to rule out unrealistic behaviors.
+
+```lua {.snippet}
+Fairness
+  proposition1;
+  proposition2 -> proposition3;
+  AG(someCondition);
+end Fairness
+```
+<br/>
+
+- List of formulae that must be true infinitely often
+- Can use atomic propositions defined in Evaluation section
+- Can use boolean combinations and temporal operators
+- Prevents models where certain conditions are avoided forever
+- Example: ensuring a communication channel works infinitely often
+
+### Formulae
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Contains the properties to be verified against the model, written in temporal and epistemic logic.
+
+```lua {.snippet}
+Formulae
+  AG(proposition1) -> AF(proposition2);
+  K(Agent1, proposition3);
+  <group1>F(proposition4);
+end Formulae
+```
+<br/>
+
+### Supported Logics
+<hr style="width:100%;border-bottom:3px solid black;">
+
+See also the [operator reference]({{mkdocs.site_relative_url}}/opref).
+
+- [**LTL**]({{mkdocs.site_relative_url}}/opref#temporal-logic): `G`, `F`, `X`, `U` (with `LTL` prefix)
+- [**CTL**]({{mkdocs.site_relative_url}}/opref#computation-tree-logic): `AG`, `EG`, `AX`, `EX`, `AF`, `EF`, `AU`, `EU`
+- [**Epistemic**]({{mkdocs.site_relative_url}}/opref#dynamic-epistemic-logic): `K(agent, φ)` (knowledge), `GK(group, φ)` (group knowledge), `GCK(group, φ)` (common knowledge), `DK(group, φ)` (distributed knowledge)
+- [**ATL**]({{mkdocs.site_relative_url}}/opref#strategic-logic): `<group>X φ`, `<group>F φ`, `<group>G φ`, `<group>(φ U ψ)` (strategic operators)
+- [**Deontic**]({{mkdocs.site_relative_url}}/opref#deontic-logic): `O(agent, φ)` (correctness - agent ought to satisfy φ)
+
+In general:
+
+- Each formula is checked and results are reported as TRUE or FALSE
+- Can generate counterexamples for false universal formulae
+- Can generate witnesses for true existential formulae
+- Supports boolean combinations of formulae
+- Built-in propositions: `AgentName.GreenStates`, `AgentName.RedStates`
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: [claude://ba29d757-ba5e-45c7-992e-971da71b6d30](https://claude.ai/public/artifacts/ba29d757-ba5e-45c7-992e-971da71b6d30)
+[^2]: Official [User Manual]({{jinja.vars.mcmas_manual}}), Section 3.2  (pdf)
+[^3]: [See all references from all pages]({{mkdocs.site_relative_url}}/refs)
+[^4]: For the ISPL grammar, see [User Manual]({{jinja.vars.mcmas_manual}}), Section 3.4 (pdf)
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('machine-generated-summary','../img/layout-board-split.svg')
+	addImageToHeader('program-structure','../img/abc')
+	addImageToHeader('formulae','../img/binary-tree')
+	addImageToHeader('agent','../img/binary-tree')
+	addImageToHeader('environment','../img/binary-tree')
+	addImageToHeader('redstates','../img/binary-tree')
+	addImageToHeader('initstates','../img/binary-tree')
+	addImageToHeader('semantics','../img/binary-tree')
+	addImageToHeader('fairness','../img/binary-tree')
+	addImageToHeader('groups','../img/binary-tree')
+	addImageToHeader('evaluation','../img/binary-tree')
+	addImageToHeader('evolution','../img/binary-tree')
+	addImageToHeader('variable-types','../img/binary-tree')
+	addImageToHeader('protocol','../img/binary-tree')
+	addImageToHeader('actions','../img/binary-tree')
+	addImageToHeader('supported-logics','../img/alpha')
+	addImageToHeader('references','../img/list-details')
+}, 100);});
+</script>

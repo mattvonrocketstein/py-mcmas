@@ -1,0 +1,134 @@
+%%{init: {
+    'theme': 'base',
+    'themeVariables': {
+      'fontSize':'17px',
+      'useMaxWidth': true
+    }
+}}%%
+flowchart TD
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    subgraph TopWrapper [" "]
+      HLTitle["⠀⠀⠀⠀⠀⠀⠀⠀⠀High Level Data Structures (Pydantic Models)"]---Engine
+      invisible3["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"]
+      subgraph HLWrapper [" "]
+        subgraph HLSubgraph [" "]
+          HLTitle-..-HLTitle
+          linkStyle 0 stroke:transparent
+          linkStyle 1 stroke:transparent
+              Engine{<br/><br/>⠀⠀MCMAS Engine⠀⠀<br/><br/><br/>}
+          invisible3---- Engine
+          linkStyle 2 stroke:transparent
+          ISpec[["<br/>⠀ISPL Specification⠀<br/><br/>"]]
+          ISim[["<br/>⠀ISPL Simulation⠀<br/><br/>"]]
+        end
+      end
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+      
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    %% subgraph Middle ["middle"]
+    %%   middle---middle
+    %%   middle-------------HLWrapper
+    %%   middle---LLWrapper
+    %%   %% middle---Engine
+    %%   %% middle---ISpec
+    %%   %% middle---ISim
+    %%   %% middle---JSON
+    %% end    
+    %% class Middle MiddleType
+    %% classDef MiddleType fill:transparent
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    
+    
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+    subgraph LLWrapper [" "]
+      %% LLSubgraph----Middle
+      %% subgraph LLSubgraphTitle [" "]
+      %%   %% aaa----------bbbb
+      %%   %% class aaa,bbb invisible
+      %% end
+      %% subgraph bonk ["bonk"]
+      %% end
+      subgraph LLSubgraph [" "]
+        Dict---LLTitle["Low Level Data Structures"]
+        linkStyle 3 stroke:transparent
+        JSON((("JSON Schema<br/>")))
+        Code((("⠀Raw ISPL⠀<br>⠀⠀Source Code⠀")))
+        Dict((("⠀Python⠀⠀<br/>⠀⠀Dictionary⠀")))
+        ISim-...-> |"SERIALIZE<br/>"| JSON2((("JSON Schema<br/>")))
+        linkStyle 4 stroke-width:6px,stroke:black
+      end
+      Engine -...-> |⠀⠀RETURN⠀⠀ | ISim
+      linkStyle 5 stroke-width:10px,stroke:black
+      Engine ===> |"⠀⠀RUN⠀⠀"| Dict
+      Engine ==> |"⠀⠀RUN⠀⠀"| Code
+      Engine ===> |"⠀⠀RUN⠀⠀"| ISpec
+      Engine ==> |"⠀⠀RUN⠀⠀"| JSON
+      ISpec <-..-> |"⠀⠀PARSE⠀⠀<br/>⠀⠀or RENDER⠀⠀"| Code
+      JSON <-..-> |"via Standard Lib"| Dict
+      linkStyle 6,7,8,9 stroke-width:6px,stroke:black
+      ISpec <-......-> |"⠀DUMP or⠀<br/>INSTANTIATE⠀"| Dict
+      ISpec <-...-> |"⠀⠀SERIALIZE⠀⠀⠀<br/>⠀⠀or DECODE⠀⠀⠀⠀"| JSON
+      linkStyle 10,11,12,13 stroke-width:8px,fill:none,stroke:black
+      
+    end 
+    %% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  end
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+classDef PageOutline stroke-width:5px,stroke:black,padding:15px,fill:#efefef
+
+classDef TopTitleStyle fill:none,stroke:none,color:#2c3e50,font-size:14px,font-weight:bold
+
+classDef Wrapper fill:#efefef,stroke-width:1px,stroke:black,width:%
+
+classDef Border fill:#efefef,stroke:#ddd,stroke-width:4x,padding:15px
+
+classDef Blue fill:#dcedfc,stroke:#8795a0
+
+classDef SubgraphTitle width:500px,fill:transparent,stroke-width:0px,stroke:none,color:black,font-size:28px,font-weight:bold,padding:400px
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+class TopWrapper PageOutline
+class LLWrapper,HLWrapper Wrapper
+class LLSubgraph,HLSubgraph Blue
+class HLWrapper,LLWrapper,TitleWrapper Border
+class HLSubgraph,LLSubgraph, Blue
+class HLTitle,LLTitle,LLSubgraphTitle,HLSubgraphTitle SubgraphTitle
+class JSON,JSON2,Dict,Code DataType
+class ISim,ISpec PydanticType
+class Engine EngineType
+class invisible1,invisible2,invisible3 invisible
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+classDef DataType fill:white,color:black,font-weight:bolder,font-size:18px,stroke:black,stroke-width:3px,padding:10px
+
+classDef PydanticType fill:white,stroke:black,stroke-width:5px,font-size:19px,color:black,font-weight:bolder,padding:20px
+
+classDef EngineType fill:#efefef,stroke:black,stroke-width:10px,font-weight:bolder,font-size:19px,color:black
+
+classDef invisible fill:transparent,stroke:transparent
+
+%% classDef invisibleLine stroke:transparent
+
+%% ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+%%rgb(166, 179, 188)
+%% #b9c1c8
+%% #c1c8ce
+%% #c9cfd4
+%% #d0d6da
+%% #d8dde0
+%% #e0e3e6
+%% #e7eaec
+%% #eff1f2
+%% #f7f8f8
+%% #ffffff
+%% 
+%% #8795a0
+%% #96a2ab
+%% #a4aeb7
+%% #b2bbc2
+%% #c0c8cd
+%% #ced4d9
+%% #dde1e4

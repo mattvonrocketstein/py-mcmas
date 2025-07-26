@@ -1,0 +1,505 @@
+{
+  "$defs": {
+    "Agent": {
+      "description": "    \n    ",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/SpecificationMetadata",
+          "default": {
+            "file": null,
+            "engine": "mcmas",
+            "parser": "mcmas.parser"
+          },
+          "description": "Known metadata about this Specification.\n\n(Updated if/when the specification is analyzed or simulated)"
+        },
+        "name": {
+          "default": "player",
+          "description": "Name of this agent",
+          "title": "Name",
+          "type": "string"
+        },
+        "actions": {
+          "default": [],
+          "description": "Set of actions that are available to this agent",
+          "items": {
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "vars": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": {},
+          "description": "",
+          "title": "Vars"
+        },
+        "evolution": {
+          "default": [],
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evolution",
+          "type": "array"
+        },
+        "protocol": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "",
+          "title": "Protocol",
+          "type": "object"
+        },
+        "obsvars": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "",
+          "title": "Obsvars",
+          "type": "object"
+        },
+        "lobsvars": {
+          "default": [],
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "title": "Lobsvars",
+          "type": "array"
+        },
+        "red_states": {
+          "default": [],
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "title": "Red States",
+          "type": "array"
+        }
+      },
+      "title": "Agent",
+      "type": "object"
+    },
+    "Environment": {
+      "description": "    \n    ",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/SpecificationMetadata",
+          "default": {
+            "file": null,
+            "engine": "mcmas",
+            "parser": "mcmas.parser"
+          },
+          "description": "Known metadata about this Specification.\n\n(Updated if/when the specification is analyzed or simulated)"
+        },
+        "actions": {
+          "default": [],
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "evolution": {
+          "default": [],
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evolution",
+          "type": "array"
+        },
+        "protocol": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "",
+          "title": "Protocol",
+          "type": "object"
+        },
+        "vars": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": {},
+          "description": "",
+          "title": "Vars"
+        },
+        "obsvars": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "",
+          "title": "Obsvars",
+          "type": "object"
+        }
+      },
+      "title": "Environment",
+      "type": "object"
+    },
+    "FormulaeResult": {
+      "description": "FormulaeResult partitions Formulae as True/False.\n\nThis is part of a Simulation object, only available after\nmodel- check runs.",
+      "properties": {
+        "true": {
+          "default": [],
+          "description": "true",
+          "items": {
+            "type": "string"
+          },
+          "title": "True",
+          "type": "array"
+        },
+        "false": {
+          "default": [],
+          "description": "false",
+          "items": {
+            "type": "string"
+          },
+          "title": "False",
+          "type": "array"
+        }
+      },
+      "title": "FormulaeResult",
+      "type": "object"
+    },
+    "SimMetadata": {
+      "description": "SimMetadata describes status-related metadata from a\nsimulation.\n\nThis is part of a Simulation object, only available after\nmodel- check runs.",
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "",
+          "title": "File"
+        },
+        "engine": {
+          "default": "mcmas",
+          "description": "",
+          "title": "Engine",
+          "type": "string"
+        },
+        "parser": {
+          "default": "mcmas.parser",
+          "description": "",
+          "title": "Parser",
+          "type": "string"
+        },
+        "exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "",
+          "title": "Exit Code"
+        },
+        "deadlock": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether the simulation deadlocked",
+          "title": "Deadlock"
+        },
+        "validates": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether the Specification parsed successfully *and* had only has True facts",
+          "title": "Validates"
+        },
+        "parsed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether or not the Specification parsed successfully",
+          "title": "Parsed"
+        },
+        "timing": {
+          "additionalProperties": true,
+          "default": {},
+          "description": "Timing details for execution, compilation, etc",
+          "title": "Timing",
+          "type": "object"
+        }
+      },
+      "title": "SimMetadata",
+      "type": "object"
+    },
+    "Simulation": {
+      "description": "A Simulation object is the result of having run a spec.\n\nIn practice a Simulation in `py-mcmas` is always an ISPL program\nrunning on an MCMAS engine, but see `SimBase` for something more\ngeneric.",
+      "properties": {
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {},
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "text",
+          "title": "Text"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {},
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "error",
+          "title": "Error"
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SimMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "model"
+        },
+        "state_space": {
+          "additionalProperties": true,
+          "default": {},
+          "description": "",
+          "title": "State Space",
+          "type": "object"
+        },
+        "facts": {
+          "$ref": "#/$defs/FormulaeResult",
+          "default": {
+            "true": [],
+            "false": []
+          },
+          "description": "facts"
+        }
+      },
+      "title": "Simulation",
+      "type": "object"
+    },
+    "SpecificationMetadata": {
+      "description": "    \n    ",
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "",
+          "title": "File"
+        },
+        "engine": {
+          "default": "mcmas",
+          "description": "",
+          "title": "Engine",
+          "type": "string"
+        },
+        "parser": {
+          "default": "mcmas.parser",
+          "description": "",
+          "title": "Parser",
+          "type": "string"
+        }
+      },
+      "title": "SpecificationMetadata",
+      "type": "object"
+    }
+  },
+  "description": "An ISPL specification, in whole or in part.",
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/SpecificationMetadata",
+      "default": {
+        "file": null,
+        "engine": "mcmas",
+        "parser": "mcmas.parser"
+      },
+      "description": "Known metadata about this Specification.\n\n(Updated if/when the specification is analyzed or simulated)"
+    },
+    "title": {
+      "default": "Untitled Model",
+      "description": "Optional title.  Used as a comment at the top of the file",
+      "title": "Title",
+      "type": "string"
+    },
+    "agents": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Agent"
+      },
+      "default": {},
+      "description": "All agents involved in this specification.  A map of {name: agent_object}",
+      "title": "Agents",
+      "type": "object"
+    },
+    "environment": {
+      "$ref": "#/$defs/Environment",
+      "default": {},
+      "description": "The environment for this specification"
+    },
+    "fairness": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "default": {},
+      "description": "",
+      "title": "Fairness",
+      "type": "object"
+    },
+    "init_states": {
+      "default": [],
+      "description": "Initial states for this specification.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Init States",
+      "type": "array"
+    },
+    "evaluation": {
+      "default": [],
+      "description": "Calculations, composites, aggregates that can be referenced in formulae",
+      "items": {
+        "type": "string"
+      },
+      "title": "Evaluation",
+      "type": "array"
+    },
+    "groups": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": {},
+      "description": "Group memberships.  A map of {group_name: [member1, .. ]}",
+      "title": "Groups"
+    },
+    "formulae": {
+      "default": [],
+      "description": "A list of formulas.\n\nThese will be partitioned into true/false categories, per the rest of the model",
+      "items": {
+        "type": "string"
+      },
+      "title": "Formulae",
+      "type": "array"
+    },
+    "simulation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Simulation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The result of simulating this specification.  Empty if simulation has never been run"
+    },
+    "source_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Source code for this specification.  Only available if the specification was loaded from raw ISPL",
+      "title": "Source Code"
+    }
+  },
+  "title": "ISPL",
+  "type": "object"
+}

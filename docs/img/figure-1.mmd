@@ -1,0 +1,64 @@
+---
+title: PY-MCMAS Data Model
+---
+flowchart LR
+    subgraph Types ["Formal Model"]
+      direction LR
+      subgraph L1 ["Layer1"]
+          EType["EngineType"]
+      end
+      subgraph L2 ["Layer2"]
+          SimType["SimType"]
+      end
+      subgraph L3 ["Layer3"]
+          SpecType["SpecificationType"]
+      end
+    end
+
+    subgraph Sys ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀MCMAS / ISPL Module"]
+      EType --->| return | SimType
+      EType -.->| extension | Mcmas[MCMAS]
+      SimType -.->|extension| ISim("ISPL<br/>Simulation")
+      Code["Raw ISPL Source"]
+      Mcmas ---> | return | ISim
+      Mcmas ===> | run | Dict
+      Mcmas ==> | run | Code
+      Mcmas ==> | run | Spec
+      Mcmas ==> | run | JSON
+      SpecType -.->|extension| Spec
+      JSON{"JSON"} <---> |stdlib| Dict{"Python<br/>Dictionary"}
+      Spec{"ISPL<br/>Specification"} <--->|parse <br/>or render| Code
+      Spec <-.-> |"⠀dump or </br> instantiate⠀"| Dict
+      Spec <--> |"..serialize <br/> or decode .."| JSON
+    end
+    
+    subgraph Externals ["External Systems⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"]
+      NetworkX <--->|foo| Dict
+      Symbols["Sympy<br/>Symbols"] <--->|"export to or from"| Spec
+      LLM --->|"pydantic-ai<br>instantiates"| Spec
+      SimpySims <-.->|"export to or from" | Spec
+      Code -..-> |synthetic data | LLM
+      NetworkX -.-> |.....| Symbols
+    end
+    class Sys,Types,Externals snowSubgraph
+    class L1,L2,L3 subSubgraph
+    
+    classDef snowSubgraph fill:#fffafa,stroke:#ddd,stroke-width:20px,stroke-dasharray: 5 5,font-size:33px,font-weight:bold,color:red
+    
+    classDef subSubgraph fill:#ffeafc,stroke:#ddd,stroke-width:4px,stroke-dasharray: 5 5
+    
+    %% classDef layer3 fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+
+    %% Styling specific nodes with white text on black background
+    classDef blackWhite fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff
+    class Mcmas,ISim,Spec blackWhite
+    
+    %% Styling the type nodes with black and white
+    class EType,SimType,SpecType typeNode
+    classDef typeNode fill:#ffffff,stroke:#000000,stroke-width:3px,color:black
+    
+    class JSON,Dict,Code dataNode
+    classDef dataNode fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    
+    classDef blackWhite fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff
+    class Mcmas,ISim,Spec blackWhite

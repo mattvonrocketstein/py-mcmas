@@ -1,0 +1,836 @@
+.rst-content table.docutils caption, .rst-content table.field-list caption, .wy-table caption {
+  color: #000;
+  /* font: italic 85%/1 arial, sans-serif; */
+  font: unset;
+  padding: 1em 0;
+  margin-top: 15px;
+  font-weight:bolder;
+  text-align: center;
+}
+.rst-content table.docutils caption, .rst-content table.field-list caption, .wy-table caption {
+  color: #000;
+  /* font-weight: normal; */
+  padding: 1em 0;
+  text-align: center;
+}
+
+.wy-menu-vertical p.caption {
+  color: #55a5d9;
+  height: 25px;
+  line-height: 25px;
+  padding: 0 1.618em;
+  margin: 12px 0 0;
+  display: block;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 85%;
+  white-space: nowrap;
+}
+.wy-menu-vertical a {
+  line-height: 18px;
+  padding: 0.045em 1.618em;
+  display: block;
+  position: relative;
+  font-size: 90%;
+  color: #d9d9d9;
+}
+.wy-nav-side {
+  color: #9b9b9b;
+}
+.wy-side-nav-search {
+  display: block;
+    background-color: transparent;
+  width: 300px;
+  padding: 0.809em;
+  margin-bottom: 0.809em;
+  z-index: 200;
+  /* background-color: #0db7ed; */
+  text-align: center;
+  color: #fcfcfc;
+}
+.rst-content dl {
+  margin-bottom: 0px;
+  margin-left: 10px;
+  margin-top: 13px;
+}
+.rst-content dl dt {
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.rst-content dl ol,
+.rst-content dl p,
+.rst-content dl table,
+.rst-content dl ul {
+  margin-bottom: 12px;
+}
+.rst-content dl dd {
+  margin: 0 0 12px 21px;
+  line-height: 20px;
+}
+.method4 {
+/* https://grabient.com/HQRgTCA0wKwMwHZoAYCcYUA4rDqgLNKsgGzT74wr6rRwlkzCpwawKaRzAnJhA?style=linearSwatches&steps=10&angle=135 */
+/* https://grabient.com/HQBgrAzANKAsAcMT0cAjLAnDNYDsOsATDEUSKWicGWlBMHmtA3kS8AGyYRA?style=linearSwatches&steps=13&angle=90 */
+  --s: 195px; /* control the size*/
+  --c1: #b9b9b9;
+  --c2: #dcdcdc;
+  --c3: #fafafa;
+  background:
+    conic-gradient(from 75deg,var(--c1)   15deg ,var(--c2) 0 30deg ,#0000 0 180deg,
+                              var(--c2) 0 195deg,var(--c1) 0 210deg,#0000 0) 
+       calc(var(--s)/2) calc(.5*var(--s)/tan(30deg)),
+    conic-gradient(var(--c1)   30deg ,var(--c3) 0 75deg ,var(--c1) 0 90deg, var(--c2) 0 105deg,
+                   var(--c3) 0 150deg,var(--c2) 0 180deg,var(--c3) 0 210deg,var(--c1) 0 256deg,
+                   var(--c2) 0 270deg,var(--c1) 0 286deg,var(--c2) 0 331deg,var(--c3) 0);
+  background-size: var(--s) calc(var(--s)/tan(30deg));
+/* background: linear-gradient(90deg, rgba(5, 5, 10, 1.000) 0.000%, rgba(5, 5, 10, 1.000) 7.692%, rgba(9, 10, 14, 1.000) 7.692%, rgba(9, 10, 14, 1.000) 15.385%, rgba(13, 14, 18, 1.000) 15.385%, rgba(13, 14, 18, 1.000) 23.077%, rgba(18, 19, 22, 1.000) 23.077%, rgba(18, 19, 22, 1.000) 30.769%, rgba(22, 23, 26, 1.000) 30.769%, rgba(22, 23, 26, 1.000) 38.462%, rgba(26, 27, 30, 1.000) 38.462%, rgba(26, 27, 30, 1.000) 46.154%, rgba(30, 31, 34, 1.000) 46.154%, rgba(30, 31, 34, 1.000) 53.846%, rgba(34, 35, 38, 1.000) 53.846%, rgba(34, 35, 38, 1.000) 61.538%, rgba(38, 39, 42, 1.000) 61.538%, rgba(38, 39, 42, 1.000) 69.231%, rgba(41, 42, 45, 1.000) 69.231%, rgba(41, 42, 45, 1.000) 76.923%, rgba(44, 45, 48, 1.000) 76.923%, rgba(44, 45, 48, 1.000) 84.615%, rgba(46, 47, 51, 1.000) 84.615%, rgba(46, 47, 51, 1.000) 92.308%, rgba(48, 49, 53, 1.000) 92.308% 100.000%); */
+/* background: linear-gradient(135deg, rgba(50, 48, 0, 1.000) 0.000%, rgba(50, 48, 0, 1.000) 10.000%, rgba(51, 50, 0, 1.000) 10.000%, rgba(51, 50, 0, 1.000) 20.000%, rgba(51, 52, 0, 1.000) 20.000%, rgba(51, 52, 0, 1.000) 30.000%, rgba(49, 54, 0, 1.000) 30.000%, rgba(49, 54, 0, 1.000) 40.000%, rgba(45, 56, 45, 1.000) 40.000%, rgba(45, 56, 45, 1.000) 50.000%, rgba(40, 58, 102, 1.000) 50.000%, rgba(40, 58, 102, 1.000) 60.000%, rgba(34, 60, 155, 1.000) 60.000%, rgba(34, 60, 155, 1.000) 70.000%, rgba(27, 62, 198, 1.000) 70.000%, rgba(27, 62, 198, 1.000) 80.000%, rgba(21, 64, 231, 1.000) 80.000%, rgba(21, 64, 231, 1.000) 90.000%, rgba(16, 67, 250, 1.000) 90.000% 100.000%); */
+  /* background: linear-gradient(rgba(100, 50, 150, 0.6), rgba(200, 100, 50, 0.6)), url('https://robot-wranglers.github.io/compose.mk/img/icon.png'); */
+    /* background-position-x: 0%, 0%;
+    background-position-y: 0%, 0%;
+    background-repeat: repeat, repeat;
+    background-size: auto, auto;
+  background-size: cover;
+  background-repeat: no-repeat; */
+  background-position: center;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.method4 .text-overlay {
+  /* background: rgba(255, 255, 255, 0.1); */
+  color:black;
+  /* background-color: #ff00002b; */
+  font-size: 2.3em;
+  font-weight:bolder;
+  font-family: monospace;
+  text-transform: uppercase;
+  padding: 25px 25px;
+  border-radius: 25px;
+  text-align: center;
+  vertical-align: center;
+  /* border: 2px solid rgba(255, 255, 255, 0.3); */
+}
+
+element {
+}
+.rst-content dl dd {
+  margin: 5px 5px 5px 15px;
+  line-height: 20px;
+}
+h7.subheader { 
+  /* display: block; */
+  
+  /* border-bottom:1 px dashed red; */
+}
+span .code_table_2{
+}
+.code_table_1 {
+  font-weight:bold;
+  font-size:smaller;
+  text-align: left;
+  /* color:#0db7ed; */
+  color:black;
+}
+span.subheader {
+  border-bottom:1px solid black;
+}
+h7.subheader { 
+  margin-top:15px;
+  /* margin-left:15px; */
+  font-size:110%;
+  font-weight:bolder;
+  /* text-decoration: underline; */
+  /*
+  padding-bottom:5px; */
+  /* font-style: und; */
+  /* font-variant: ; */
+}
+.rst-content .highlight:not(.cli_output):not(.cli_example):not(.api_docs) pre code {
+  font-size:100%;
+}
+
+.rst-content .api_docs pre code
+{
+  /* background-color:unset; */
+  /* color: rgb(54, 51, 54); */
+  color: rgb(0, 0, 0);
+  background-color: rgb(233, 238, 242);
+  white-space: pre;  white-space: pre;
+  word-wrap: normal;
+  display: block;
+  /* padding: 12px; */
+  padding-left: 1em;
+  font-size: 90%;
+}
+.api_module_help.highlight.language-markdown pre code{
+  border: 1px solid black;
+  font-size:90%;
+  /* font-size: 14.4px; */
+}
+.api_docs .o {
+  opacity:95%;
+  color:black;
+  font-size:110%;
+  }
+.api_docs .code_table_1 {
+  font-size:large;
+}
+/* arity */
+.api_docs .code_table_2 { 
+  font-weight:bolder;
+  text-align: right;
+  font-size:smaller;
+  /* font-weight:; */
+  /* font-style: italic; */
+  color:black;
+  flex: 1;
+  vertical-align: text-bottom;
+  margin-top:.5em;
+}
+.api_docs .code_table_3 {
+  /* font-size:smaller; */
+  font-weight:bolder;
+  color:black;
+  text-decoration: none;
+}
+
+.api_docs_header {
+  /* border-top:5px solid rgb(255, 255, 255);
+  background-color: rgb(0, 0, 0);
+  color:green; */
+}
+
+.api_docs code .k {
+  color:unset;
+}
+.api_docs code .s1,
+.api_docs code .s2,
+.api_docs code .nv {
+  color:green;
+}
+.api_docs_target {
+  display:flex; 
+  background-color: rgb(0, 0, 0);
+  color:green;
+}
+div.api_docs {
+  border-bottom: 2px solid black;
+  background-color: rgb(0, 0, 0);
+  color:snow;
+}
+span.code_table_2 {
+  text-align: center;
+  flex: 1;
+}
+.rst-content .cli_output.smaller code{
+  color:snow;
+  /* font-size:smaller; */
+  font-size:12px;
+}
+.rst-content .cli_output code{
+  color:snow;
+  font-size:smaller;
+}
+.code_table_3 {
+  font-weight: bold;
+  text-align: right;
+}
+.wy-nav-content {
+  /* background-color: rgba(236, 236, 236, 0.69); */
+  /* background-color: #a694943d; */
+  /* background-color: #deddff42; */
+  /* rgba(235, 143, 143, 0.685) */
+  /* background-color:#faf0e640; */
+  /* border-left: 5px dotted #6495ed82; */
+  margin-left:-1em;
+  }
+.rst-content {
+  /* background-color: #c1ced317; */
+  background-color:transparent;
+}
+.rst-content h2 {
+  /* position:relative;
+  left:-1em;
+  margin-top: 3em;
+  margin-bottom: 0px; */
+}
+.smaller_font span {
+  font-size:86%;
+  background-color:transparent;
+}
+.rst-content h3 {
+  /* position:relative;
+  left:-1em;
+  margin-top: 2em; 
+  margin-bottom: 0px;*/
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* .rst-content {
+  background-color: red;
+} */
+
+div .code_table_top_snippet {
+  height:2.2em; 
+  background-color: rgba(75, 100, 141, 0.16);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border:2px solid black;
+  /* margin-bottom: 0px; */
+  display: flex;
+  align:center;
+  align-items: center;     /* vertical alignment */
+  justify-content: center; /* horizontal alignment */
+  justify-content: space-between;
+  align-items: center;
+  /* margin-bottom:1em; */
+  width: 100%;
+}
+.code_table_top_snippet span {
+  /* background-color: red; */
+  font-weight: bolder;
+}
+
+.code_table_1 a {
+  color:black; }
+div .highlight.api_docs {
+  margin-top: -1em;}
+div .code_table_top.api_docs {
+  background-color: transparent;
+  /* border-top-left-radius: 10px;
+  border-top-right-radius: 10px; */
+  align:center;
+  align-items: center;     /* vertical alignment */
+  justify-content: center; /* horizontal alignment */
+  border-bottom:1px dotted black;
+  margin-bottom: 0px;
+  margin-top: -1.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+
+.code_table_top:not(.api_docs) {
+  /* background-color: rgb(240, 241, 231); */
+  background-color: #b8b8b84f;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  align:center;
+  align-items: center;     /* vertical alignment */
+  justify-content: center; /* horizontal alignment */
+  border:2px solid black;
+  margin-bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+div .cli_output img {
+  padding: 1em;
+}
+.cli_output {
+  position:relative;
+  top:-1.0em; 
+  background-color: #24241d;
+  /* border-top:7px dotted #358ccb;  */
+  /* color:snow; */
+  margin-bottom:2em;
+  /* position: relative; */
+  margin-bottom:3em;
+  z-index: 1;
+  border-left: 8px solid #358ccb;
+  background-color: #2d3233;
+  /* background-image: linear-gradient(transparent 50%, rgba(69, 142, 209, .04) 50%); */
+  background-attachment: local;
+  background-origin: content-box;
+  background-size: 3em 3em;
+  box-shadow: -1px 0 0 0 #358ccb, 0 0 0 1px #dfdfdf;
+}
+.cli_example{
+  position: relative;
+  z-index: 1;
+  border-left: 8px solid #358ccb;
+  border-bottom: 2px solid #bdaeae;
+  /* background-color: #0db7ed; */
+  background-image: linear-gradient(transparent 50%, rgba(69, 142, 209, .04) 50%);
+  background-attachment: local;
+  background-origin: content-box;
+  background-size: 3em 3em;
+  box-shadow: -1px 0 0 0 #358ccb, 0 0 0 1px #dfdfdf;
+}
+.cli_output.img_container {
+    position: relative;
+    top: -1.5em;
+    background-color:red;
+}
+html.writer-html5 .rst-content table.docutils th {
+  border: 1px solid black;
+}
+.rst-content table.docutils thead th, .rst-content table.field-list thead th, .wy-table thead th {
+  font-weight: 700;
+  border: 1px solid black;
+}
+.img_container {
+  /* border-left: 8px solid #68b16d;*/
+  /* border-left: 8px solid #8785d0; */
+  background-color: #4f4a4a;
+  padding: 2em;
+  align-items: center;     /* vertical alignment */
+  justify-content: center; /* horizontal alignment */
+  justify-content: space-between;
+}
+.img_container img { 
+  /* width: 100%;  */
+  /* width:70%;
+  align-self: center; */
+}
+div .code_table_bottom {
+  background-color: rgb(240, 241, 231);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  align-items: center;     /* vertical alignment */
+  border:2px solid black;
+  position: relative;
+  /* top: -2em; */
+  align:center;
+  display: flex; justify-content: space-between; width: 100%;
+}
+p:empty {
+  display: none;
+}
+.jump_down {
+  position:relative;
+  padding:0px;
+  margin-left:5px;
+  margin-right:5px;
+  margin-top:5px;
+}
+.github_svg {
+    position:relative;
+    padding:0px;
+    /* margin-left:5px; */
+    margin-right:5px;
+    margin-top:2px;
+  }
+  div .cli_table{
+    border:1px solid grey;
+    background-color: #efefef;
+    align:center;
+    margin-bottom: 0px;
+    display: flex; justify-content: space-between; width: 100%;
+  }
+  div .cli_table svg {
+    position:relative;
+    padding:0px;
+    margin-bottom:-10px;
+  }
+  
+.token.keyword .cp {
+    color:#66d9ef
+}
+svg.small_bullseye {
+  /* padding:5px; */
+}
+  /*
+ * Wrap inline code samples otherwise they shoot of the side and
+ * can't be read at all.
+ * https://github.com/mkdocs/mkdocs/issues/313 https://github.com/mkdocs/mkdocs/issues/233 https://github.com/mkdocs/mkdocs/issues/834
+ */
+.rst-content code {
+  white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 2px 5px;
+}
+.rst-content strong code {
+  /* font-size:1.1em; */
+  /* font-size:smaller;  */
+  /* font-weight:bolder;
+  background-color:#d3d0d078; */
+}
+/**
+ * Make code blocks display as blocks and give them the appropriate
+ * font size and padding.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/855
+ * https://github.com/mkdocs/mkdocs/issues/834
+ * https://github.com/mkdocs/mkdocs/issues/233
+ */
+/* .rst-content pre code {
+  color: #b6b0f7d9;
+} */
+ 
+.rst-content .language-cmk pre code {
+  /* color: thistle; */
+  /* color: #b6b0f7d9; */
+  background-color: #24241d;
+  white-space: pre;
+  word-wrap: normal;
+  display: block;
+  padding: 12px;
+  font-size: 14.4px;
+}
+
+.rst-content pre code {
+  color: snow;
+  /* color: thistle; */
+    /* color: #b6b0f7d9; */
+    background-color: #24241d;
+    white-space: pre;
+    word-wrap: normal;
+    display: block;
+    padding: 12px;
+    font-size: 14.4px;
+}
+.rst-content .snippet pre code {
+  color: #cbe0ef;
+  /* color: #dfd581; */
+}
+details,
+summary {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  outline: none;
+  list-style: none;
+}
+
+details {
+  display: block;
+}
+
+summary {
+  display: block;
+  cursor: pointer;
+}
+.goal-list li::before {
+  content: "🎯"; 
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23FF4136' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='6' fill='none' stroke='%23FF4136' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23FF4136'/%3E%3C/svg%3E"); */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+  position: absolute;
+  left: -1.5em;
+  width: 1.5em;
+  display: inline-block;
+  text-align: center;
+} */
+
+/* Optional: Preserve numbering for ordered lists while showing icons */
+/* ol.goal-list {
+  counter-reset: goal-counter;
+} */
+
+/* ol.goal-list li::after {
+  counter-increment: goal-counter;
+  content: " " counter(goal-counter) ".";
+  color: #666;
+  font-weight: bold;
+} */
+/**
+ * Fix code colors
+ *
+ * https://github.com/mkdocs/mkdocs/issues/2027
+ */
+
+/* API-PAGE fix */
+.rst-content h5 code {
+  background-color: unset;
+}
+
+.rst-content code {
+  background: rgba(209, 205, 194, 0.37);
+  font-weight: 500;
+  padding:.35em;
+  /* font-weight:bold; */
+}
+/* .code { background: black;} */
+/* code.hljs {
+    background: #011627;
+    color: #d6deeb;
+} */
+div .highlight {
+  margin:0px;
+  background: #000000;
+}
+/* .rst-content a:visited code 
+.rst-content a:hover code 
+.rst-content a:active code 
+.rst-content a:focus code 
+{ text-decoration: none; } */
+
+/* .highlight .nv { rgba(245, 235, 160, 0.83);} */
+/* .highlight pre code {
+    color: rgb(155, 241, 155);
+    background: #011627;
+} */
+/*
+ * Fix link colors when the link text is inline code.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/718
+ */
+ a code {
+    color: #2980B9;
+}
+a:hover {
+  font-weight: bolder;
+  /* font-size: 99%; */
+}
+a:hover code {
+    color: #3091d1;
+}
+a {
+  color: #2980b9;
+  /* text-decoration: ; */
+  /* color:rgba(162, 94, 94, 0.358); */
+}
+a:visited code {
+  color: #843f9f;
+}
+.rst-content a:visited {
+  color: #127594;
+}
+/*
+ * The CSS classes from highlight.js seem to clash with the
+ * ReadTheDocs theme causing some code to be incorrectly made
+ * bold and italic.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/411
+ */
+pre .cs, pre .c {
+    font-weight: inherit;
+    font-style: inherit;
+}
+
+/*
+ * Fix some issues with the theme and non-highlighted code
+ * samples. Without and highlighting styles attached the
+ * formatting is broken.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/319
+ */
+.rst-content .no-highlight {
+    display: block;
+    padding: 0.5em;
+    color: #333;
+}
+
+/*
+ * Additions specific to the search functionality provided by MkDocs
+ */
+
+.search-results {
+    margin-top: 23px;
+}
+
+.search-results article {
+    border-top: 1px solid #E1E4E5;
+    padding-top: 24px;
+}
+
+.search-results article:first-child {
+    border-top: none;
+}
+
+form .search-query {
+    width: 100%;
+    border-radius: 50px;
+    padding: 6px 12px;
+    border-color: #D1D4D5;
+}
+body {
+  color: #0c0c0c;
+}
+
+/*
+ * Improve inline code blocks within admonitions.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/656
+ */
+ /* .rst-content .admonition code {
+    color: #404040;
+    border: 1px solid #c7c9cb;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: #f8fbfd;
+    background: rgba(255, 255, 255, 0.7);
+} */
+
+/*
+ * Account for wide tables which go off the side.
+ * Override borders to avoid weirdness on narrow tables.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/834
+ * https://github.com/mkdocs/mkdocs/pull/1034
+ */
+.wy-table-responsive {
+  margin-bottom: 2em;
+  max-width: 100%;
+  width:100%;
+  /* width:66%; */
+  overflow: auto;
+  /* border:3px solid red; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh;  */
+}
+.wy-table-responsive table {
+  margin-bottom: 0 !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+  white-space: nowrap;
+}
+
+table .docutils.api_docs th { 
+  font-size:larger;
+  background-color: #1d3339fb;
+  /* background-color: snow; */
+  font-weight:bolder;
+}
+/* html.writer-html5 .rst-content table.docutils th {
+  border: 1px solid #e1e4e5;
+} */
+table.docutils tr,
+.rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td,
+.docutils td {
+  border:2px solid rgb(67, 62, 62);
+  /* background-color: #32bfea31; */
+  text-align: left;
+}
+.docutils tr {
+  background-color: #32bfea11;
+  /* background-color: transparent; */
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.docutils tr a{ 
+  color:black;
+}
+/* table .docutils.api_docs {
+  width: 100%;
+  border:1px solid red;
+  overflow: auto;
+  margin: auto;
+  display: block;
+ } */
+.rst-content table.docutils-wrap td {
+  font-weight: bolder;
+  padding:5px 5px 5px 5px;
+  padding-left:unset;
+} 
+ .rst-content table.docutils td {
+  font-weight: bolder;
+  padding-left:2em;
+}
+.rst-content table.docutils-wrap td.wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  /* word-break: break-word; */
+}
+.rst-content table.docutils-wrap th {
+  background-color: snow;
+  /* font-size: 113%; */
+  background-color: #32bfea31;
+  border: 3px solid snow;
+  margin: 1em;
+  padding: 1em;
+}
+.rst-content table.docutils th {
+  background-color: snow;
+  font-size:113%;
+  background-color: #32bfea31;
+  border: 3px solid snow;
+  margin: 1em;
+  padding: 1em;
+}
+
+.rst-content .section .docutils.api_table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.rst-content .section .docutils {
+    min-width:66%;
+    /* width: 100%; */
+    overflow: auto;
+    /* margin: auto; */
+    /* display: block; */
+      /* margin-left: 1em;
+      margin-right: 1em; */
+    /* border: 3px dotted rgba(30, 143, 255, 0.387); */
+}
+.rst-content table.docutils{
+  border:0px;
+}
+
+td, th {
+    /* border: 1px solid #e1e4e5 !important; */
+    border-collapse: collapse;
+}
+
+/*
+ * Without the following amendments, the navigation in the theme will be
+ * slightly cut off. This is due to the fact that the .wy-nav-side has a
+ * padding-bottom of 2em, which must not necessarily align with the font-size of
+ * 90 % on the .rst-current-version container, combined with the padding of 12px
+ * above and below. These amendments fix this in two steps: First, make sure the
+ * .rst-current-version container has a fixed height of 40px, achieved using
+ * line-height, and then applying a padding-bottom of 40px to this container. In
+ * a second step, the items within that container are re-aligned using flexbox.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/2012
+ */
+ .wy-nav-side {
+    padding-bottom: 40px;
+}
+
+/* For section-index only */
+.wy-menu-vertical .current-section p {
+    background-color: #e3e3e3;
+    color: #404040;
+}
+
+/*
+ * The second step of above amendment: Here we make sure the items are aligned
+ * correctly within the .rst-current-version container. Using flexbox, we
+ * achieve it in such a way that it will look like the following:
+ *
+ * [No repo_name]
+ *         Next >>                    // On the first page
+ * << Previous     Next >>            // On all subsequent pages
+ *
+ * [With repo_name]
+ *    <repo_name>        Next >>      // On the first page
+ * <repo_name>  << Previous  Next >>  // On all subsequent pages
+ *
+ * https://github.com/mkdocs/mkdocs/issues/2012
+ */
+.rst-versions .rst-current-version {
+    padding: 0 12px;
+    display: flex;
+    font-size: initial;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 40px;
+}
+
+/*
+ * Please note that this amendment also involves removing certain inline-styles
+ * from the file ./mkdocs/themes/readthedocs/versions.html.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/2012
+ */
+.rst-current-version span {
+    flex: 1;
+    text-align: center;
+}

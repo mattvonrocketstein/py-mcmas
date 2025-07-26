@@ -1,0 +1,76 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Quickstart
+<hr style="width:100%;border-bottom:3px solid black;">
+
+### Basic Installation
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Install from the repository:
+
+```bash {.cli_example}
+
+# install main
+$ pip install "mcmas @ git+{{git.repo_url}}@v1.0"
+
+# install repl
+$ pip install "mcmas[repl] @ git+{{git.repo_url}}@v1.0"
+```
+
+### Running with Docker
+<hr style="width:100%;border-bottom:3px solid black;">
+
+See [this section](#for-developers) for more details about building/testing the container
+
+### Requirements
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Platforms used in development include recentish docker, recentish make (*3.8+*) and bash (*5+*) on both Linux and MacOS.  Testing done in CI only uses Linux and won't try every possible combination of versions, but the goal is to support most things you'll encounter in the wild.
+
+### For Developers
+<hr style="width:100%;border-bottom:3px solid black;">
+
+For development on `compose.mk` itself, here's how you can clone the project, build related containers, and run the test suites.
+
+```bash {.cli_example}
+# Clone with SSH
+$ git clone {{git.repo}}
+
+# Or clone with HTTP
+$ git clone {{git.repo_url}}
+
+# Build docs
+$ make docs
+
+# Do everything else
+$ make clean init normalize validate test
+
+```
+
+#### Developing with Docker
+--------------------------------------
+
+```bash
+# build pymcmas container
+$ make docker.build
+
+# run main test-suite, inside the container
+$ make docker.test
+```
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: placeholder
+[^2]: placeholder
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('basic-installation','/{{mkdocs.config.site_name}}/img/basics.svg')
+	addImageToHeader('running with docker','/{{mkdocs.config.site_name}}/img/brand-docker')
+	addImageToHeader('project-integration','/{{mkdocs.config.site_name}}/img/stack-middle.svg')
+	addImageToHeader('requirements','/{{mkdocs.config.site_name}}/img/progress-check.svg')
+	//addImageToHeader('forks-versioning','/{{mkdocs.config.site_name}}/img/code-dots.svg')
+	addImageToHeader('for-developers','/{{mkdocs.config.site_name}}/img/code-dots.svg')
+}, 100);});
+</script>

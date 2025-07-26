@@ -1,0 +1,182 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Combined Logic Systems
+<hr style="width:100%;border-bottom:3px solid black;">
+
+- **Temporal-Epistemic Logic**: Reasoning about how knowledge evolves over time
+- **Strategic-Epistemic Logic**: Analyzing what agents can achieve while reasoning about others' knowledge  
+- **Multi-Agent Systems**: All three logics combine to model complex interactive scenarios
+
+## Applications
+<hr style="width:100%;border-bottom:3px solid black;">
+
+- **Protocol Verification**: Using CTL to verify system properties hold across all execution paths
+- **Security Analysis**: Epistemic logic for reasoning about what attackers know and can infer
+- **Game Theory and Mechanism Design**: ATL for analyzing strategic interactions and equilibria
+- **Distributed Systems**: All three logics for coordination problems, consensus protocols, and fault tolerance
+- **AI Planning**: Strategic operators for multi-agent planning and cooperation
+- **Model Checking**: Automated verification of temporal and epistemic properties in systems
+
+These formal systems provide precise mathematical frameworks for reasoning about complex dynamic systems where time, knowledge, and strategic interaction all play crucial roles in domains ranging from computer science to economics and philosophy.
+
+
+## Logics & Operators Reference
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Temporal, Epistemic, and Strategic Logic Operators Reference
+
+### Path Quantifiers
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+<a href=https://en.wikipedia.org/wiki/Quantifier_(logic)s><i>Path Quantifiers</i></a>, or first-order logic
+
+<table class=docutils-wrap >
+<thead><tr><th>Operator</th><th>Syntax</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>All paths</td>
+<td>A(φ)</td>
+<td>φ holds on all computation paths</td>
+</tr>
+<tr>
+<td>Exists path</td>
+<td>E(φ)</td>
+<td class=wrap>φ holds on at least one computation path</td>
+</tr>
+</table>
+
+### Temporal Operators
+
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+<a href=https://en.wikipedia.org/wiki/Temporal_logic#Temporal_operators></i>Temporal Logic</i></a>, or **TL**.
+
+<table class=docutils-wrap >
+<thead><tr><th>Operator</th><th>Syntax</th><th>Description</th></tr></thead>
+<tr>
+<td>Next</td>
+<td>X(φ)</td>
+<td class=wrap>φ holds in the next state</td>
+</tr>
+<tr>
+<td>Future/Finally</td>
+<td>F(φ)</td>
+<td class=wrap>φ will eventually hold</td>
+</tr>
+<td>Globally/Always</td>
+<td>G(φ)</td>
+<td class=wrap>φ holds continuously</td>
+</tr>
+<tr>
+<td>Until</td>
+<td>U(φ)</td>
+<td class=wrap>φ holds until another property is true</td>
+</tr>
+<tr>
+</table>
+
+### Computation Tree Logic
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+**Computation Tree Logic (CTL)** extends propositional logic with path quantifiers (A, E) combined with temporal operators (X, F, G, U) to reason about branching time structures.  One extension is PCTL (Probabilitstic CTL), used in PRISM[^1]
+
+<a href=https://en.wikipedia.org/wiki/Computation_tree_logic#Operators></i>Computation Tree Logic</i></a>, or **CTL**.
+
+<table class=docutils-wrap >
+<thead><tr><th>Operator</th><th>Syntax</th><th>Description</th></tr></thead>
+<tr>
+<td><center></center></td>
+<td>Always globally</td>
+<td>AG(φ)</td>
+<td class=wrap>φ holds globally on all paths <br>(φ is always true)</td>
+</tr>
+<tr>
+<td><center><a href=https://en.wikipedia.org/wiki/Computation_tree_logic#Operators>CTL</a></center></td>
+<td>Eventually possible</td>
+<td>EF(φ)</td>
+<td class=wrap>φ eventually holds on some path <br>(φ is possibly true)</td>
+</tr>
+<tr>
+<td><center><a href=https://en.wikipedia.org/wiki/Computation_tree_logic#Operators>CTL</a></center></td>
+<td>Next on all paths</td>
+<td>AX(φ)</td>
+<td class=wrap>φ holds in the next state on all paths</td>
+</tr>
+<tr>
+<td><center><a href=https://en.wikipedia.org/wiki/Computation_tree_logic#Operators>CTL</a></center></td>
+<td>Always eventually</td>
+<td>AF(φ)</td>
+<td class=wrap>φ eventually holds on all paths <br>(φ is inevitable)</td>
+</tr>
+<tr>
+<td><center><a href=https://en.wikipedia.org/wiki/Computation_tree_logic#Operators>CTL</a></center></td>
+<td>Possibly always</td>
+<td>EG(φ)</td>
+<td class=wrap>φ holds globally on some path<br>(φ can remain true forever)</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic Epistemic Logic
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+<a href=https://en.wikipedia.org/wiki/Dynamic_epistemic_logic#Syntax><i>Dynamic Epistemic Logic</i></a>, or **DEL**.
+
+**Epistemic Logic** formalizes reasoning about knowledge and belief, where the basic knowledge operator K(i, φ) satisfies axioms like: if K(i, φ) then φ (knowledge implies truth).
+
+**Common Knowledge** (GCK) is particularly important as it represents infinite mutual knowledge - not only does everyone know φ, but everyone knows that everyone knows φ, recursively.
+
+<table class=docutils-wrap >
+<thead><tr><th>Operator</th><th>Syntax</th><th>Description</th></tr></thead>
+</thead>
+<tbody>
+<tr>
+<td>Knowledge</td>
+<td>K(i, φ)</td>
+<td class=wrap>Agent i knows proposition φ</td>
+</tr>
+<tr>
+<td>Group Knowledge</td>
+<td>GK(G, φ)</td>
+<td class=wrap>Every agent in group G knows φ</td>
+</tr>
+<tr>
+<td>General Common Knowledge</td>
+<td>GCK(G, φ)</td>
+<td class=wrap>Common knowledge among group G that φ <br>(everyone knows, everyone knows that everyone knows, etc. infinitely)</td>
+</tr>
+<tr>
+<td>Distributed Knowledge</td>
+<td>DK(G, φ)</td>
+<td class=wrap>Group G collectively has enough information to deduce φ,<br> even if no individual agent knows φ</td>
+</tr>
+</tbody>
+</table>
+
+### Strategic Logic
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+<a href=https://en.wikipedia.org/wiki/Alternating-time_temporal_logic><i>(Alternating-time temporal logic)</i> </a>, or **ATL**
+
+**Alternating-time Temporal Logic (ATL)** quantifies over strategies rather than just paths, allowing coalitions to guarantee outcomes regardless of opponents' actions.
+
+<table class=docutils-wrap >
+<thead><tr><th>Operator</th><th>Syntax</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>Strategic Eventually</td>
+<td>&lt;<group>&gt;F φ</group></td>
+<td>The coalition "Group" has a strategy to eventually make φ true</td>
+</tr>
+<tr>
+<td>Strategic Always</td>
+<td>&lt;<group>&gt;G φ</group></td>
+<td>The coalition can maintain φ forever</td>
+</tr>
+<tr>
+<td>Strategic Next</td>
+<td>&lt;<group>&gt;X φ</group></td>
+<td>The coalition can make φ true in the next step</td>
+</tr>
+</tbody>
+</table>

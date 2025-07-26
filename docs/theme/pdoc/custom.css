@@ -1,0 +1,12 @@
+/*
+This file is empty by default.
+Override it in your custom template to provide additional CSS rules.
+*/
+ul.memberlist {
+    /* margin-left:17px; */
+    font-weight:bolder;
+}
+a.class {
+font-weight:bolder;
+margin-left:3px;
+}

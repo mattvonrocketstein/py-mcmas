@@ -1,0 +1,13 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Specification Algebra
+<hr style="width:100%;border-bottom:2px solid black;">
+
+Specification objects used in `py-mcmas` support a kind of algebra.  
+
+Since partial specifications are supported, one of the most common use-cases is to combine these fragments to get a ready-to-run specification that can actually be simulated.
+
+A quick example:
+
+{{site.embed_demo(
+    'tests/units/specification_algebra.py', github=github, type='python')}}

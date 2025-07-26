@@ -1,0 +1,48 @@
+# Configuration
+<hr style="width:100%;border-bottom:3px solid black;">
+
+<table class=docutils-wrap align=center width=95%>
+   {#<caption>Environment Variables</caption>#}
+    <tr>
+    <th><small>Name</small></th>
+      <th><small>Description</small></th>
+    </tr>
+    <tr>
+        <td><code>MCMAS_IMG</code></td>
+        <td class=wrap>
+            Image to use for <code>mcmas</code> engine.<br/>
+            Defaults to <code>ghcr.io/mattvonrocketstein/mcmas:v1.3.0</code>
+        </td>
+    </tr>
+    <tr>
+        <td><code>MCMAS_VERBOSITY</code></td>
+        <td class=wrap>
+        Used as <code>-v ..</code> argument to <code>mcmas</code> engine.<br/>
+        Defaults to <code>3</code></td>
+    </tr>
+    <tr>
+        <td><code>MCMAS_DEBUG</code></td>
+        <td class=wrap>
+        Default is 0.<br/>
+        Any other value sets log-level for the python wrapper to DEBUG instead of INFO.</td>
+    </tr>       
+    <tr>
+        <td><code>DOCKER_HOST</code></td>
+        <td class=wrap>
+        Used implicitly by <a href=https://docker-py.readthedocs.io/en/stable/client.html#docker.client.from_env><code>docker.from_env()</code></a></td>
+    </tr>    <tr>
+        <td><code>DOCKER_TLS_VERIFY</code></td>
+        <td class=wrap>
+        Used implicitly by <a href=https://docker-py.readthedocs.io/en/stable/client.html#docker.client.from_env><code>docker.from_env()</code></a></td></td>
+    </tr>    <tr>
+        <td><code>DOCKER_CERT_PATH</code></td>
+        <td class=wrap>
+       Used implicitly by <a href=https://docker-py.readthedocs.io/en/stable/client.html#docker.client.from_env><code>docker.from_env()</code></a></td>
+    </tr>
+
+</table>
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('configuration','../img/config.svg')
+}, 100);});
+</script>

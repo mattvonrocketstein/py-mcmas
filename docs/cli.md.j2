@@ -1,0 +1,296 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+{% import 'macros/site.j2' as site -%}
+
+## CLI Usage
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Installing `py-mcmas` makes the CLIs for `mcmas` and `ispl` available.  
+
+**The `mcmas` CLI** wraps the dockerized entrypoint[^1] for the official engine.
+
+```bash  {.cli_example} {.command-line}
+
+# proxies commands to container
+$ mcmas -h
+...
+
+# equivalently, 
+$ python -m mcmas -h
+...
+
+# run spec
+$ mcmas file.ispl
+...
+```
+
+See the full CLI help [here](#mcmas).  Besides the default interface for `mcmas`, you can also get data back in JSON, via the [Simulation schema]({{mkdocs.site_relative_url}}/lib#simulation).
+
+```bash  {.cli_example} {.command-line}
+# one additional argument, asking for json output
+$ mcmas --json file.ispl
+...
+```
+
+------------------
+
+**The `ispl` CLI** provides various helpers for ISPL/JSON conversion, and optionally allows simulation, evaluating a command, or dropping into a REPL with the context.
+
+```bash  {.cli_example} {.command-line}
+# Load JSON-based ISPL, converting to raw ISPL
+$ ispl --json file.json
+
+# Load raw ISPL, converting to JSON
+$ ispl --ispl file.ispl
+
+# Use --sim to execute specification
+$ ispl --sim --ispl file.ispl
+```
+```bash {.cli_output .smaller}
+..
+```
+
+See the full CLI help [here](#ispl).
+
+### `mcmas`
+<hr style="width:100%;border-bottom:3px solid black;">
+
+```bash  {.cli_example} {.command-line}
+$ mcmas -h
+```
+```bash {.cli_output .smaller}
+************************************************************************
+                       MCMAS v1.3.0 
+
+ This software comes with ABSOLUTELY NO WARRANTY, to the extent
+ permitted by applicable law. 
+
+ Please check http://vas.doc.ic.ac.uk/tools/mcmas/ for the latest release.
+ Please send any feedback to <mcmas@imperial.ac.uk>
+************************************************************************
+
+Usage: mcmas [OPTIONS] FILE 
+Example: mcmas -v 3 -u myfile.ispl
+
+Options: 
+  -s 	 	 Interactive execution
+
+  -v Number 	 verbosity level ( 1 -- 5 )
+  -u 	 	 Print BDD statistics 
+
+  -e Number 	 Choose the way to generate reachable state space (1 -- 3, default 2)
+  -o Number 	 Choose the way to order BDD variables (1 -- 4, default 2)
+  -g Number 	 Choose the way to group BDD variables (1 -- 3, default 3)
+  -d Number 	 Choose the point to disable dynamic BDD reordering (0 -- 3, default 3)
+  -nobddcache 	 Disable internal BDD cache
+
+  -k 	 	 Check deadlock in the model
+  -a 	 	 Check arithmetic overflow in the model
+
+  -c Number 	 Choose the way to display counterexamples/witness executions (1 -- 3)
+  -p Path 	 Choose the path to store files for counterexamples
+  -exportmodel 	 Export model (states and transition relation) to a file in dot format
+
+  -f Number 	 Choose the level of generating ATL strategies (1 -- 4)
+  -l Number 	 Choose the level of generating ATL counterexamples (1 -- 2)
+  -w 	 	 Try to choose new states when generating ATL strategies
+  -atlk Number 	 Choose ATL semantics when generating ATL strategies (0 -- 2, default 0)
+  -uc Number 	 Choose the interval to display the number of uniform strategies processed
+  -uniform 	 Use uniform semantics for model checking
+  -ufgroup Name	 Specify the name of the group to generate uniform strategies
+
+  -n 	 	 Disable comparison between an enumeration type and its strict subset
+
+  -h 	 	 This screen
+```
+
+When this is used to run a .ispl file, a docker-volume is used to ensure the container can access it.
+
+### `ispl`
+<hr style="width:100%;border-bottom:3px solid black;">
+
+```bash  {.cli_example} {.command-line}
+$ ispl --help
+```
+```bash {.cli_output .smaller}
+Usage: ispl [OPTIONS] FNAME
+
+  Helper for interacting with ISPL files.
+
+Options:
+  -j, --json   Load MCMAS model from json file
+  -i, --ispl   Load MCMAS model from the given ISPL
+  -s, --sim    start REPL
+  -s, --sim    model after loading one
+  -q, --quiet  model after loading one
+  --help       Show this message and exit.
+```
+
+Typically you want to pass enough information to load a specification.  
+
+For example you can convert between JSON / raw ISPL source:
+
+```bash  {.cli_example} {.command-line}
+# Convert ISPL source to JSON
+$ ispl --ispl tests/data/muddy_children.ispl | jq . 
+$ ispl --ispl tests/data/muddy_children.ispl > tests/data/muddy_children.json
+
+# Convert JSON to ISPL
+$ ispl --json tests/data/muddy_children.json
+```
+
+Passing `--sim` actually runs the specification.  
+
+This always returns JSON, and unless you pass `--quiet`, the JSON includes raw data from the engine.
+
+```bash  {.cli_example} {.command-line}
+# Run JSON, quiet output
+$ ispl -q --sim --json tests/data/muddy_children.json
+```
+```bash {.cli_output .smaller}
+{
+  "metadata": {
+    "file": ".tmp.asgka12",
+    "deadlock": false,
+    "validates": true,
+    "parsed": true,
+    "exit_code": 0
+  },
+  "time": {
+    "generate_time": 0.0,
+    "execution_time": 0.006,
+    "encoding_time": 0.001
+  },
+  "state_space": {
+    "reachable_states": 32,
+    "memory": {
+      "bdd": 9065680
+    }
+  },
+  "formulae": {
+    "true": [
+      "(AG ((saysknows1 -> (K(Child1, muddy1) || K(Child1, (! muddy1)))) && ((K(Child1, muddy1) || K(Child1, (! muddy1))) -> saysknows1)))",
+      "(AG ((saysknows2 -> (K(Child2, muddy2) || K(Child2, (! muddy2)))) && ((K(Child2, muddy2) || K(Child2, (! muddy2))) -> saysknows2)))",
+      "(AG ((saysknows3 -> (K(Child3, muddy3) || K(Child3, (! muddy3)))) && ((K(Child3, muddy3) || K(Child3, (! muddy3))) -> saysknows3)))"
+    ],
+    "false": []
+  }
+}
+```
+
+{#
+```bash  {.cli_example} {.command-line}
+# Start repl (no model, just primitives)
+$ ispl-to-json --help
+```
+```bash {.cli_output .smaller}
+Usage: ispl-to-json [OPTIONS] FNAME
+
+  Generates JSON from ISPL source code
+
+  http://mattvonrocketstein.github.io/py-mcmas/schema
+
+Options:
+  --help  Show this message and exit.
+
+```
+#}
+
+
+
+{#
+### `ispl-exec`
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+```bash  {.cli_example} {.command-line}
+# Start repl (no model, just primitives)
+$ ispl-exec --help
+```
+```bash {.cli_output .smaller}
+Usage: ispl-exec [OPTIONS]
+
+  Runs ISPL files from raw ISPL or from JSON, and returns JSON output by
+  default.
+
+Options:
+  --json TEXT         Load the given JSON
+  --ispl TEXT         Load the given ISPL
+  -c, --command TEXT  Command to run
+  --help              Show this message and exit.
+```
+#}
+
+{#
+### `ispl-repl`
+<hr style="width:95%;border-bottom:1px dashed black;">
+```bash  {.cli_example} {.command-line}
+$ ispl-repl --help
+```
+```bash {.cli_output .smaller}
+Usage: ispl-repl [OPTIONS]
+
+  Starts an interactive session to interact with py-mcmas and ISPL.
+
+  Automatically imports py-mcmas models for Agent / Environment / etc.
+  Optionally loads the given model from file, or runs the given command.
+
+Options:
+  --json TEXT         Load the given JSON
+  --ispl TEXT         Load the given ISPL
+  -c, --command TEXT  Command to run
+  --help              Show this message and exit.
+```
+
+```bash  {.cli_example} {.command-line}
+# Start repl (no model, just primitives)
+$ ispl-repl
+
+# Start repl, loading model from JSON
+$ ispl-repl --json ..
+
+# Start repl, loading model from ISPL file
+$ ispl-repl --ispl ..
+
+# Evaluate expression (default namespace includes primitive models)
+$ ispl-repl -c'print([Agent,Environment])'
+
+# Loading program as model, displaying model metadata
+$ ispl-repl --json tests/data/muddy_children.json -c'print(model.metadata)'
+```
+```bash {.cli_output .smaller}
+
+...
+```
+### `ispl-from-json`
+<hr style="width:95%;border-bottom:1px dashed black;">
+
+```bash  {.cli_example} {.command-line}
+$ ispl-from-json -h
+```
+```bash {.cli_output}
+Usage: ispl-from-json [OPTIONS] FNAME
+
+  Generates ISPL code from JSON
+
+  http://mattvonrocketstein.github.io/py-mcmas/schema
+
+Options:
+  --execute  Execute the generated code
+  --help     Show this message and exit.
+```
+
+{#
+<hr style="width:100%;border-bottom:3px solid black;">
+
+{{site.embed_demo('tests/units/test_all.py', github=github, type='python')}}
+#}
+
+## References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: See [docker-mcmas.git]({{jinja.vars.mcmas_docker}}) for the default container, see [environment variables]({{mkdocs.site_relative_url}}/config) for control over default image.
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	//addImageToHeader('translation','../img/reflection.svg')
+}, 100);});
+</script>

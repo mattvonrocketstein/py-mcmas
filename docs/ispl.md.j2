@@ -1,0 +1,43 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%} {% import 'macros/site.j2' as site -%}
+
+## ISPL Examples
+<hr style="width:100%;border-bottom:3px solid black;">
+ 
+For all ISPL examples that ship with the engine source, [go here]({{jinja.vars.mcmas_examples}}).  
+
+This page inlines the example for the classical "muddy children" puzzle, providing some extra context, and cross-referencing to the small [language reference](#).  Gradually this page will grow to collect other examples.
+
+### Muddy Children
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Introducing agents and knowledge with Muddy-children is traditional.  
+
+* Wikipedia on the problem definition: ([wiki](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle)), here;
+* Original example in engine-source: ([wiki]({{jinja.vars.mcmas_examples}}/muddy_children.ispl)
+* Section 1.1 in [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf)
+
+**ISPL References:** {% for x in 'environment agent evaluation init-states formulae'.split() %} [{{x.title()}}]({{mkdocs.site_relative_url}}/isplref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
+
+**Logic Op-Reference:** {% for x in 'ag k'.split() %} [`{{x.upper()}}(..)`]({{mkdocs.site_relative_url}}/opref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
+
+{{site.embed_demo('tests/data/muddy_children.ispl', github=github, type='haskell')}}
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('examples','../img/abc')
+	addImageToHeader('muddy children','../img/123')
+	addImageToHeader('references','../img/list-details')
+}, 100);});
+</script>
+
+
+{#
+#### Background
+<hr style="width:95%;border-bottom:1px dashed black;">
+#}
