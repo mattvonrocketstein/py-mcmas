@@ -269,12 +269,10 @@ class Society:
         if isinstance(other, (str,)):
             agent = None
             for agent in tmp:
-                if gettattr(agent, "name", None) == tmp:
+                if getattr(agent, "name", None) == tmp:
                     break
         if other in tmp:
             agent = other
-
-        raise Exception(agent._function_toolset.tools)
         return agent_completion(agent=agent, framework=self.module)
 
     def get_spec(self, agent):

@@ -140,8 +140,6 @@ def ispl_main(
     PYDANTIC_MODELS = ["ISPL", "Simulation"]
     path = fname and Path(fname)
     if schema and fname:
-        from mcmas import ispl
-
         schema = schema and fname
         fname = None
         assert schema in PYDANTIC_MODELS
@@ -188,7 +186,7 @@ def ispl_main(
                 import os
 
                 assert all([fname, os.path.exists(fname)])
-                LOGGER.critical([k for k in ns.keys()])
+                LOGGER.critical([k for k in ns])
                 with open(fname) as fhandle:
                     exec(fhandle.read(), ns)
                 model = None

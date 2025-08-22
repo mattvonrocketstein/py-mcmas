@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 select = ["E", "SIM","I", "F", "B"]
 
 # 2. Avoid enforcing line-length violations (`E501`)
-ignore = ["E501","B013","B006","SIM108"]
+ignore = ["E501","B013","B006","SIM108","W293",]
 
 # 3. Avoid trying to fix flake8-bugbear (`B`) violations.
 unfixable = ["B"]

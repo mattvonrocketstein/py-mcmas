@@ -19,14 +19,14 @@ weather_agent = pydantic_ai.Agent(
 
 # declare agent tools as usual
 @weather_agent.tool
-async def get_weather(ctx, lat: float, lng: float) -> dict[str, typing.Any]:
+async def get_weather(ctx, lat: float, lng: float) -> dict[str, typing.Any]:  # noqa
     """Get the weather at a location.
     Args:
         ctx: The context.
         lat: Latitude of the location.
         lng: Longitude of the location.
     """
-    temp_response, descr_response = get_weather_data()
+    temp_response, descr_response = "fake", "response"
     return {
         "temperature": f"{temp_response.text} °C",
         "description": descr_response.text,
