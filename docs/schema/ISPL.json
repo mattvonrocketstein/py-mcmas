@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Agent": {
-      "description": "    \n    ",
+      "description": "A wrapper for ISPL Agents.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref/#agent",
       "properties": {
         "metadata": {
           "$ref": "#/$defs/SpecificationMetadata",
@@ -93,7 +93,7 @@
       "type": "object"
     },
     "Environment": {
-      "description": "    \n    ",
+      "description": "A wrapper for ISPL Environments.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref/#environment",
       "properties": {
         "metadata": {
           "$ref": "#/$defs/SpecificationMetadata",
@@ -385,7 +385,7 @@
       "type": "object"
     }
   },
-  "description": "An ISPL specification, in whole or in part.",
+  "description": "An A wrapper for ISPL specifications.\n\nThis permits partials or \"fragments\", i.e. the specification\nneed not be complete and ready to run.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref",
   "properties": {
     "metadata": {
       "$ref": "#/$defs/SpecificationMetadata",

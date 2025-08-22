@@ -35,7 +35,6 @@ jobs:
       - name: Build with mkdocs
         run: |
           make clean init docs
-          sudo chown -R $(whoami) docs/
       
       # https://github.com/actions/upload-pages-artifact
       - name: Upload artifact
