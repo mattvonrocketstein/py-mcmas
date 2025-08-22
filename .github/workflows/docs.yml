@@ -32,10 +32,13 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build with mkdocs
+      - name: Setup Rendering
         run: |
-          make clean init docs
-      
+          make clean init 
+          pip install -e '.[docs]'
+      - name: Build Docs
+        run: |
+          make docs
       # https://github.com/actions/upload-pages-artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
