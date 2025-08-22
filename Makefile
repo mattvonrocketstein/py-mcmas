@@ -42,7 +42,7 @@ init: flux.stage/init mk.stat docker.stat \
 
 docs: flux.stage/doc \
 	docs.init docs/api docs/schema \
-	README.md CITATION.bib docs.jinja
+	README.md CITATION.bib docs.jinja mkdocs.build
 
 release: pypi.release docker.mcmas.release
 
