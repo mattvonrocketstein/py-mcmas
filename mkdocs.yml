@@ -41,9 +41,9 @@ nav:
     - "Pythonic ISPL": "demos/pythonic.md"
     - "PydanticAI Agents -> ISPL": "demos/pydantic-ai.md"
     - "OpenAI Agents -> ISPL": "demos/openai.md"
-    - "CamelAI Agents -> ISPL": "demos/camelai.md"
-    - "Agent Societies": demos/societies.md
-    - "Specification Algebra": demos/spec-algebra.md
+    # - "CamelAI Agents -> ISPL": "demos/camelai.md"
+    # - "Agent Societies": demos/societies.md
+    # - "Specification Algebra": demos/spec-algebra.md
   - 'Reference':
     - 'Python API': 'api/'
     - 'Schemas & Pydantic Models': schema/index.md
