@@ -1,0 +1,41 @@
+// configuration for pynchon (a docs-generation tool )
+{
+  "plugins": ["vhs","mermaid","github","mkdocs",],
+  "mermaid":{
+    output_mode: "png",
+    mermaid_args: [
+      "--configFile", "docs/.mermaid.conf",
+      //"--backgroundColor","efefef"
+      ],
+  },
+  "markdown": {
+    "apply_hooks": [],
+    "goals": [],
+    "include_patterns": [],
+    "exclude_patterns": [],
+    "root": null,
+    "linter_docker_image": "peterdavehello/markdownlint",
+    "viewer_docker_image": "charmcli/glow",
+    "linter_args": [
+      "--disable MD013",
+      "--disable MD045",
+      "--disable MD033",
+      "--disable MD041",
+      "--disable MD042",
+      "--fix"
+    ]
+  },
+  "github": { "org_name": "robot-wranglers"},
+  "jinja": {
+    "template_includes": ['docs'],
+    "vars": {
+      "pynchon_repo_url": "https://github.com/Robot-Wranglers/pynchon",
+      "mcmas_mirror_repo":"https://github.com/mattvonrocketstein/mcmas",
+      "mcmas_mirror":"https://github.com/mattvonrocketstein/mcmas",
+      "mcmas_manual":"https://github.com/mattvonrocketstein/mcmas/blob/v1.3.0/doc/manual.pdf",
+      "mcmas_docker":"https://github.com/mattvonrocketstein/docker-mcmas",
+      "mcmas_official": "https://sail.doc.ic.ac.uk/software/mcmas/",
+      "mcmas_examples": "https://github.com/mattvonrocketstein/mcmas/tree/main/examples",
+    }
+  },
+}

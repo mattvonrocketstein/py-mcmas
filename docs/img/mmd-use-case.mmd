@@ -1,0 +1,97 @@
+---
+title: PY-MCMAS Data Model
+---
+%% ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+%% %%{init: {
+%%   'theme': 'base',
+%%   'themeVariables': {
+%%     'fontFamily': 'Arial',
+%%     'fontSize': '18px'
+%%   }
+}}%%
+flowchart RL
+    subgraph Module [" "]
+      TOP_TITLE["PY-MCMAS⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"]---Mcmas
+      subgraph ML2 ["<br><br><br><br>High Level Data Structures (Pydantic Models)"]
+        %% linkStyle 0 stroke:transparent
+      TOP_TITLE-..-Mcmas
+        %% invisible1[" "]---Mcmas
+      linkStyle 0 stroke:transparent
+      linkStyle 1 stroke:transparent
+        ISim{"ISPL<br/>Simulation"}
+        Spec{"ISPL<br/>Specification"}
+        Mcmas{'MCMAS<br/>Engine'}
+      end
+      subgraph ML1 [" "]
+        direction RL 
+        JSON("JSON<br/>")
+        Code{"Raw<br/>ISPL Source"}
+        Dict{"Python<br/>Dictionary"}
+      subgraph ML3 ["Low Level Data Structures"]
+        %% aaa----------bbbb
+        %% class aaa,bbb invisible
+      end
+      end
+      invisible2[".............."]
+      Mcmas ---> | return | ISim
+      linkStyle 2 stroke:red
+      Mcmas ===> | run | Dict
+      linkStyle 3 stroke:black
+      Mcmas ==> | run | Code
+      linkStyle 4 stroke:black
+      Mcmas ==> | run | Spec
+      linkStyle 5 stroke:black
+      Mcmas ==> | run | JSON
+      linkStyle 6 stroke:black
+      JSON{"JSON"} <-..-> |stdlib| Dict
+      Spec <-..-> |parse <br/>or render| Code
+      Spec <-.....-> |"⠀dump or </br> instantiate⠀"| Dict
+      Spec <-...-> |"⠀⠀serialize⠀⠀⠀<br/>⠀⠀or decode⠀⠀⠀⠀"| JSON
+      
+      %% subgraph ML3 [" "]
+      %%   ISim---|extract symbols| Sympy ---|extract symbols| Spec
+      %% end
+    end
+        
+    class Module Background
+    class ML1,ML2 Blue
+    class ML1,ML3 Blue
+    class L1,ML2 subSubgraph
+    class EType,SimType,SpecType typeNode
+    class JSON,Dict,Code dataNode
+    class Mcmas,ISim,Spec blackWhite
+    classDef Background fill:#f7f8f8,stroke:#ddd,stroke-width:4x,font-size:22px,font-weight:bold,color:black
+    
+    classDef Blue fill:#dde8f0,stroke:#ddd,stroke-width:4x,font-size:22px,font-weight:bold,color:black
+    
+    classDef dataNode fill:#dde1e4,color:black,font-weight:bolder,stroke:black,stroke-width:1px
+    
+    classDef blackWhite fill:#000000,stroke:silver,stroke-width:3px,font-size:13px,color:#ffffff
+     
+    classDef invisible fill:transparent,stroke:transparent,font-size:32px,font-weight:bold
+    %% classDef invisibleLine stroke:transparent
+    
+    class TOP_TITLE,invisible1 invisible
+    class TOP_TITLE,invisible1 Title
+  classDef Title fill:none,stroke:none,color:#2c3e50,font-size:40px,font-weight:bold
+  classDef Subtitle fill:none,stroke:none,color:#2c3e50,font-size:35px,font-weight:bold
+
+%% #b2bbc2
+%% #b9c1c8
+%% #c1c8ce
+%% #c9cfd4
+%% #d0d6da
+%% #d8dde0
+%% #e0e3e6
+%% #e7eaec
+%% #eff1f2
+%% #f7f8f8
+%% #ffffff
+
+%% #8795a0
+%% #96a2ab
+%% #a4aeb7
+%% #b2bbc2
+%% #c0c8cd
+%% #ced4d9
+%% #dde1e4

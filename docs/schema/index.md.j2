@@ -1,0 +1,35 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## JSON Schemas
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Starting from pydantic models makes it easy to generate JSON-Schema or OpenAPI.
+
+<a name=simulation></a>
+### Simulation Schema
+<hr style="width:100%;border-bottom:3px solid black;">
+
+The [Simulation model]({{mkdocs.site_relative_url}}/lib#simulation) is the result of running [the engine]({{mkdocs.site_relative_url}}/lib#engine).
+
+{{site.embed_demo('docs/schema/Simulation.json', github=github, type='json')}}
+
+<a name=spec></a>
+<a name=ispl></a>
+<a name=specification></a>
+### ISPL Specification Schema
+<hr style="width:100%;border-bottom:3px solid black;">
+
+{#<hr style="width:95%;border-bottom:1px dashed black;">#}
+
+The [ISPL model](#) is the central abstraction for wrapping ISPL expressions and programs.  You can run such a model using [the engine]({{mkdocs.site_relative_url}}/lib#engine).
+
+{{site.embed_demo('docs/schema/ISPL.json', github=github, type='json')}}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	//addImageToHeader('translation','../img/reflection.svg')
+	toggleCodeBlock('docs_schema_ISPL_json_details', null)
+	toggleCodeBlock('docs_schema_Simulation_json_details', null)
+	//return false;
+}, 100);});
+</script>

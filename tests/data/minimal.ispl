@@ -1,0 +1,42 @@
+-- An absolutely minimal ISPL program still requires a do-nothing agent.
+-- This example is just enough boilerplate to use the logic-engine for simple stuff.
+
+Agent Environment
+    Vars:
+        p : boolean;
+        q : boolean;
+    end Vars
+    Actions = {tick};
+    Protocol:
+        Other : {tick};
+    end Protocol
+    Evolution:
+    end Evolution
+end Agent
+
+Agent NOOP
+    Vars:
+        ticking:boolean;
+    end Vars
+    Actions = {tick};
+    Protocol:
+        Other : {tick};
+    end Protocol
+    Evolution:
+        ticking=true if Action=tick;
+    end Evolution
+end Agent
+
+Evaluation
+  p if Environment.p=true;
+  q if Environment.q=true;
+end Evaluation
+
+InitStates
+  Environment.p=true and Environment.q=false;
+end InitStates
+
+Formulae
+  p; !q; p -> !q;
+end Formulae
+

@@ -1,0 +1,31 @@
+## File Previews
+{#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
+{% import 'macros/base.j2' as macros -%}
+
+{% macro embed_demo(fname, github={}, 
+    bottom_middle='', bottom_right='',
+    type='Makefile', title='', 
+    extra_label='', class="")-%}{% set link_prefix=macros.normalize_fname(fname) %}
+<a id="{{link_prefix}}"></a>{% set use_type= (type=='cmk' and 'Makefile') or type %}{{macros.code_table(fname, 
+    type=type, github=github, 
+    link_prefix=link_prefix, code_table_2=extra_label, class=class)}}<details id="{{link_prefix}}_details" open><summary style="display:none;">Summary</summary>
+```{{use_type}} {%raw%}{{%endraw%}{{class}} {{'.language-' + use_type}} {{'.language-cmk' if fname.endswith('.cmk') else ''}}{%raw%}}{%endraw%}
+{{open(fname,'r').read().strip()}}
+```
+{{macros.code_table_bottom(fname, bottom_middle=bottom_middle,bottom_right=bottom_right, title=title, link_prefix=link_prefix, type=type, github=github, class=class)}}<a id="{{link_prefix}}_bottom"></a></details>{%- endmacro -%}
+
+{## API links ##}
+{#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
+
+{% macro api_link(target, mkdocs,name='',style='') -%}{%set short_name=target.split('.')[-1]%}{% set name=name or target%}{%set mod='/'.join(target.split('.')[:-1])%}{%set link=target.replace('-','').replace('.','').replace('/','').replace('&lt;','').replace('&gt;','').replace('<','').replace('>','')%}<a style="{{style}}" href="{{mkdocs.site_relative_url}}/api/{{mod}}.html#{{short_name}}"><small>api://</small><i>{{name}}</i></a>{%- endmacro -%}
+
+{% macro api_link_many(target_fam, mkdocs, arg='', exclude='None') -%}
+<div class="docutils api_table">
+<table class="docutils api_docs"><tr><th align=left><strong> <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" /><path d="M9 4v13" /><path d="M15 7v5.5" /><path d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z" /><path d="M19 18v.01" /></svg> Related API</strong></th></tr>
+{%for target_f in target_fam %}
+{% set targets=bash('./compose.mk mk.namespace.filter/'+target_f+'|sort') %}
+{% set targets=targets.split('\n') %}
+{%for target in targets %} {% set target=target.strip().replace('%','&lt;arg&gt;') %}{%if target and not target.startswith(exclude)%}
+<tr><td>{{api_link(target, mkdocs, arg=arg, style="color=black")}}</td></tr>{%endif%}{%endfor%}{%endfor%}</table></div>
+{%- endmacro -%}
+

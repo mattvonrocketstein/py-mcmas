@@ -1,0 +1,133 @@
+-- MCMAS ISPL program demonstrating knowledge vs belief
+-- Agent alice can KNOW facts directly but BELIEVE things that may be false
+
+Semantics = SingleAssignment;
+
+
+Agent Environment
+    Obsvars:
+        actual_weather: {sunny, cloudy};
+        weather_report: {report_sunny, report_cloudy};
+    end Obsvars
+    
+    Actions = {heads_flip, tails_flip};
+    
+    Protocol:
+        Other: {heads_flip, tails_flip};
+    end Protocol
+    
+    Evolution:
+        -- Weather is independent of reports (reports can be wrong)
+        actual_weather=sunny if Action=heads_flip;
+        actual_weather=cloudy if Action=tails_flip;
+        
+        -- Weather report matches actual weather (simplified for this example)
+        weather_report=report_sunny if actual_weather=sunny;
+        weather_report=report_cloudy if actual_weather=cloudy;
+    end Evolution
+end Agent
+
+Agent alice
+    Vars:
+        -- Knowledge: alice directly observes the coin flip
+        coin_is_heads: boolean;
+        
+        -- Belief: alice's belief about weather (may be wrong)
+        believes_sunny: boolean;
+        
+        -- Internal state for decision making
+        action_taken: boolean;
+    end Vars
+    
+    Actions = {wait, act_on_knowledge, act_on_belief};
+    
+    Protocol:
+        -- Alice can act based on knowledge or belief
+        believes_sunny=true and coin_is_heads=true : {act_on_knowledge, act_on_belief};
+        believes_sunny=false and coin_is_heads=true : {act_on_knowledge, wait};
+        believes_sunny=true and coin_is_heads=false : {act_on_belief, wait};
+        Other : {wait};
+    end Protocol
+    
+    Evolution:
+        -- Knowledge evolves based on direct observation
+        coin_is_heads=true if Environment.Action=heads_flip;
+        coin_is_heads=false if Environment.Action=tails_flip;
+        
+        -- Belief may be incorrect (influenced by Environment.weather_report, not actual weather)
+        believes_sunny=true if Environment.weather_report=report_sunny;
+        believes_sunny=false if Environment.weather_report=report_cloudy;
+        
+        action_taken=true if !(Action=wait);
+        action_taken=false if Action=wait;
+    end Evolution
+end Agent
+
+
+Evaluation
+    -- KNOWLEDGE: alice knows the coin result because she observes it directly
+    alice_knows_heads if alice.coin_is_heads=true;
+    alice_knows_tails if alice.coin_is_heads=false;
+    
+    -- BELIEF: alice believes weather based on reports (may be wrong)
+    alice_believes_sunny if alice.believes_sunny=true;
+    alice_believes_cloudy if alice.believes_sunny=false;
+    
+    -- TRUTH: actual state of the world
+    actually_sunny if Environment.actual_weather=sunny;
+    actually_cloudy if Environment.actual_weather=cloudy;
+    
+    -- BELIEF ACCURACY: when belief matches reality
+    -- belief_accurate if (alice_believes_sunny and actually_sunny) or (alice_believes_cloudy and actually_cloudy);
+    
+    -- KNOWLEDGE ACCURACY: knowledge is always accurate by definition
+    -- knowledge_accurate if (alice_knows_heads and Environment.Action=heads_flip) or (alice_knows_tails and Environment.Action=tails_flip);
+end Evaluation
+
+InitStates
+    alice.coin_is_heads=false and alice.believes_sunny=false and alice.action_taken=false and
+    Environment.actual_weather=sunny and Environment.weather_report=report_sunny;
+end InitStates
+
+Formulae
+    -- EPISTEMIC: Alice knows when the coin is heads
+    -- Equivalent doxastic: 
+    --   K_alice(coin_is_heads) -> coin_is_heads (knowledge implies truth)
+    K(alice, alice_knows_heads) -> alice_knows_heads;
+    
+    -- DOXASTIC: Alice can believe it's sunny even when it's not
+    -- Equivalent doxastic: 
+    --   B_alice(sunny) ∧ ¬sunny (belief doesn't require truth)
+    -- alice_believes_sunny and not actually_sunny;
+    
+    -- KNOWLEDGE IMPLIES TRUTH: Alice's knowledge about coin is always correct
+    -- Equivalent doxastic: 
+    --   □(K_alice(coin_heads) -> coin_heads) (knowledge axiom T)
+    AG(K(alice, alice_knows_heads) -> alice_knows_heads);
+    
+    -- BELIEF DOESN'T IMPLY TRUTH: Alice can believe sunny when it's cloudy
+    -- Equivalent doxastic: 
+    --   ◊(B_alice(sunny) ∧ ¬sunny) (beliefs can be false)
+    EF(alice_believes_sunny and actually_cloudy);
+    
+    -- INTROSPECTION: Alice knows what she believes (positive introspection)
+    -- Equivalent doxastic: 
+    --   B_alice(p) -> K_alice(B_alice(p)) (agents know their beliefs)
+    AG(alice_believes_sunny -> K(alice, alice_believes_sunny));
+    
+    -- BELIEF CONSISTENCY: Alice doesn't hold contradictory beliefs simultaneously
+    -- Equivalent doxastic: ¬(B_alice(p) ∧ B_alice(¬p)) (belief consistency)
+    -- AG(not (alice_believes_sunny and alice_believes_cloudy));
+    
+    -- BELIEF REVISION: Beliefs can change based on new information
+    -- Equivalent doxastic: B_alice(p) ∧ ◊¬B_alice(p) (beliefs are revisable)
+    -- EF(alice_believes_sunny and EF(not alice_believes_sunny));
+    
+    -- KNOWLEDGE PERSISTENCE: Knowledge persists (if true facts don't change)
+    -- Equivalent doxastic: K_alice(p) -> □K_alice(p) (knowledge is stable)
+    AG(K(alice, alice_knows_heads) -> AG(K(alice, alice_knows_heads)));
+    
+    -- BELIEF vs KNOWLEDGE: Agent can believe p without knowing p
+    -- Equivalent doxastic: B_alice(p) ∧ ¬K_alice(p) (belief is weaker than knowledge)
+    -- EF(alice_believes_sunny and not K(alice, actually_sunny));
+end Formulae

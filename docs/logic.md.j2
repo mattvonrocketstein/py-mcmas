@@ -1,0 +1,63 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+# Logic Overview
+<hr style="width:100%;border-bottom:3px solid black;">
+
+Content here isn't *strictly focused* on MCMAS or ISPL, but more aimed at introducing the concepts that they incorporate and build.  This page is an index of light reference material for stuff at the intersection of model checking, agents, and exotic logics[^1].  These are big topics, and even finding out if you're *interested* isn't always easy.. so `py-mcmas` documentation includes this survey / study-guide for some high-level stuff.  
+
+If you're looking for more detailed technical information or papers, you can find some places to start in [this index]({{mkdocs.site_relative_url}}/refs).
+
+{{macros.subheader('Quick Links')}}
+:   [Feature-matrix and alternatives for MCMAS]({{mkdocs.site_relative_url}}/epistemics-in-model-checkers)
+:   [ISPL operator reference]({{mkdocs.site_relative_url}}/isplref) *(ai-generated)*
+:   Zooming in on [doxastic logic]({{mkdocs.site_relative_url}}/doxastic) 
+:   [PY-MCMAS road map]({{mkdocs.site_relative_url}}/#road-map)
+{#
+:   Intro to [Epistemics in Model Checkers]({{mkdocs.site_relative_url}}/epistemics-in-model-checkers) *(ai-generated)*
+#}
+## Combined Logic Systems
+<hr style="width:100%;border-bottom:3px solid black;">
+
+**Temporal-Epistemic Logic**:
+:  Reasoning about how knowledge evolves over time
+<br/>
+
+**Strategic-Epistemic Logic**:
+:  Analyzing what agents can achieve while reasoning about others' knowledge  
+<br/>
+
+**Multi-Agent Systems**:
+:  All three logics combine to model complex interactive scenarios
+<br/>
+
+### Applications
+<hr style="width:100%;border-bottom:3px solid black;">
+
+- **Protocol Verification**: Using CTL to verify system properties hold across all execution paths
+- **Security Analysis**: Epistemic logic for reasoning about what attackers know and can infer
+- **Game Theory and Mechanism Design**: ATL for analyzing strategic interactions and equilibria
+- **Distributed Systems**: All three logics for coordination problems, consensus protocols, and fault tolerance
+- **AI Planning**: Strategic operators for multi-agent planning and cooperation
+- **Model Checking**: Automated verification of temporal and epistemic properties in systems
+
+These formal systems provide precise mathematical frameworks for reasoning about complex dynamic systems where time, knowledge, and strategic interaction all play crucial roles in domains ranging from computer science to economics and philosophy.
+
+
+{#% include "logic/opref.md.j2" %#}
+
+{#% include "logic/epistemics-in-model-checkers.md.j2" %#}
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: Here, "exotic" means especially epistemic-logics for describing knowledge/belief, but also strategy-logic, which has applications in game theory and protocol design. See also [this mathoverflow Q/A](https://mathoverflow.net/questions/482242/examples-of-mathematical-theories-that-are-naturally-written-in-exotic-logics)
+
+{#
+[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
+#}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('References','../img/list-details')
+	addImageToHeader('quick links','../img/road-map')
+}, 100);});
+</script>

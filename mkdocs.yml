@@ -1,0 +1,81 @@
+# https://python-markdown.github.io/extensions/admonition/
+
+site_source_url: https://github.com/mattvonrocketstein/py-mcmas
+site_name: py-mcmas
+theme:
+  name: readthedocs
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - navigation.expand
+    - navigation.top
+    - toc.integrate
+  font:
+    # code: Roboto Mono
+    code: Rasa
+  logo: img/logo.png
+  custom_dir: docs/theme
+  highlightjs: true
+  hljs_style: agate
+  hljs_languages:
+    - makefile
+    - bash
+  icon:
+    repo: fontawesome/brands/git-alt
+# extra_css: ["extra.css"]
+site_url: https://mattvonrocketstein.github.io/py-mcmas
+# site_description: >-
+#   A tool / library for makefile-based automation, scripting, and lightweight orchestration.  Native support for docker, docker-compose, workflow primitives, TUI elements, and more.
+remote_branch: docs
+nav:
+  - Overview:
+    - 'Introduction': 'overview.md'
+    - 'Quickstart': 'quickstart.md'
+    - 'ISPL Examples': 'ispl.md'
+  - 'Usage':
+    - 'From CLI': 'cli.md'
+    - 'As Library': 'lib.md'
+    - 'Configuration / Env Vars': config.md
+    # - 'Library Reference': 'lib.md#reference'
+  - 'Demos':
+    - "Pythonic ISPL": "demos/pythonic.md"
+    - "PydanticAI Agents -> ISPL": "demos/pydantic-ai.md"
+    - "OpenAI Agents -> ISPL": "demos/openai.md"
+    - "CamelAI Agents -> ISPL": "demos/camelai.md"
+    - "Agent Societies": demos/societies.md
+    - "Specification Algebra": demos/spec-algebra.md
+  - 'Reference':
+    - 'Python API': 'api/'
+    - 'Schemas & Pydantic Models': schema/index.md
+    - 'ISPL Primitives': 'isplref.md'
+    - 'Logical Operators': 'opref.md'
+    - 'Logic Overview': 'logic.md'
+    # - 'Operator Reference': 'opref.md'
+    - 'Knowledge vs Belief': 'doxastic.md'
+    - 'Epistemics in Model Checkers': 'epistemics-in-model-checkers.md'
+    # - 'Intro to Epistemics': 'logic/#epistemics'
+    # - 'Epistemics in Model Checkers': 'logic/#epistemics-in-model-checkers'
+  - 'Resources':
+    # - 'Contributing': contributing.md
+    - 'Project Source': 'https://github.com/mattvonrocketstein/py-mcmas/'
+    - 'All References & Footnotes': 'refs.md'
+#https://github.com/mkdocs/mkdocs-redirects
+plugins:
+  # - search
+  - autolinks
+  - redirects:
+      redirect_maps:
+        'index.md': 'overview.md'
+
+# https://squidfunk.github.io/mkdocs-material/reference/lists/#using-definition-lists
+markdown_extensions:
+  - footnotes 
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - abbr
+  - def_list
+  - attr_list
+docs_dir: docs
+site_dir: site
+  

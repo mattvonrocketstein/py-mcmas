@@ -1,0 +1,111 @@
+-- {{model.title | default('model.title')}}
+
+{# -- BEGIN ENVIRONMENT #}
+{%if model.environment|default(false)%}
+Agent Environment
+{%if model.environment.obsvars | default(false) %}
+  Obsvars:
+    {%- for k,v in model.environment.obsvars.items() %}
+    {{k}}: {{v}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Obsvars
+{%endif-%}
+{%if model.environment.vars|default(false)%}
+  Vars:
+    {%- for k,v in model.environment.vars.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Vars
+{%endif-%}
+{%if model.environment.actions|default(false)%}{%set actions=model.environment.actions %}{%set actions=', '.join(model.environment.actions) if type(actions)==type([]) else actions%}
+  Actions = { {{actions}} };
+{%endif-%}
+{%if model.environment.protocol|default(false)%}
+  Protocol:
+    {%- for k,v in model.environment.protocol.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Protocol
+{%endif-%}
+{%if 'NB: evolution is REQUIRED for environments, even if empty' %}
+  Evolution:
+    {%- for line in model.environment.evolution %}
+    {{line}}{{';' if not line.endswith(';') else ''}}
+    {%- endfor %}
+  end Evolution
+{%endif-%}
+end Agent
+{%endif-%}
+{#--  END ENVIRONMENT #} 
+{#--  BEGIN AGENTS #} 
+{%if model.agents|default({})%}
+{%- for name,agent in model.agents.items() %}
+-- agent {{loop.index}}
+Agent {{name}}
+{%-if agent.lobsvars|default(false)%}{%set lobsvars=agent.lobsvars %}{%set lobsvars=', '.join(agent.lobsvars) if type(lobsvars)==type([]) else lobsvars%}
+  Lobsvars = { {{lobsvars}} };
+{%endif-%}
+{%-if agent.vars|default(false)%}
+  Vars:
+    {%- for k,v in agent.vars.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Vars
+{%endif-%}
+{%-if agent.actions|default(false)%}{%set actions=agent.actions %}{%set actions=', '.join(agent.actions) if type(actions)==type([]) else actions%}
+  Actions = { {{actions}} };
+{%endif-%}
+{%-if agent.protocol|default(false)%}
+  Protocol:
+    {%- for k,v in agent.protocol.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Protocol
+{%endif-%}
+{%-if agent.evolution|default(false)%}
+  Evolution:
+    {%- for line in agent.evolution %}
+    {{line}}{{';' if not line.endswith(';') else ''}}
+    {%- endfor %}
+  end Evolution
+{%endif-%}
+end Agent
+{% endfor %}
+{%endif%}
+{#-- END AGENTS #} 
+{#-- BEGIN Evaluation #} 
+{%if model.evaluation|default(false)%}
+Evaluation
+  {%- for l in model.evaluation %}
+  {{l}}{{';' if not l.endswith(';') else ''}}
+  {%- endfor %}
+end Evaluation
+{%endif-%}
+{#-- END Evaluation #}
+{#-- BEGIN InitStates #} 
+{%if model.init_states|default(false)%}
+InitStates
+  {%- for l in model.init_states %}
+  {{l}}{{';' if not l.endswith(';') else ''}}
+  {%- endfor %}
+end InitStates
+{%endif-%}
+{#-- END InitStates #}
+{#-- BEGIN Groups #} 
+{%if model.groups|default(false)%}
+Groups
+  {%- for k,l in model.groups.items() %}
+  {{k}} = { {{', '.join(l)}} };
+  {%- endfor %}
+end Groups
+{%endif-%}
+{#-- END Groups #} 
+{#-- BEGIN Formulae #} 
+{%if model.formulae|default(false)%}
+Formulae
+  {%- for l in model.formulae %}
+  {{l}}{{';' if not l.endswith(';') else ''}}
+  {%- endfor %}
+end Formulae
+{%endif-%}
+{#-- END Formulae #}
