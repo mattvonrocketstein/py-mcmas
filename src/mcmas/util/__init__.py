@@ -52,7 +52,7 @@ def repl(fname=None, command=None, **ns):
 
 def normalize_stderr_stdout(text: str) -> typing.List[str]:
     """
-    
+    Normalize the raw output from the mcmas engine.
     """
     if text is None:
         return None
@@ -115,7 +115,7 @@ def find_instances(cls):
 
 def lazy_module(fullname):
     """
-    
+    Used with lazy imports.
     """
     try:
         return sys.modules[fullname]
@@ -144,7 +144,7 @@ def dict2ispl(data: dict) -> str:
 
 def fxn_metadata(func) -> typing.Dict[str, typing.Dict[str, typing.Any]]:
     """
-    
+    Return signature/source/etc for the given function.
     """
     # sig = inspect.signature(func)
     src = inspect.getsource(func)

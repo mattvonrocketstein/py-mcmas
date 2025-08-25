@@ -13,41 +13,54 @@ LOGGER = util.get_logger(__name__)
 class SymbolMetadata(pydantic.BaseModel):
     """
     Result of running ISPL Analysis.
+
+    This extracts details about symbols, namespaces, etc.
     """
 
     actions: typing.SymbolList2 = Field(
-        description="Actions list",
         default=[],
+        description="Actions list",
     )
     agents: typing.SymbolList2 = Field(
-        description="Agents list",
         default=[],
+        description="Agents list",
     )
     vars: typing.SymbolList2 = Field(
-        description="Var list",
         default=[],
+        description="Var list",
     )
 
 
-class OpMetadata(pydantic.BaseModel):
+class OperatorMetadata(pydantic.BaseModel):
+    """
+    Details about logical operators that are used in
+    specification's formulae.
+
+    Coarse detail about operators can be used to derive
+    information about time/space complexity.
+    """
+
     formulae: typing.SymbolList2 = Field(
-        description="Operators used in formulae",
         default=[],
+        description="Operators used in formulae",
     )
 
 
 class Analysis(fmtk.SpecificationAnalysis):
     """
-    Another view of symbol metadata.
+    Result of analyzing the given specification.
+
+    This breaks down details about ISPL symbols and logical
+    operators that are used
     """
 
     symbols: SymbolMetadata = Field(
         description="Symbols (includes vars+actions)",
         default=SymbolMetadata(),
     )
-    operators: OpMetadata = Field(
+    operators: OperatorMetadata = Field(
+        default=OperatorMetadata(),
         description="Logical operators that are used",
-        default=OpMetadata(),
     )
 
     # def model_dump(self, **kwargs):

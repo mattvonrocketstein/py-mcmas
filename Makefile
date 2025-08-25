@@ -96,8 +96,8 @@ self.units:
 	env | grep TOX && pytest -s -vv tests/units
 
 smoke-test: stest
-self.stest: flux.timer/.self.stest
-define .self.stest
+self.smoke_test: flux.timer/.self.smoke_test
+define .self.smoke_test
 set -x 
 python -m mcmas -h
 python -m mcmas tests/data/muddy_children.ispl 
@@ -116,14 +116,18 @@ ispl --analyze tests/data/minimal.ispl| jq .symbols.actions
 # ispl --validate tests/data/minimal.ispl| jq .validates
 # ispl --validate tests/data/minimal.ispl| jq .advice
 endef
-$(call compose.import.script, def=.self.stest)
+$(call compose.import.script, def=.self.smoke_test)
 
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 docker.pymcmas.clean: #flux.NIY
-docker.pymcmas.release: docker.mcmas.build flux.NIY
-docker.pymcmas.test: docker.pymcmas.build docker.pymcmas.dispatch/self.stest
+docker.pymcmas.release: docker.pymcmas.build flux.NIY
+docker.pymcmas.test: #docker.pymcmas.build 
 	@# Runs the normal smoke-test inside the docker-image.
+	docker run -it \
+		-v `pwd`:/tests -w /tests \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--entrypoint make  pymcmas self.smoke_test
 
 # Docs related
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░

@@ -7,7 +7,7 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Build and Push to GHCR
+name: GHCR Build / Push 
 on:
   workflow_call: {}
   push:
@@ -44,7 +44,7 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=ref,event=branch
+          #type=ref,event=branch
           type=sha
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -55,8 +55,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
     - name: Print pull command
       run: |
-        ls steps.meta.outputs.json && cat steps.meta.outputs.json || true
         echo "🐳 Image pushed successfully!"
-        echo "To pull this image, run:"
+        echo "Images:"
         echo "${{ fromJSON(steps.meta.outputs.json).tags[1] }}"
         echo "${{ fromJSON(steps.meta.outputs.json).tags[0] }}"

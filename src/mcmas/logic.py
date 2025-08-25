@@ -17,27 +17,57 @@ from sympy.printing.str import StrPrinter
 
 
 class Function(sympy.Function):
-    pass
+    """
+    
+    """
 
 
 class And(Function):
+    """
+    
+    """
+
     def __str__(self):
+        """
+        
+        """
         return " and ".join([str(x) for x in self._sorted_args])
 
 
 class Or(Function):
+    """
+    
+    """
+
     def __str__(self):
+        """
+        
+        """
         return " or ".join([str(x) for x in self._sorted_args])
 
 
 class Grouping(Function):
+    """
+    
+    """
+
     def __str__(self):
+        """
+        
+        """
         tmp = " ".join([str(x) for x in self._sorted_args])
         return f"({tmp})"
 
 
 class If(Function):
+    """
+    
+    """
+
     def __str__(self):
+        """
+        
+        """
         if len(self._sorted_args) == 1:
             return f"if {self._sorted_args[0]}"
         else:
@@ -46,7 +76,14 @@ class If(Function):
 
 
 class Eq(_Eq):
+    """
+    
+    """
+
     def __str__(expr):
+        """
+        
+        """
         return f"{expr.lhs}={expr.rhs}"
 
 
@@ -54,6 +91,19 @@ Equal = Eq
 
 
 class Symbol(sympy.core.symbol.Symbol):
+    """
+    
+    """
+
+    def __getitem__(self, key):
+        """
+        
+        """
+        if isinstance(key, (str,)):
+            return [self.__class__(k) for k in key.split(" ")]
+        else:
+            raise NotImplementedError()
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
@@ -100,6 +150,9 @@ class Symbol(sympy.core.symbol.Symbol):
         return core_schema.no_info_plain_validator_function(validate_symbol)
 
     def __eq__(self, other):
+        """
+        
+        """
         if isinstance(other, str):
             # Compare with symbol name
             return self.name == other
@@ -108,35 +161,65 @@ class Symbol(sympy.core.symbol.Symbol):
         return super().__eq__(other)
 
     def __ne__(self, other):
+        """
+        
+        """
         return not self.__eq__(other)
 
     def __hash__(self):
+        """
+        
+        """
         # Maintain the parent's hash behavior
         return super().__hash__()
 
     def __and__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name} and {other}")
 
     def __or__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name} or {other}")
 
     def __rshift__(self, other):
+        """
+        
+        """
         # return If(self, other)
         return self.__class__(f"{self.name} if {other}")
 
     def __imul__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name}={other}")
 
     def __add__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name}+{other}")
 
     def __lt__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name}<{other}")
 
     def __lte__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name}<={other}")
 
     def __gt__(self, other):
+        """
+        
+        """
         return self.__class__(f"{self.name}>{other}")
 
     def __gte__(self, other):
@@ -146,7 +229,9 @@ class Symbol(sympy.core.symbol.Symbol):
         return self.__class__(f"{self.name}({other})")
 
     def __getattribute__(self, name):
-        # Always try to get the actual attribute first
+        """
+        
+        """
         try:
             attr = super().__getattribute__(name)
             # If it exists and is callable, return it
@@ -169,7 +254,14 @@ class Symbol(sympy.core.symbol.Symbol):
 
 
 class CustomStrPrinter(StrPrinter):
+    """
+    
+    """
+
     def _print_Equality(self, expr):
+        """
+        
+        """
         return f"{expr.lhs}={expr.rhs}"
 
 

@@ -42,18 +42,18 @@
             }
           ],
           "default": null,
-          "description": "",
+          "description": "File associated with this specification",
           "title": "File"
         },
         "engine": {
           "default": "mcmas",
-          "description": "",
+          "description": "The engine that will be used for this specification",
           "title": "Engine",
           "type": "string"
         },
         "parser": {
           "default": "mcmas.parser",
-          "description": "",
+          "description": "The parser that will be used for this specification",
           "title": "Parser",
           "type": "string"
         },
@@ -67,7 +67,7 @@
             }
           ],
           "default": null,
-          "description": "",
+          "description": "Posix exit code from the sim process",
           "title": "Exit Code"
         },
         "deadlock": {
@@ -80,7 +80,7 @@
             }
           ],
           "default": null,
-          "description": "Whether the simulation deadlocked",
+          "description": "Whether this simulation deadlocked",
           "title": "Deadlock"
         },
         "validates": {
@@ -176,13 +176,32 @@
       "title": "State Space",
       "type": "object"
     },
+    "witnesses": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Witnesses, counter-examples, traces.  These are obtained by parsing mcmas .info files.  By default witnesses cover as many facts as possible; Use instead `counter_examples` to limit this to only FALSE statements.",
+      "title": "Witnesses"
+    },
     "facts": {
       "$ref": "#/$defs/FormulaeResult",
       "default": {
         "true": [],
         "false": []
       },
-      "description": "facts"
+      "description": "Input formulae partitioned as true / false"
     }
   },
   "title": "Simulation",

@@ -20,7 +20,23 @@ $ pip install "mcmas[repl] @ git+{{git.repo_url}}@v1.0"
 ### Running with Docker
 <hr style="width:100%;border-bottom:3px solid black;">
 
-See [this section](#for-developers) for more details about building/testing the container
+See [this section](#for-developers) for details about building/testing the container.
+
+```bash {.cli_example}
+# Pull the container
+$ docker pull ghcr.io/mattvonrocketstein/py-mcmas:main
+```
+
+Note that the docker container for pymcmas still uses docker to interact with the `mcmas` engine!  So you'll want to share the socket:
+
+```bash {.cli_example}
+# Show help for the `ispl` command
+$ docker run -it \
+	-v `pwd`:/tests -w /tests \
+	-v /var/run/docker.sock:/var/run/docker.sock \
+	ghcr.io/mattvonrocketstein/py-mcmas:main \
+		./tests/data/minimal.ispl
+```
 
 ### Requirements
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -48,22 +64,24 @@ $ make clean init normalize validate test
 ```
 
 #### Developing with Docker
---------------------------------------
+<hr style="width:95%;border-bottom:1px dashed black;">
+
 
 ```bash
 # build pymcmas container
-$ make docker.build
+$ make docker.pymcmas.build 
 
 # run main test-suite, inside the container
-$ make docker.test
+$ make docker.pymcmas.test
 ```
 
+{#
 ### References
 <hr style="width:100%;border-bottom:3px solid black;">
 
 [^1]: placeholder
 [^2]: placeholder
-
+#}
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
 	addImageToHeader('basic-installation','/{{mkdocs.config.site_name}}/img/basics.svg')

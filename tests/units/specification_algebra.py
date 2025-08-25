@@ -17,6 +17,14 @@ def test_iadd():
     assert "bob" in spec.agents
 
 
+def test_eq():
+    alice1 = Agent(name="alice")
+    alice2 = Agent(name="alice")
+    assert alice1 == alice2
+    bob = Agent(name="bob")
+    assert alice1 != bob
+
+
 def test_invert():
     spec = ISPL(**examples.complete_spec)
     assert not spec.advice

@@ -21,25 +21,17 @@ import typing
 import pydantic
 from pydantic import ValidationError
 
-import mcmas
 from mcmas import rendering, util
 
-LOGGER = mcmas.util.get_logger(__name__)
-DEFAULT_MODEL = "granite3-dense:2b"
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+LOGGER = util.get_logger(__name__)
+
+
+from .config import *  # noqa
+from .ollama import *  # noqa
+
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", f"{OLLAMA_URL}/v1")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "ollama")
-LLM_MODEL_NAME = os.environ.get(
-    "LLM_MODEL_NAME", os.environ.get("MODEL", DEFAULT_MODEL)
-)
 
-try:
-    import ollama as ollama_mod
-except (ImportError,) as exc:
-    ollama_mod = None
-    LOGGER.critical(str(exc))
-    LOGGER.warning("some features may not be available!")
-    LOGGER.warning("cannot import ollama module, consider installing 'mcmas[ai]'")
 
 try:
     import openai
@@ -203,51 +195,7 @@ def model_completion(
     return validated_data
 
 
-class OllamaWrapper:
-    """
-    A wrapper for using the ollama module.
-    """
-
-    @util.classproperty_cached
-    def client(self):
-        """
-        Returns a (cached) ollama client.
-
-        This respects ${OLLAMA_URL} from environment
-        """
-        return ollama_mod.Client(host=OLLAMA_URL)
-
-    def list(self):
-        """
-        List available models.
-        """
-        # LOGGER.warning("❌ Failed to connect to Ollama. Make sure it's running.")
-        # LOGGER.info("✅ Connected to Ollama successfully!")
-        return self.client.list()
-
-    def pull_model(self, model_name: str = "") -> None:
-        """
-        Pull the given model, or ${LLM_MODEL_NAME} or ${MODEL},
-        whichever is found first.
-        """
-        model_name = model_name or LLM_MODEL_NAME
-        LOGGER.debug("Checking connection..")
-        models = self.list()
-        LOGGER.debug("Connection ok.")
-        LOGGER.debug(f"Found {len(models['models'])} models:")
-
-        # for model in models["models"]:
-        # LOGGER.debug(f"   * {model.model}")
-        if model_name not in models["models"]:
-            LOGGER.debug(f"Pulling model: {model_name}")
-            self.client.pull(model_name)
-            LOGGER.debug(f"Successfully pulled: {model_name}")
-        else:
-            LOGGER.debug(f"Model {model_name} is available.")
-
-
-ollama = OllamaWrapper()
-ollama_pull_model = ollama.pull_model
+from .ollama import *  # noqa
 
 
 class Society:

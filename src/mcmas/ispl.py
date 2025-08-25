@@ -169,8 +169,14 @@ class Agent(IFragment):
         """
         return util.dict2ispl(dict(agents={self.name: self.model_dump()}))
 
-    def model_complete(self):
+    def model_completion(self):
+        """
+        Trigger completion for this Agent.
+        """
         if not self.advice:
+            LOGGER.warning(
+                f"{self} is already valid, returning it instead of completing"
+            )
             return self
         else:
             tmp = self
@@ -188,14 +194,17 @@ class Agent(IFragment):
             return tmp
 
     @util.classproperty
-    def parser(self):
+    def parser(self) -> typing.Callable:
+        """
+        Return an appropriate parser for this spec-fragment.
+        """
         return parser.extract_agents
 
     @classmethod
     @pydantic.validate_call
     def from_pydantic_agent(kls, pagent, **extra) -> typing.Self:
         """
-        
+        Create ISPL agent from the given pydantic agent.
         """
         from mcmas import ctx
 
@@ -217,9 +226,8 @@ class Agent(IFragment):
     @classmethod
     @pydantic.validate_call
     def from_source(kls, txt, strict: bool = False) -> typing.Self:
-        # def from_source(kls, txt, strict: bool = False) -> Dict[str, Self]:
         """
-        
+        Load ISPL agent from string.
         """
         agents = kls.parser(txt)
         agents.pop("Environment", None)
@@ -362,19 +370,18 @@ class ISPL(IFragment):
     @classmethod
     @pydantic.validate_call
     def from_source(kls, txt, strict: bool = False) -> typing.Dict[str, typing.Self]:
+        """
+        Return ISPL object from given string.
+        """
         # from mcmas import parser
         return kls.parser(txt)
-
-    # @classmethod
-    # def from_file(kls, fname: str):
-    #     import mcmas
-    #     with open(fname) as fhandle:
-    #         data = mcmas.parser.parse(fhandle.read())
-    #     return kls(**data)
 
     @classmethod
     @pydantic.validate_call
     def load_from_ispl_file(kls, file: str = None, text=None):
+        """
+        Return ISPL object from contents of given file.
+        """
         LOGGER.critical(f"ISPL.load_from_ispl_file: {file}")
         metadata = dict(file=file)
         if file:
@@ -400,11 +407,15 @@ class ISPL(IFragment):
             LOGGER.critical("NIY")
             raise Exception(text)
 
+    load_from_file = load_from_ispl_file
+
     @classmethod
     @pydantic.validate_call
     def load_from_json_file(kls, file: str = None, text=None):
         """
-        
+        Return ISPL object from the contents of given file.
+
+        File *must* be JSON encoded.
         """
         LOGGER.critical(f"ISPL.load_from_json_file: {file}")
         metadata = dict(file=file)
@@ -445,7 +456,9 @@ class ISPL(IFragment):
     @pydantic.validate_call
     def model_dump_analysis(self) -> spec.Analysis:
         """
-        
+        Static-analysis for this ISPL specification.
+
+        Returns details about symbols and logical operators.
         """
 
         meta = spec.Analysis(
@@ -467,7 +480,7 @@ class ISPL(IFragment):
 
     def exec(self, strict: bool = False, **kwargs):
         """
-        
+        Execute this ISPL specification.
         """
         import mcmas
 
@@ -513,9 +526,14 @@ class ISPL(IFragment):
         self.logger.debug("done")
         return out
 
+    run_sim = run_simulation = exec
+
     def repl(self):
+        """
+        Start a REPL shell with this object available as `spec`.
+        """
         result_model = self.exec()
-        return util.repl(model=result_model)
+        return util.repl(spec=result_model)
 
 
 # def make_strict(model: type[spec.Specification]) -> type[spec.Specification]:

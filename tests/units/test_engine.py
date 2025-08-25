@@ -4,6 +4,23 @@ from mcmas import engine, models, util
 LOGGER = util.lme.get_logger(__name__)
 
 
+def test_witnesses():
+    from mcmas.models import Simulation
+
+    sim = engine(fname="tests/data/book_store.ispl", output_format="model")
+    assert isinstance(sim, (Simulation,))
+    assert not sim.witnesses
+    sim = engine(
+        fname="tests/data/book_store.ispl", output_format="model", witness=True
+    )
+    assert isinstance(sim, (Simulation,))
+    assert len(sim.witnesses) == 5
+    assert len(sim.counter_examples) == 2
+    # util.repl(**{**locals(),**globals()}) #fname=fname,ISPL=ISPL,engine=engine)
+    # tmp = engine(fname=fname,witnesses=True, output_format=model)
+    # assert len(tmp.sim.witnesses)==2
+
+
 def test_run_filename_return_dict():
     out: dict = mcmas.engine(fname="tests/data/muddy_children.ispl")
     assert isinstance(out, (dict,)), "returns dictionary by default"

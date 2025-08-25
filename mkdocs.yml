@@ -11,7 +11,6 @@ theme:
     - navigation.top
     - toc.integrate
   font:
-    # code: Roboto Mono
     code: Rasa
   logo: img/logo.png
   custom_dir: docs/theme
@@ -22,10 +21,7 @@ theme:
     - bash
   icon:
     repo: fontawesome/brands/git-alt
-# extra_css: ["extra.css"]
 site_url: https://mattvonrocketstein.github.io/py-mcmas
-# site_description: >-
-#   A tool / library for makefile-based automation, scripting, and lightweight orchestration.  Native support for docker, docker-compose, workflow primitives, TUI elements, and more.
 remote_branch: docs
 nav:
   - Overview:
@@ -41,9 +37,9 @@ nav:
     - "Pythonic ISPL": "demos/pythonic.md"
     - "PydanticAI Agents -> ISPL": "demos/pydantic-ai.md"
     - "OpenAI Agents -> ISPL": "demos/openai.md"
-    # - "CamelAI Agents -> ISPL": "demos/camelai.md"
     # - "Agent Societies": demos/societies.md
-    # - "Specification Algebra": demos/spec-algebra.md
+    # - "CamelAI Agents -> ISPL": "demos/camelai.md"
+    - "Specification Algebra": demos/spec-algebra.md
   - 'Reference':
     - 'Python API': 'api/'
     - 'Schemas & Pydantic Models': schema/index.md

@@ -3,18 +3,16 @@
 ## Pythonic ISPL
 <hr style="width:100%;border-bottom:2px solid black;">
 
-Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  
+Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  There's several reasons why you might want to do this (including the fact that ISPL fragments allow for [AI-powered completion](#), and specification objects [have their own algebra](#))  
 
-There's several reasons why you might want to do this, including the fact that ISPL fragments generated from python also [have their own algebra](#) and allow for [AI-powered completion](#).  
-
-But the simplest reason is just that ISPL specifications are more like *data* than like programs.  For example, explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
+But the simplest reason is just that ISPL specifications are more like *data* than like programs anyway.  For example, explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup, and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
 
 ### Flexibile Parsing
 <hr style="width:100%;border-bottom:2px solid black;">
 
-**At a high level,** you'll want to use the pydantic models for [`mcmas.ispl.Environment`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Environment) and [`mcmas.ispl.Agent`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Agent), which mirror have the same structure as their counterpart [primtives in pure-ISPL]({{mkdocs.site_relative_url}}/isplref#Environment).
+**At a high level,** you'll want to use the pydantic models for [`mcmas.ispl.Environment`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Environment) and [`mcmas.ispl.Agent`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Agent), which mirror their [counterpart primitives in pure-ISPL]({{mkdocs.site_relative_url}}/isplref#Environment).
 
-**For individual blocks though,** although the JSON schema for *output* is strict, parsing input is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block might look like this:
+**For individual blocks though,** although the JSON schema for *output* is strict, input-parsing is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block in pure ISPL might look like this:
 
 ```ispl
 Agent foo 
@@ -70,4 +68,4 @@ The example below is porting the [minimal.ispl example](#original-ispl) to pure 
 The pure ISPL for the python example above:
 
 {{site.embed_demo(
-    'tests/data/minimal.ispl', github=github, type='python')}}
+    'tests/data/minimal.ispl', github=github, type='ispl')}}
