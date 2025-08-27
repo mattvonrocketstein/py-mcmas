@@ -64,6 +64,13 @@ class SpecificationFragment(pydantic.BaseModel):
     )
 
     @classmethod
+    def _get_trivial_example(kls):
+        """
+        Subclassers must implement this.
+        """
+        raise NotImplementedError(f"{kls}")
+
+    @classmethod
     def from_source(kls, txt) -> typing.Self:
         """
         Creates this piece of a specification from raw source-

@@ -18,7 +18,7 @@ from typing import Dict, Union
 import docker
 import pydantic
 
-from mcmas import models, parser, util
+from mcmas import ispl, parser, sim, util
 
 LOGGER = util.get_logger(__name__)
 DEFAULT_IMG = "ghcr.io/mattvonrocketstein/mcmas:v1.3.0"
@@ -44,7 +44,7 @@ def relpath(fname):
 
 
 @pydantic.validate_call
-def parse_engine_output(text: str, file=None, exit_code=None) -> models.Simulation:
+def parse_engine_output(text: str, file=None, exit_code=None) -> sim.Simulation:
     """
     Parses raw engine output to Simulation.
     """
@@ -89,14 +89,14 @@ def parse_engine_output(text: str, file=None, exit_code=None) -> models.Simulati
     match = re.search(r"(.*) has error\(s\)[.]", text)
     parsed = False if match else parsed
 
-    model_validates = parsed and (len(formula_lines) == len(true_props))
+    spec_validates = parsed and (len(formula_lines) == len(true_props))
     error = exit_code not in [0, 139]
     error and LOGGER.critical(f"error {error}")
-    metadata = models.Simulation.Metadata(
+    metadata = sim.Simulation.Metadata(
         parsed=parsed,
         file=file,
         exit_code=exit_code,
-        validates=parsed and model_validates,
+        validates=parsed and spec_validates,
         deadlock=deadlock if parsed else None,
     )
     data = {"error": error and text, "metadata": metadata}
@@ -119,7 +119,7 @@ def parse_engine_output(text: str, file=None, exit_code=None) -> models.Simulati
                 "memory": {"bdd": bdd_memory},
             },
         )
-    out = models.Simulation(**data)
+    out = sim.Simulation(**data)
     return out
 
 
@@ -162,25 +162,26 @@ def mcmas(
     Proxies an invocation of the mcmas engine through to the
     containerized CLI.
     """
-    from mcmas import ispl
 
     def create_witness_folder():
         pass
 
     def clean_witness_folder(tmpd):
-        LOGGER.warning(
-            [
-                "running at exit",
-                docker_client.containers.run(
-                    img,
-                    entrypoint="bash",
-                    command=f"-x -c 'rm {tmpd}/*||true; rmdir {tmpd}'",
-                    working_dir="/workspace",
-                    volumes=volumes,
-                    stdout=True,
-                    stderr=True,
-                ),
-            ]
+        """
+        Registered with atexit module.
+
+        this remove the .info and .dot files created by
+        `mcmas`, using the container to avoid permissions issues
+        """
+        LOGGER.warning("cleaning folder for witnesses")
+        docker_client.containers.run(
+            img,
+            volumes=volumes,
+            entrypoint="bash",
+            working_dir="/workspace",
+            stdout=True,
+            stderr=True,
+            command=f"-c 'ls {tmpd}|xargs -I% rm {tmpd}/ || true; rmdir {tmpd}'",
         )
 
     LOGGER.info(f"img={img} fname={fname} model={model}")
@@ -292,7 +293,7 @@ def mcmas(
                 text, file=fname, exit_code=exit_code
             ).model_dump()
             tmp.pop("error"), tmp.pop("text"), tmp.pop("exit_code")
-            sim = models.Simulation(
+            sim = sim.Simulation(
                 text=None,
                 metadata=tmp.metadata.model_copy(update={"exit_code": exit_code}),
                 error=text,
@@ -307,45 +308,10 @@ def mcmas(
         err = "nothing returned from engine"
         LOGGER.critical(err)
         raise Exception(container)
-    if witness and sim:
-        LOGGER.warning("loading witnesses..")
-        witnesses = dict()
-        for wfile in Path(tmpd).iterdir():
-            if str(wfile).endswith(".info"):
-                with open(wfile) as fhandle:
-                    content = fhandle.read()
-                    witnesses[wfile.stem] = parser.extract_witnesses(
-                        content, fname=wfile
-                    )
-        ordered = sorted([k for k in witnesses])
-        tmp = {}
-        for k in ordered:
-            tmp[k] = witnesses[k]
-        witnesses = {}
 
-        model = model or ispl.ISPL.load_from_ispl_file(file=str(fname))
-        forms = model.formulae
-        for i, fname_stem in enumerate(tmp.keys()):
-            witnesses[forms[i]] = tmp[fname_stem]
-        if len(forms) > len(witnesses):
-            LOGGER.warning("could not find witnesses for some formulae.")
-            missing = []
-            present = []
-            for fname_stem in tmp.keys():
-                match = re.search(r"(\d+)$", fname_stem)
-                i = int(match.group(1))
-                present.append(i)
-            missing = [
-                forms[i] for i in [x for x in range(len(tmp)) if x not in present]
-            ]
-            for m in missing:
-                LOGGER.warning(f" - {m}")
-                witnesses[m] = []
-            sim = sim.model_copy(update=dict(witnesses=witnesses))
-        sim = sim.model_copy(update=dict(witnesses=witnesses))
-        LOGGER.critical(
-            f"found witnesses for {len(witnesses)} of {len(model.formulae)} formulae"
-        )
+    if witness and sim:
+        sim = load_witnesses(tmpd=tmpd, fname=fname, model=model, sim=sim)
+
     if output_format in ["data"]:
         return sim.model_dump()
     elif output_format in ["model"]:
@@ -359,6 +325,47 @@ def mcmas(
         return "\n".join(sim.error or sim.text)
     else:
         raise Exception(f"unrecognized output format {output_format}")
+
+
+def load_witnesses(tmpd=None, model=None, fname: Union[str, PosixPath] = "", sim=None):
+    """
+    
+    """
+    LOGGER.warning("loading witnesses..")
+    witnesses = dict()
+    for wfile in Path(tmpd).iterdir():
+        if str(wfile).endswith(".info"):
+            with open(wfile) as fhandle:
+                content = fhandle.read()
+                witnesses[wfile.stem] = parser.extract_witnesses(content, fname=wfile)
+    ordered = sorted([k for k in witnesses])
+    tmp = {}
+    for k in ordered:
+        tmp[k] = witnesses[k]
+    witnesses = {}
+
+    model = model or ispl.ISPL.load_from_ispl_file(file=str(fname))
+    forms = model.formulae
+    for i, fname_stem in enumerate(tmp.keys()):
+        witnesses[forms[i]] = tmp[fname_stem]
+    if len(forms) > len(witnesses):
+        LOGGER.warning("could not find witnesses for some formulae.")
+        missing = []
+        present = []
+        for fname_stem in tmp:
+            match = re.search(r"(\d+)$", fname_stem)
+            i = int(match.group(1))
+            present.append(i)
+        missing = [forms[i] for i in [x for x in range(len(tmp)) if x not in present]]
+        for m in missing:
+            LOGGER.warning(f" - {m}")
+            witnesses[m] = []
+        sim = sim.model_copy(update=dict(witnesses=witnesses))
+    sim = sim.model_copy(update=dict(witnesses=witnesses))
+    LOGGER.critical(
+        f"found witnesses for {len(witnesses)} of {len(model.formulae)} formulae"
+    )
+    return sim
 
 
 @pydantic.validate_call

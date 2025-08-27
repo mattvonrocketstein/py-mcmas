@@ -8,7 +8,7 @@ import re
 import pydantic
 from pydantic import Field
 
-from mcmas import fmtk, typing, util  # import SpecificationMetadata
+from mcmas import fmtk, typing, util
 from mcmas.models.util import BoolMaybe, Str2List
 
 IntMaybe = typing.Union[None, int]
@@ -40,6 +40,9 @@ class FormulaeResult(pydantic.BaseModel):
     false: typing.List[str] = Field(description="false", default=[])
 
     def __getitem__(self, k):
+        """
+        
+        """
         return getattr(self, k)
 
 
@@ -120,7 +123,6 @@ class SimBase(pydantic.BaseModel):
         """
         That subset of witnesses which refer to FALSE formulae.
         """
-        # from mcmas.util import repl
         spec = self.spec
         assert spec, f"spec not set for {self}"
         witnesses = self.witnesses.items()

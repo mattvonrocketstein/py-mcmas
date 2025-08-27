@@ -1,5 +1,5 @@
 """
-**mcmas.ispl**:
+mcmas.ispl:
 
 Pydantic models for holding ISPL programs and program- fragments.
 """
@@ -18,18 +18,16 @@ import mcmas
 from mcmas import fmtk, typing, util
 from mcmas.logic import symbols  # noqa
 from mcmas.models import spec
-
-from . import sim
+from mcmas.sim import SimType, Simulation
 
 Actions = typing.ActionsType
 
 LOGGER = util.get_logger(__name__)
-parser = util.lazy_module("mcmas.parser")
 
 ###############################################################################
 
 
-class IFragment(fmtk.Fragment):
+class Fragment(fmtk.Fragment):
     """
     A piece of an ISPL Specification.
 
@@ -37,6 +35,7 @@ class IFragment(fmtk.Fragment):
     be useful for actually running a simulation!
     """
 
+    @pydantic.validate_call
     def update(self, data: dict) -> typing.Self:
         for k, v in self.model_dump().items():
             setattr(self, k, v)
@@ -48,26 +47,33 @@ class IFragment(fmtk.Fragment):
         #     setattr(self, k, v)
         # return self
 
-    def model_validate(self) -> typing.Dict:
+    @pydantic.validate_call
+    def spec_validate(self) -> typing.Dict:
         return dict(
             metadata=self.metadata.model_dump(),
             validates=self.validates,
             advice=self.advice,
         )
 
-
-class ISpec(fmtk.Specification):
-    """
-    
-    """
+    def __invert__(self):
+        """Model interpolation: returns this model"""
+        if not self.advice:
+            LOGGER.warning(f"{self} has no advice and appears complete, returning it.")
+            return self
+        else:
+            err = f"Not sure how from complete object like {self}"
+            LOGGER.critical(err)
+            raise NotImplementedError(err)
 
 
 ###############################################################################
 
 
-class Environment(IFragment):
+class Environment(Fragment):
     """
-    A wrapper for ISPL Environments.
+    A wrapper for ISPL Environments. Environments models the
+    shared infrastructure and boundary conditions that all
+    standard agents can observe.
 
     See
     http://mattvonrocketstein.github.io/py-mcmas/isplref/#environment
@@ -78,6 +84,11 @@ class Environment(IFragment):
     @classmethod
     @pydantic.validate_call
     def from_source(kls, txt: str) -> typing.Self:
+        """
+        Creates an Environment from string.
+        """
+        from mcmas import parser
+
         agents = parser.extract_agents(txt)
         env = agents.pop("Environment", None)
         assert env is not None
@@ -85,27 +96,27 @@ class Environment(IFragment):
 
     actions: typing.ActionsType = Field(
         default=[],
-        description="",
+        description="Defines the set of actions an agent can perform, which are visible to all other agents.",
     )
     evolution: typing.EvolType = Field(
         default=[],
-        description="",
+        description="How variables change based on actions",
     )
     protocol: typing.ProtocolType = Field(
         default={},
-        description="",
+        description="Action selection rules",
     )
     vars: typing.VarsType = Field(
-        description="",
         default={},
+        description="Private variables - only the Environment can access",
     )
     obsvars: typing.ObsVarsType = Field(
-        description="",
         default={},
+        description="Observable variables - can be seen by other agents",
     )
 
 
-class Agent(IFragment):
+class Agent(Fragment):
     """
     A wrapper for ISPL Agents.
 
@@ -113,6 +124,7 @@ class Agent(IFragment):
     http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent
     """
 
+    TrivialAgent: typing.ClassVar
     REQUIRED: typing.ClassVar = ["protocol", "evolution", "actions"]
     parser: typing.ClassVar
 
@@ -131,10 +143,10 @@ class Agent(IFragment):
     )
     evolution: typing.EvolType = Field(
         default=[],
-        description="",
+        description="Defines how an agent's local variables change in response to the actions performed by all agents.",
     )
     protocol: typing.ProtocolType = Field(
-        description="",
+        description="Defines the rules for when an agent can perform specific actions based on its current state",
         default=[],
     )
     obsvars: typing.ObsVarsType = Field(
@@ -150,28 +162,14 @@ class Agent(IFragment):
         default=[],
     )
 
-    @classmethod
-    def trivial_agent(kls):
-        """
-        Smallest legal agent.
-        """
-        return kls(
-            name="trivial",
-            vars=dict(ticking="boolean"),
-            actions=["tick"],
-            protocol=["Other : {tick}"],
-            evolution=["waiting=true if Action=wait;"],
-        )
-
-    def model_dump_source(self):
-        """
-        Dump the source-code for this piece of the specification.
-        """
-        return util.dict2ispl(dict(agents={self.name: self.model_dump()}))
-
-    def model_completion(self):
+    @pydantic.validate_call
+    def __invert__(self) -> typing.Self:
+        """Model interpolation: returns this model"""
         """
         Trigger completion for this Agent.
+
+        This makes minimal changes to
+        This is NOT backed by an LLM; see instead `mcmas.ai.agent_completion`.
         """
         if not self.advice:
             LOGGER.warning(
@@ -180,10 +178,11 @@ class Agent(IFragment):
             return self
         else:
             tmp = self
+            trivial = TrivialAgent
             defaults = dict(
-                protocol=["Other: {none};"],
-                vars=dict(thinking="boolean"),
-                evolution=["thinking=true if bob.Action = tool2;"],
+                protocol=trivial.protocol,
+                vars=trivial.vars,
+                evolution=trivial.evolution,
             )
             for x in ["protocol", "vars", "evolution"]:
                 if getattr(self, x, None):
@@ -191,13 +190,44 @@ class Agent(IFragment):
                 else:
                     LOGGER.warning(f"could not find required {x}")
                     tmp = tmp.model_copy(update={x: defaults[x]})
-            return tmp
+            return tmp.model_copy(
+                update=dict(actions=list(set(tmp.actions + trivial.actions)))
+            )
+
+    model_completion = __invert__
+
+    @util.classproperty
+    def TrivialAgent(kls):
+        return kls._trivial_agent()
+
+    @classmethod
+    def _get_trivial_example(kls):
+        """
+        Smallest legal agent.
+        """
+        return kls(
+            name="trivial",
+            vars=dict(ticking="boolean"),
+            actions=["tick"],
+            protocol=["Other : {tick}"],
+            # ["Other: {none};"]
+            evolution=["ticking=true if Action=tick;"],
+            # ["thinking=true if bob.Action = tool2;"]
+        )
+
+    def model_dump_source(self):
+        """
+        Dump the source-code for this piece of the specification.
+        """
+        return util.dict2ispl(dict(agents={self.name: self.model_dump()}))
 
     @util.classproperty
     def parser(self) -> typing.Callable:
         """
         Return an appropriate parser for this spec-fragment.
         """
+        from mcmas import parser
+
         return parser.extract_agents
 
     @classmethod
@@ -220,7 +250,7 @@ class Agent(IFragment):
                     file=inspect.getfile(pagent.__class__),
                 ),
                 **extra,
-            )
+            ).model_completion()
         return out
 
     @classmethod
@@ -240,7 +270,16 @@ class Agent(IFragment):
         return []
 
 
-class ISPL(IFragment):
+TrivialAgent = Agent._get_trivial_example()
+
+
+class ISpec(fmtk.Specification):
+    """
+    
+    """
+
+
+class ISPL(Fragment):
     """
     An A wrapper for ISPL specifications.
 
@@ -268,11 +307,14 @@ class ISPL(IFragment):
     )
     fairness: typing.Dict[str, typing.List[str]] = Field(
         default={},
-        description="",
+        description=(
+            "Specifies conditions that must hold infinitely often along "
+            "all execution paths, used to rule out unrealistic behaviors."
+        ),
     )
     init_states: typing.InitStateType = Field(
         default=[],
-        description="Initial states for this specification.",
+        description="Initial global states of the system when verification begins.",
     )
     evaluation: typing.EvalType = Field(
         default=[],
@@ -280,7 +322,10 @@ class ISPL(IFragment):
     )
     groups: typing.GroupsType = Field(
         default={},
-        description="Group memberships.  A map of {group_name: [member1, .. ]}",
+        description=(
+            "A map of {group_name: [member1, .. ]}"
+            "Defines collections of agents for use in group-based verification formulae."
+        ),
     )
 
     formulae: typing.FormulaeType = Field(
@@ -290,7 +335,7 @@ class ISPL(IFragment):
         ),
         default=[],
     )
-    simulation: sim.SimType = Field(
+    simulation: SimType = Field(
         default=None,
         description=(
             "The result of simulating this specification.  "
@@ -304,14 +349,6 @@ class ISPL(IFragment):
             "Only available if the specification was loaded from raw ISPL"
         ),
     )
-
-    def __invert__(self):
-        """Model interpolation: returns this model"""
-        if not self.advice:
-            LOGGER.warning(f"{self} has no advice and appears complete, returning it.")
-            return self
-        else:
-            raise NotImplementedError([self])
 
     def __iadd__(self, other):
         """
@@ -353,6 +390,8 @@ class ISPL(IFragment):
         """
         Shortcut for `mcmas.parser.parse`
         """
+        from mcmas import parser
+
         return parser.parse
 
     @property
@@ -482,8 +521,6 @@ class ISPL(IFragment):
         """
         Execute this ISPL specification.
         """
-        import mcmas
-
         required = ["init_states"]
         self.logger.debug(f"validating: {self.source_code or self.model_dump_source()}")
 
@@ -500,22 +537,15 @@ class ISPL(IFragment):
                 return self.model_copy(
                     update={
                         # "source_code": src,
-                        "simulation": mcmas.models.Simulation(
+                        "simulation": Simulation(
                             error=err,
-                            metadata=mcmas.models.Simulation.Metadata(
-                                parsed=False, validates=False
-                            ),
+                            metadata=Simulation.Metadata(parsed=False, validates=False),
                         ),
                     }
                 )
 
         self.logger.debug("starting..")
-        # sim = engine(output_format="model", **model_dump_source
         sim = mcmas.engine(text=self.model_dump_source(), output_format="model")
-        # metadata = {
-        #     # **sim.metadata.model_dump(),
-        #     **self.metadata,
-        # }
         out = self.model_copy(
             update=dict(
                 source_code=self.source_code or self.model_dump_source(),

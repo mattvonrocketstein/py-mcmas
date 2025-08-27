@@ -6,6 +6,7 @@ import gc
 import importlib.util
 import inspect
 import os
+import re
 import sys
 import typing
 
@@ -102,7 +103,7 @@ class classproperty_cached(classproperty):
         return self.__class__.CLASSPROP_CACHES[self.fxn]
 
 
-def find_instances(cls):
+def find_instances(cls) -> typing.List:
     """
     Finds all instances of a class and its subclasses in memory.
     """
@@ -113,7 +114,8 @@ def find_instances(cls):
     return instances
 
 
-def lazy_module(fullname):
+@pydantic.validate_call
+def lazy_module(fullname: str):
     """
     Used with lazy imports.
     """
@@ -142,14 +144,37 @@ def dict2ispl(data: dict) -> str:
     return template.render(model=model)
 
 
-def fxn_metadata(func) -> typing.Dict[str, typing.Dict[str, typing.Any]]:
+@pydantic.validate_call
+def accepts_posargs(func: typing.Callable) -> bool:
     """
-    Return signature/source/etc for the given function.
+    Check if a function accepts positional arguments.
     """
-    # sig = inspect.signature(func)
+    sig = inspect.signature(func)
+    for param in sig.parameters.values():
+        if param.kind in (param.POSITIONAL_ONLY,):
+            return True
+    return False
+
+
+def fxn_sig(func: typing.Callable) -> typing.Dict[str, typing.Dict[str, typing.Any]]:
+    """
+    Return string version of functiuon signature.
+    """
+    sig = inspect.signature(func)
     src = inspect.getsource(func)
-    header = src[: src.find(":")]
-    result = header
+    pattern = r"(def.*?):\s*\n\s+"
+    match = re.search(pattern, src, re.DOTALL)
+    if match:
+        header = match.group(1) + ":"
+    else:
+        # Fallback: if no indented content found, just match until ':'
+        pattern = r"(def.*?):"
+        match = re.search(pattern, src, re.DOTALL)
+        header = match.group(1) + ":" if match else src.strip()
+    # header = src[: src.find(":")]
+    anno = sig.return_annotation
+    anno = anno.__name__ if anno != inspect._empty else "typing.Any"
+    return f"{header} -> {anno}"
     # result = {}
     # for param_name, param in sig.parameters.items():
     #     param_info = {
@@ -160,10 +185,9 @@ def fxn_metadata(func) -> typing.Dict[str, typing.Dict[str, typing.Any]]:
     #         'has_default': param.default != inspect.Parameter.empty
     #     }
     #     result[param_name] = param_info
-
     # # Add return annotation if present
     # if sig.return_annotation != inspect.Signature.empty:
     #     result['__return__'] = {
     #         'annotation': sig.return_annotation
     #     }
-    return result
+    # return result

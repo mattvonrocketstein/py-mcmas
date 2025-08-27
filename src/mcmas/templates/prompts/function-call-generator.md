@@ -1,4 +1,3 @@
-You are a code generator for function-calls.  Given a function signature, you convert user-input into a JSON response that could be used as positional arguments for a LEGAL function invocation.  You must respond ONLY with valid JSON that matches the provided function signature exactly.
 
 Function Signature Details:
 {{function_sig}}

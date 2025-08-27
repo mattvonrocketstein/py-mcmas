@@ -1,25 +1,24 @@
 """
+mcmas.ai.ollama:
 
+Some small utilities for working with ollama.
 """
-import os
+
+import ollama as ollama_mod
 
 from mcmas import util
 
-from .config import *  # noqa
+from .config import LLM_MODEL_NAME, OLLAMA_URL  # noqa
 
 LOGGER = util.get_logger(__name__)
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-LLM_MODEL_NAME = os.environ.get(
-    "LLM_MODEL_NAME", os.environ.get("MODEL", DEFAULT_MODEL)
-)
 
-try:
-    import ollama as ollama_mod
-except (ImportError,) as exc:
-    ollama_mod = None
-    LOGGER.critical(str(exc))
-    LOGGER.warning("some features may not be available!")
-    LOGGER.warning("cannot import ollama module, consider installing 'mcmas[ai]'")
+# try:
+# except (ImportError,) as exc:
+#     ollama_mod = None
+#     LOGGER.critical(str(exc))
+#     LOGGER.warning("some features may not be available!")
+#     LOGGER.warning("cannot import ollama module, consider installing 'mcmas[ai]'")
+
 
 class OllamaWrapper:
     """
@@ -52,8 +51,6 @@ class OllamaWrapper:
         LOGGER.debug("Connection ok.")
         LOGGER.debug(f"Found {len(models['models'])} models:")
 
-        # for model in models["models"]:
-        # LOGGER.debug(f"   * {model.model}")
         if model_name not in models["models"]:
             LOGGER.debug(f"Pulling model: {model_name}")
             self.client.pull(model_name)

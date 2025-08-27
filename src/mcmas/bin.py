@@ -209,7 +209,7 @@ def ispl_main(
     if validate:
         LOGGER.info("validating ..")
         LOGGER.warning(model.advice)
-        out = model.model_validate()
+        out = model.spec_validate()
         print(json_module.dumps(out, indent=2))
         LOGGER.warning(out)
         raise SystemExit(0 if out["validates"] else 1)

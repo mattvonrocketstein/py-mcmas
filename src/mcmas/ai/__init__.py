@@ -15,23 +15,19 @@ pydantic.Field descriptions, model-docstrings, etc.
 
 import inspect
 import json
-import os
 import typing
 
 import pydantic
 from pydantic import ValidationError
 
-from mcmas import rendering, util
+from mcmas import ispl, rendering, util
 
 LOGGER = util.get_logger(__name__)
 
 
 from .config import *  # noqa
-from .ollama import *  # noqa
-
-OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", f"{OLLAMA_URL}/v1")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "ollama")
-
+from .config import DEFAULT_MODEL, OPENAI_API_KEY, OPENAI_BASE_URL  # noqa
+from .ollama import ollama
 
 try:
     import openai
@@ -40,18 +36,20 @@ try:
 except (ImportError,) as exc:
     openai = DEFAULT_CLIENT = None
     LOGGER.critical(str(exc))
-    LOGGER.warning("some features may not be available!")
-    LOGGER.warning("cannot import openai module, consider installing 'mcmas[ai]'")
+    LOGGER.critical("Some features may not be available!")
+    LOGGER.critical("Cannot import openai module, consider installing 'mcmas[ai]'")
+
+init = ollama.pull_model
 
 
 def _loop(
     client: typing.Any = None,
     fxn: typing.Callable = None,
+    max_retries: int = 3,
+    temperature: float = 0.1,
     model: str = DEFAULT_MODEL,
     query: str = None,
     schema: typing.Type = None,
-    max_retries: int = 3,
-    temperature: float = 0.1,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
     user_prompt: str = None,
 ):
@@ -59,6 +57,7 @@ def _loop(
     Inner loop for openai completion.
     """
     client = client or DEFAULT_CLIENT
+    ollama.pull_model()
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -71,6 +70,7 @@ def _loop(
                 max_tokens=1000,
             )
             content = response.choices[0].message.content.strip()
+            LOGGER.critical(f"{content}")
             if content.startswith("```json"):
                 content = content[7:]
             if content.endswith("```"):
@@ -105,20 +105,18 @@ def agent_completion(
     """
     See module doc-string.
     """
-
-    from mcmas import ispl
-
+    # from mcmas import ispl
     schema = ispl.Agent
-    prompt_t = rendering.get_template("prompts/agent-generator.md")
+    # prompt_t = rendering.get_template("prompts/agent-generator.md")
     src = inspect.getsource(fxn)
-    src = src[src.find("def ") :]  # .split('\n'); src=src
-    query = prompt_t.render(
-        user_query=src,
-        json_schema=json.dumps(schema.model_json_schema(), indent=2),
-    )
+    src = src[src.find("def ") :]
+    # query = prompt_t.render(
+    #     user_query=src,
+    #     json_schema=json.dumps(schema.model_json_schema(), indent=2),
+    # )
     agent = model_completion(schema=schema, **kwargs)
     LOGGER.critical(f"{agent}")
-    trivial = ispl.Agent.trivial_agent()
+    trivial = ispl.TrivialAgent
     assert not trivial.advice
     templ = trivial.model_dump()
     for k in list(
@@ -127,9 +125,6 @@ def agent_completion(
         discovered = getattr(agent, k, None)
         if discovered:
             templ[k] = discovered
-            # update()
-            # tmp = getattr(agent, k, None)
-        # templ[k] = getattr(agent, k, tmp or templ[k])
     templ["actions"] = list(set(agent.actions + trivial.actions))
     agent = ispl.Agent(**templ)
     LOGGER.critical(f"after merged with trivial {agent}")
@@ -149,17 +144,22 @@ def call_completion(
     fxn: typing.Callable = None,
     query: str = None,
     schema: typing.Type = None,
-    system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
+    system_prompt: str = "You are a JSON generator.",
     **kwargs,
 ) -> typing.Any:
     """
     See module doc-string.
     """
+    if util.accepts_posargs(fxn):
+        err = f"call_completion: expected kwargs-only function, but {fxn} uses posargs"
+        LOGGER.critical(err)
+        raise RuntimeError(err)
     prompt_t = rendering.get_template("prompts/function-call-generator.md")
     user_prompt = prompt_t.render(
         user_query=query,
-        function_sig=util.fxn_metadata(fxn),
+        function_sig=util.fxn_sig(fxn),
     )
+    LOGGER.critical(f"{system_prompt}\n\n{user_prompt}")
     parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
     return parsed_json
 
@@ -195,9 +195,6 @@ def model_completion(
     return validated_data
 
 
-from .ollama import *  # noqa
-
-
 class Society:
     """
     Agent-discovery for a few different ecosystems / frameworks.
@@ -213,6 +210,12 @@ class Society:
     """
 
     def __getitem__(self, other):
+        return self.get_spec(other)
+
+    def get_spec(self, other):
+        """
+        
+        """
         tmp = [x for x in self]
         if isinstance(other, (str,)):
             agent = None
@@ -223,15 +226,13 @@ class Society:
             agent = other
         return agent_completion(agent=agent, framework=self.module)
 
-    def get_spec(self, agent):
-        """
-        
-        """
-        return self[agent]
-
     def __init__(self, module):
         """
-        
+        Instantiate a Society with the framework module, or a
+        string version of the module name.
+
+        This auto-detects all agents that are defined /
+        instantiated for this runtime.
         """
         name = getattr(module, "__name__", module)
         assert name in ["pydantic_ai", "openai", "agents"]

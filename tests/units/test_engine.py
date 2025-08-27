@@ -1,11 +1,11 @@
 import mcmas
-from mcmas import engine, models, util
+from mcmas import engine, util
+from mcmas.sim import Simulation
 
 LOGGER = util.lme.get_logger(__name__)
 
 
 def test_witnesses():
-    from mcmas.models import Simulation
 
     sim = engine(fname="tests/data/book_store.ispl", output_format="model")
     assert isinstance(sim, (Simulation,))
@@ -44,7 +44,7 @@ def test_run_text_return_model():
     with open("tests/data/muddy_children.ispl") as fhandle:
         text = fhandle.read()
     out = mcmas.engine(text=text, output_format="model")
-    assert isinstance(out, (models.Simulation,)), "requested a model? => Simulation"
+    assert isinstance(out, (Simulation,)), "requested a model? => Simulation"
     # assert not out.failed
     assert not out.error, "successful run => no error"
     assert out.text, "model encapsulates raw output"
@@ -54,7 +54,7 @@ def test_run_text_return_model():
 def test_run_bad_program_wont_validate():
     text = "ILLEGAL PROGRAM"
     out = mcmas.engine(text=text, output_format="model")
-    assert isinstance(out, (models.Simulation,)), "requested a model? => Simulation"
+    assert isinstance(out, (Simulation,)), "requested a model? => Simulation"
     # assert not out.text
     # assert out.error
     assert not out.metadata.validates, "bad program => marked as not valid"

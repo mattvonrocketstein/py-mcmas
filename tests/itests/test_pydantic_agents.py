@@ -34,7 +34,7 @@ def test_agent_from_pydantic():
 
 
 def test_agent_complete():
-    bob_prime = mcmas.ispl.Agent.from_pydantic_agent(bob).model_completion()
+    bob_prime = mcmas.ispl.Agent.from_pydantic_agent(bob)
     assert bob_prime.protocol
     assert not bob_prime.advice
     assert bob_prime.concrete

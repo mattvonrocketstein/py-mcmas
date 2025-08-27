@@ -1,3 +1,5 @@
+import typing
+
 import mcmas
 
 
@@ -17,9 +19,12 @@ def test_find_instances():
     assert set(actual) == set(expected)
 
 
-def foo(a, b, c="d", **kwargs):
+def foo(a, b, c="d", **kwargs) -> typing.Dict:
     return a + b + c
 
 
-def test_signature_to_dict():
-    assert mcmas.util.fxn_metadata(foo).strip().startswith("def foo")
+def test_fxn_sig():
+    tmp = mcmas.util.fxn_sig(foo)
+    assert tmp.startswith("def foo"), "function name is missing"
+    assert 'c="d"' in tmp, "function args missing"
+    assert "-> Dict" in tmp, "return annotation detail is missing"
