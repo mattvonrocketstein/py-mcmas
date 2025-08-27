@@ -15,6 +15,7 @@ from pydantic import validate_call
 
 from mcmas import engine, util
 from mcmas.ispl import ISPL
+from mcmas.sim import Simulation
 from mcmas.util.lme import get_logger
 
 LOGGER = get_logger(__name__)
@@ -123,7 +124,7 @@ def ispl_main(
         schema = schema and fname
         fname = None
         assert schema in PYDANTIC_MODELS
-        mdl = getattr(models, schema)
+        mdl = ISPL if schema == "ISPL" else Simulation
         print(json_module.dumps(mdl.model_json_schema(), indent=2))
         raise SystemExit(0)
 
@@ -197,7 +198,7 @@ def ispl_main(
 
     if analyze:
         LOGGER.info("analyzing ..")
-        analysis = ns["analysis"] = model.model_dump_analysis()
+        analysis = ns["analysis"] = model.analysis
         print(
             analysis.model_dump_json(
                 # exclude=exclude,

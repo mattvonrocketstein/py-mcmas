@@ -38,8 +38,8 @@ Semantics = MultiAssignment | SingleAssignment
 ```
 <br/>
 
-- **MultiAssignment (MA)**: Evolution items are mutually exclusive - only one item executes per step, updating its variables while keeping others unchanged
-- **SingleAssignment (SA)**: Evolution items are partitioned by variable - items updating the same variable are mutually exclusive, but items updating different variables can execute simultaneously
+* **MultiAssignment (MA)**: Evolution items are mutually exclusive - only one item executes per step, updating its variables while keeping others unchanged
+* **SingleAssignment (SA)**: Evolution items are partitioned by variable - items updating the same variable are mutually exclusive, but items updating different variables can execute simultaneously
 
 If omitted, MultiAssignment is used by default.
 
@@ -50,7 +50,7 @@ Models the shared infrastructure and boundary conditions that all standard agent
 
 The Environment is a special agent that represents the system's external conditions, communication channels, or shared resources. Unlike standard agents, the Environment can have **observable variables** that other agents can read (but not modify).
 
-```lua {.snippet}
+```lua {.small .language-lua .snippet}
 Agent Environment
   -- Observable variables - can be seen by other agents
   Obsvars:
@@ -78,10 +78,10 @@ end Agent
 <br/>
 
 
-- Can have both observable and private variables
-- Observable variables can be referenced by other agents as `Environment.variableName`
-- Represents non-deterministic external conditions
-- Optional - not all models require an environment
+* Can have both observable and private variables
+* Observable variables can be referenced by other agents as `Environment.variableName`
+* Represents non-deterministic external conditions
+* Optional - not all models require an environment
 
 ### Agent
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -116,10 +116,10 @@ end Agent
 ```
 <br/>
 
-- Have private local state (variables)
-- Can observe specific Environment variables (Lobsvars)
-- Cannot directly access other agents' private variables
-- Can reference other agents' actions in evolution functions
+* Have private local state (variables)
+* Can observe specific Environment variables (Lobsvars)
+* Cannot directly access other agents' private variables
+* Can reference other agents' actions in evolution functions
 
 ### Variable Types
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -132,10 +132,10 @@ ISPL supports three types of variables for modeling agent state.
 ```lua {.snippet}
 variableName : boolean;
 ```
-<br/>
-- Values: `true` or `false`
-- Supports bit operations: `~` (not), `&` (and), `|` (or), `^` (xor)
-- Comparisons: `=`, `!=`
+
+* Values: `true` or `false`
+* Supports bit operations: `~` (not), `&` (and), `|` (or), `^` (xor)
+* Comparisons: `=`, `!=`
 
 #### Enumeration Variables
 <hr style="width:95%;border-bottom:1px dashed black;">
@@ -143,9 +143,9 @@ variableName : boolean;
 variableName : {value1, value2, value3};
 ```
 <br/>
-- Values: Any of the specified enumeration constants
-- Comparisons: `=`, `!=`
-- Two enumeration types are comparable if one is a subset of the other
+* Values: Any of the specified enumeration constants
+* Comparisons: `=`, `!=`
+* Two enumeration types are comparable if one is a subset of the other
 
 #### Bounded Integer Variables
 <hr style="width:95%;border-bottom:1px dashed black;">
@@ -153,9 +153,9 @@ variableName : {value1, value2, value3};
 variableName : lowerBound .. upperBound;
 ```
 <br/>
-- Values: Integers within the specified range
-- Supports arithmetic operations: `+`, `-`, `*`, `/`
-- Comparisons: `=`, `!=`, `<`, `<=`, `>`, `>=`
+* Values: Integers within the specified range
+* Supports arithmetic operations: `+`, `-`, `*`, `/`
+* Comparisons: `=`, `!=`, `<`, `<=`, `>`, `>=`
 
 ### Actions
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -166,10 +166,10 @@ Actions = {action1, action2, action3};
 ```
 <br/>
 
-- Actions are "public" - all agents can observe what actions others perform
-- Used in protocols to determine when actions can be taken
-- Used in evolution functions to trigger state changes
-- Referenced in other agents' conditions as `AgentName.Action = actionName`
+* Actions are "public" * all agents can observe what actions others perform
+* Used in protocols to determine when actions can be taken
+* Used in evolution functions to trigger state changes
+* Referenced in other agents' conditions as `AgentName.Action = actionName`
 
 ### Protocol
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -185,11 +185,11 @@ end Protocol
 ```
 <br/>
 
-- Maps boolean conditions over local state to sets of enabled actions
-- Conditions can overlap (enabling non-deterministic choice)
-- `Other` keyword handles all states not covered by explicit conditions
-- Conditions can reference local variables and Environment observable variables
-- Non-deterministic when multiple actions are enabled
+* Maps boolean conditions over local state to sets of enabled actions
+* Conditions can overlap (enabling non-deterministic choice)
+* `Other` keyword handles all states not covered by explicit conditions
+* Conditions can reference local variables and Environment observable variables
+* Non-deterministic when multiple actions are enabled
 
 ```lua {.snippet}
 Protocol:
@@ -234,12 +234,12 @@ end Evolution
 #}
 
 
-- Conditions can reference local variables, Environment observables, and all agents' actions
-- Actions referenced as `AgentName.Action = actionName`
-- Right-hand side can be expressions involving variables and constants
-- If no condition matches, variables retain their current values
-- In MultiAssignment: evolution rules are mutually exclusive
-- In SingleAssignment: rules for different variables can execute simultaneously
+* Conditions can reference local variables, Environment observables, and all agents' actions
+* Actions referenced as `AgentName.Action = actionName`
+* Right-hand side can be expressions involving variables and constants
+* If no condition matches, variables retain their current values
+* In MultiAssignment: evolution rules are mutually exclusive
+* In SingleAssignment: rules for different variables can execute simultaneously
 
 <a name=red-states></a>
 ### RedStates
@@ -253,11 +253,11 @@ end RedStates
 ```
 <br/>
 
-- Boolean formula over local variables and Environment observables
-- States satisfying the condition are "red" (incorrect)
-- All other states are "green" (correct)
-- Used with deontic operator `O` (ought) in formulae
-- Can be omitted if all states are considered correct
+* Boolean formula over local variables and Environment observables
+* States satisfying the condition are "red" (incorrect)
+* All other states are "green" (correct)
+* Used with deontic operator `O` (ought) in formulae
+* Can be omitted if all states are considered correct
 
 **Built-ins / reserved keywords**: *agentName.GreenStates and agentName.RedStates for every agent, where RedStates holds on all red states of the agent and GreenStates on all green states.*
 
@@ -273,10 +273,10 @@ end Evaluation
 ```
 <br/>
 
-- Creates named boolean propositions for use in formulae
-- Conditions can reference any agent's variables using `AgentName.variableName` syntax
-- Environment variables referenced as `Environment.variableName`
-- Used to make formulae more readable and reusable
+* Creates named boolean propositions for use in formulae
+* Conditions can reference any agent's variables using `AgentName.variableName` syntax
+* Environment variables referenced as `Environment.variableName`
+* Used to make formulae more readable and reusable
 
 <a name=init-states></a>
 ### InitStates
@@ -291,11 +291,11 @@ end InitStates
 <br/>
 
 
-- Boolean formula over all agents' variables
-- Can specify exact values or relationships between variables
-- Multiple initial states possible if formula is satisfied by multiple variable assignments
-- Can use equality between variables: `Agent1.var = Agent2.var`
-- Must specify initial values for all relevant variables
+* Boolean formula over all agents' variables
+* Can specify exact values or relationships between variables
+* Multiple initial states possible if formula is satisfied by multiple variable assignments
+* Can use equality between variables: `Agent1.var = Agent2.var`
+* Must specify initial values for all relevant variables
 
 ### Groups
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -309,10 +309,10 @@ end Groups
 ```
 <br/>
 
-- Used with group epistemic operators: `GK` (group knowledge), `GCK` (common knowledge), `DK` (distributed knowledge)
-- Used with ATL strategy operators: `<groupName>X`, `<groupName>F`, etc.
-- Can include the Environment agent
-- Groups can overlap or be disjoint
+* Used with group epistemic operators: `GK` (group knowledge), `GCK` (common knowledge), `DK` (distributed knowledge)
+* Used with ATL strategy operators: `<groupName>X`, `<groupName>F`, etc.
+* Can include the Environment agent
+* Groups can overlap or be disjoint
 
 ### Fairness
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -327,11 +327,11 @@ end Fairness
 ```
 <br/>
 
-- List of formulae that must be true infinitely often
-- Can use atomic propositions defined in Evaluation section
-- Can use boolean combinations and temporal operators
-- Prevents models where certain conditions are avoided forever
-- Example: ensuring a communication channel works infinitely often
+* List of formulae that must be true infinitely often
+* Can use atomic propositions defined in Evaluation section
+* Can use boolean combinations and temporal operators
+* Prevents models where certain conditions are avoided forever
+* Example: ensuring a communication channel works infinitely often
 
 ### Formulae
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -352,19 +352,19 @@ end Formulae
 
 See also the [operator reference]({{mkdocs.site_relative_url}}/opref).
 
-- [**LTL**]({{mkdocs.site_relative_url}}/opref#temporal-logic): `G`, `F`, `X`, `U` (with `LTL` prefix)
-- [**CTL**]({{mkdocs.site_relative_url}}/opref#computation-tree-logic): `AG`, `EG`, `AX`, `EX`, `AF`, `EF`, `AU`, `EU`
-- [**Epistemic**]({{mkdocs.site_relative_url}}/opref#dynamic-epistemic-logic): `K(agent, φ)` (knowledge), `GK(group, φ)` (group knowledge), `GCK(group, φ)` (common knowledge), `DK(group, φ)` (distributed knowledge)
-- [**ATL**]({{mkdocs.site_relative_url}}/opref#strategic-logic): `<group>X φ`, `<group>F φ`, `<group>G φ`, `<group>(φ U ψ)` (strategic operators)
-- [**Deontic**]({{mkdocs.site_relative_url}}/opref#deontic-logic): `O(agent, φ)` (correctness - agent ought to satisfy φ)
+* [**LTL**]({{mkdocs.site_relative_url}}/opref#temporal-logic): `G`, `F`, `X`, `U` (with `LTL` prefix)
+* [**CTL**]({{mkdocs.site_relative_url}}/opref#computation-tree-logic): `AG`, `EG`, `AX`, `EX`, `AF`, `EF`, `AU`, `EU`
+* [**Epistemic**]({{mkdocs.site_relative_url}}/opref#dynamic-epistemic-logic): `K(agent, φ)` (knowledge), `GK(group, φ)` (group knowledge), `GCK(group, φ)` (common knowledge), `DK(group, φ)` (distributed knowledge)
+* [**ATL**]({{mkdocs.site_relative_url}}/opref#strategic-logic): `<group>X φ`, `<group>F φ`, `<group>G φ`, `<group>(φ U ψ)` (strategic operators)
+* [**Deontic**]({{mkdocs.site_relative_url}}/opref#deontic-logic): `O(agent, φ)` (correctness * agent ought to satisfy φ)
 
 In general:
 
-- Each formula is checked and results are reported as TRUE or FALSE
-- Can generate counterexamples for false universal formulae
-- Can generate witnesses for true existential formulae
-- Supports boolean combinations of formulae
-- Built-in propositions: `AgentName.GreenStates`, `AgentName.RedStates`
+* Each formula is checked and results are reported as TRUE or FALSE
+* Can generate counterexamples for false universal formulae
+* Can generate witnesses for true existential formulae
+* Supports boolean combinations of formulae
+* Built-in propositions: `AgentName.GreenStates`, `AgentName.RedStates`
 
 ### References
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -376,7 +376,7 @@ In general:
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
-	addImageToHeader('machine-generated-summary','../img/layout-board-split.svg')
+	//addImageToHeader('machine-generated-summary','../img/layout-board-split.svg')
 	addImageToHeader('program-structure','../img/abc')
 	addImageToHeader('formulae','../img/binary-tree')
 	addImageToHeader('agent','../img/binary-tree')

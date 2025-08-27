@@ -61,6 +61,7 @@ class SpecificationFragment(pydantic.BaseModel):
             "(Updated if/when the specification is analyzed or simulated)"
         ),
         default=SpecificationMetadata(),
+        exclude=True,
     )
 
     @classmethod

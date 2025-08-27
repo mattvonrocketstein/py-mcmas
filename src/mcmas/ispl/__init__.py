@@ -35,6 +35,11 @@ class Fragment(fmtk.Fragment):
     be useful for actually running a simulation!
     """
 
+    # def model_dump_json(self, **kwargs):
+    #     exclude=kwargs.pop('exclude', [])
+    #     exclude= ['metadata']+exclude if 'metadata' not in exclude else exclude
+    #     return super().model_dump_json(exclude=exclude, **kwargs)
+
     @pydantic.validate_call
     def update(self, data: dict) -> typing.Self:
         for k, v in self.model_dump().items():
@@ -161,6 +166,54 @@ class Agent(Fragment):
         description="",
         default=[],
     )
+
+    def analyze_types(self) -> typing.List[str]:
+        """
+        
+        """
+        types = []
+        types += self.vars.values()
+        types += self.obsvars.values()
+        types = sorted(list({x.strip() for x in types}))
+        return types
+
+    def analyze_symbols(self) -> typing.List[str]:
+        """
+        
+        """
+        return spec.SymbolMetadata(
+            agents=[self.name],
+            actions=self.actions,
+            vars=[k.strip() for k in list(self.lobsvars) + list(self.vars)],
+        )
+
+    # def analyze_operators(self):
+    #     """"""
+    #     operators = []
+    #     for frm in self.formulae:
+    #         for op in ["AF", "X", "F", "G", "U", "A", "E", "AG", "EF", "AX", "EG", "K", "GK", "GCK", "DK"]:
+    #             if f"{op}(" in frm:
+    #                 operators.append(op)
+    #     return sorted(list(set(operators)))
+
+    @property
+    @pydantic.validate_call
+    def analysis(self) -> spec.Analysis:
+        """
+        Static-analysis for this ISPL specification.
+
+        Returns details about symbols and logical operators.
+        """
+        return spec.Analysis(
+            symbols=self.analyze_symbols(),
+            operators=[],
+            # self.analyze_operators(),
+            types=self.analyze_types(),
+        )
+        # out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]
+        # out.vars = [getattr(symbols, x) for x in sorted(list(set(out.vars)))]
+        # out.agents = [getattr(symbols, x) for x in sorted(list(set(out.agents)))]
+        # return meta
 
     @pydantic.validate_call
     def __invert__(self) -> typing.Self:
@@ -492,24 +545,53 @@ class ISPL(Fragment):
         """
         return mcmas.engine.validate(model=self)
 
+    @property
     @pydantic.validate_call
-    def model_dump_analysis(self) -> spec.Analysis:
+    def analysis(self) -> spec.Analysis:
         """
         Static-analysis for this ISPL specification.
 
         Returns details about symbols and logical operators.
         """
-
+        operators = []
+        for frm in self.formulae:
+            for op in [
+                "AF",
+                "X",
+                "F",
+                "G",
+                "U",
+                "A",
+                "E",
+                "AG",
+                "EF",
+                "AX",
+                "EG",
+                "K",
+                "GK",
+                "GCK",
+                "DK",
+            ]:
+                if f"{op}(" in frm:
+                    operators.append(op)
+        types = []
+        agents = list(self.agents.values()) + [self.environment]
+        for agent in agents:
+            types += agent.vars.values()
+            types += agent.obsvars.values()
+        types = sorted(list({x.strip() for x in types}))
         meta = spec.Analysis(
-            symbols=spec.SymbolMetadata(agents=[], actions=[], vars=[])
+            symbols=spec.SymbolMetadata(agents=[], actions=[], vars=[]),
+            operators=sorted(list(set(operators))),
+            types=types,
         )
         out = meta.symbols
         ents = list(self.agents.items()) + [["Environment", self.environment]]
         for name, agent in ents:
             out.agents.append(name)
             if not isinstance(agent, (Environment,)):
-                out.vars += [k for k in (agent.lobsvars or [])]
-            out.vars += [k for k in (agent.vars or [])]
+                out.vars += [k.strip() for k in (agent.lobsvars or []) if k.strip()]
+            out.vars += [k.strip() for k in (agent.vars or []) if k.strip()]
             for action in agent.actions:
                 out.actions.append(action)
         out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]

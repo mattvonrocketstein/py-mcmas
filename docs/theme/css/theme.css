@@ -108,7 +108,7 @@ q:before {
   content: "";
   content: none;
 }
-small {
+div.small pre {
   font-size: 85%;
 }
 sub,

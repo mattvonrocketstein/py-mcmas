@@ -57,7 +57,8 @@ def _loop(
     Inner loop for openai completion.
     """
     client = client or DEFAULT_CLIENT
-    ollama.pull_model()
+    # ollama.pull_model()
+    LOGGER.critical(f"{system_prompt}\n\n{user_prompt}")
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -105,15 +106,9 @@ def agent_completion(
     """
     See module doc-string.
     """
-    # from mcmas import ispl
     schema = ispl.Agent
-    # prompt_t = rendering.get_template("prompts/agent-generator.md")
     src = inspect.getsource(fxn)
     src = src[src.find("def ") :]
-    # query = prompt_t.render(
-    #     user_query=src,
-    #     json_schema=json.dumps(schema.model_json_schema(), indent=2),
-    # )
     agent = model_completion(schema=schema, **kwargs)
     LOGGER.critical(f"{agent}")
     trivial = ispl.TrivialAgent
@@ -159,7 +154,6 @@ def call_completion(
         user_query=query,
         function_sig=util.fxn_sig(fxn),
     )
-    LOGGER.critical(f"{system_prompt}\n\n{user_prompt}")
     parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
     return parsed_json
 
@@ -192,6 +186,42 @@ def model_completion(
     )
     parsed_json.update(metadata=metadata)
     validated_data = schema(**parsed_json)
+    return validated_data
+
+
+@pydantic.validate_call
+def model_shuffle(
+    query: str = "",
+    # schema: typing.Type = None,
+    obj=None,
+    model: str = DEFAULT_MODEL,
+    system_prompt: str = (
+        "You are a program transformer that accepts an "
+        "abstract syntax tree in JSON and returns another "
+        "VALID abstract syntax tree."
+    ),
+    **kwargs,
+) -> typing.Any:
+    """
+    See module doc-string.
+    """
+    prompt_t = rendering.get_template("prompts/shuffle-model.md")
+    user_prompt = prompt_t.render(
+        ast=obj.model_dump_json(),
+        variables=obj.analysis.symbols.vars,
+    )
+    parsed_json = _loop(
+        model=model, system_prompt=system_prompt, user_prompt=user_prompt, **kwargs
+    )
+    metadata = parsed_json.get("metadata", {})
+    metadata.update(
+        {
+            "file": "<<prompt>>",
+            "parser": f"mcmas.ai.model_shuffle[model={model}]",
+        }
+    )
+    parsed_json.update(metadata=metadata)
+    validated_data = obj.__class__(**parsed_json)
     return validated_data
 
 
@@ -278,13 +308,3 @@ class Society:
         Finds all the openai agents.
         """
         return kls("openai")
-
-    # @classmethod
-    # def index(kls):
-    #     """"""
-    #     out = {"pydantic": kls.pydantic, "openai": kls.openai}
-    #     for name, members in out.items():
-    #         LOGGER.warning(f"Found {len(members)} {name} agents in current runtime")
-    #         for agentic in members:
-    #             LOGGER.warning(f"  {agentic.__class__.__name__}: {agentic.name}")
-    #     return out

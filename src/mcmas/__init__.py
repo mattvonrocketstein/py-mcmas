@@ -1,5 +1,4 @@
-"""
-
+""" py-mcmas: A wrapper for the MCMAS engine and the ISPL language
 """
 
 from mcmas.logic import symbols  # noqa

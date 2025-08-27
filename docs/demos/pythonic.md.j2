@@ -14,7 +14,7 @@ But the simplest reason is just that ISPL specifications are more like *data* th
 
 **For individual blocks though,** although the JSON schema for *output* is strict, input-parsing is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block in pure ISPL might look like this:
 
-```ispl
+```ispl {.language-lua}
 Agent foo 
 ...
 Actions = {keep,swap,none};
@@ -22,15 +22,17 @@ Actions = {keep,swap,none};
 end Agent
 ```
 
+<br/>
 Translated to python, this could look like 
 
-```python
+```python {.language-python .small}
 from mcmas.ispl import Agent, symbols 
 Agent(...,actions='{keep, swap, none};',...)
 Agent(...,actions=['keep', 'swap', 'none'],...)
 Agent(...,actions=[symbols.keep, symbols.swap,symbols.none],...)
 ```
 
+<br/>
 The situation is similar with sections like `Vars`, `ObsVars`, and `Lobsvars`, except that dictionaries are used.Most sections accept strings, sympy symbols or expressions that can be converted to strings, lists of strings and symbols, or dictionaries.
 
 ### Logical Expressions
@@ -38,20 +40,22 @@ The situation is similar with sections like `Vars`, `ObsVars`, and `Lobsvars`, e
 
 We've already met `symbols` in the last section, which is basically just a factory for sympy symbols[^1].  Get a symbol by simply mentioning it, and combine them in natural ways like this:
 
-```python
+```python {.small .language-python}
 from mcmas.logic import symbols 
 assert symbols.x + symbols.y == "x+y"
 ```
 
+<br/>
 Symbols are actually callable, so that e.g. `symbol.K(symbol.predicate)` is one way to use the [knowledge operator]({{mkdocs.site_relative_url}}/opref).  For other kinds of expressions, you can use things from `mcmas.logic` like this:
 
-```python
+```python {.small .language-python}
 from mcmas import logic
 logic.If(symbols.p, symbols.q) # -> p if q
 logic.Eq(symbols.x, symbols.y) # -> x=y
 logic.And(symbols.x, symbols.y) # -> x and y
 ```
 
+<br/>
 Compared to a simple string, this is frequently *harder* to read!  But it's more composable, and now we're closer to a real abstract syntax tree.
 
 ### Python Example

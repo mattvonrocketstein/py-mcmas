@@ -66,16 +66,5 @@ def test_model_completion():
     LOGGER.critical([spec.advice])
 
 
-# def test_pydantic_agent_completion():  # noqa
-#     society = ai.Society(pydantic_ai)
-#     spec = society.get_spec(alice)
-#     bspec = society.get_spec(bob)
-#     assert type(spec) == mcmas.ispl.Agent
-#     assert "tool1" in spec.actions
-#     assert "tool2" in bspec.actions
-#     assert not bspec.concrete
-#     assert len(bspec.advice) > 0
-
 if __name__ == "__main__":
-    # test_main()
     test_agent_completion()

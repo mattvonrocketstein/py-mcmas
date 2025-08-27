@@ -40,10 +40,10 @@ class OperatorMetadata(pydantic.BaseModel):
     information about time/space complexity.
     """
 
-    formulae: typing.SymbolList2 = Field(
-        default=[],
-        description="Operators used in formulae",
-    )
+    # formulae: typing.SymbolList2 = Field(
+    #     default=[],
+    #     description="Operators used in formulae",
+    # )
 
 
 class Analysis(fmtk.SpecificationAnalysis):
@@ -58,10 +58,13 @@ class Analysis(fmtk.SpecificationAnalysis):
         description="Symbols (includes vars+actions)",
         default=SymbolMetadata(),
     )
-    operators: OperatorMetadata = Field(
-        default=OperatorMetadata(),
+    operators: typing.List[str] = Field(
+        default=[],
         description="Logical operators that are used",
     )
-
+    types: typing.List[str] = Field(
+        default=[],
+        description="Types that are used",
+    )
     # def model_dump(self, **kwargs):
     #     result = super().model_dump(**kwargs)

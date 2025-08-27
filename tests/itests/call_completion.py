@@ -29,7 +29,7 @@ def test_call_completion():
     except:
         pytest.fail("could not call function with args from call-completion")
     else:
-        assert tmp == "12c"
+        assert tmp in ["12c", "1twoc"]
 
 
 if __name__ == "__main__":

@@ -7,12 +7,13 @@
 
 $('div.rst-content table').addClass('docutils');
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for MkDocs to fully render the page including ToC
     setTimeout(function() {
-        
-      Prism.languages.haskell["keyword"]= /\b(?:case|Agent|class|data|deriving|do|else|if|in|infixl|infixr|instance|let|module|newtype|of|primitive|then|type|where)\b/,
-    }, 100); // Small delay to ensure ToC is already processed
-    })
+      compose_keywords={'ispl-keyword': {pattern: /.*(Agent|Environment|Vars|RedStates|Protocol|Evolution|Evaluation|InitStates|Formulae|Obsvars)/, alias:"function"} };
+      Prism.languages.insertBefore('lua', 'keyword', compose_keywords);
+      Prism.highlightAll()
+    }, 100)})
+//     // Wait for MkDocs to fully render the page including ToC
+// })
 
 
 function prefixHeader(headerId, txt, style="") {

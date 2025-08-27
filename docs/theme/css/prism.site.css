@@ -370,20 +370,12 @@ div.language-makefile pre code {
 .esc { color: #D8DEE9 } /* Escape */
 .g { color: #D8DEE9 } /* Generic */
 .k { color: #81A1C1; font-weight: bold } /* Keyword */
-.snippet .k { 
-    /* color: #81A1C1;  */
-    color: #A7B3BF;
-    font-weight: bold } /* Keyword */
 .l { color: #c3f3f9e7 ; } /* Literal */
 .n { 
     color: lightblue;
     font-weight: bolder;
     font-size: 115%;
 } /* Name */
-.snippet .n { 
-    /* color: #a7b80e90; */
-    color:thistle;
-    }
 .o { color: #81A1C1; font-weight: bold } /* Operator */
 .x { color: #D8DEE9 } /* Other */
 .p { color: #ECEFF4 } /* Punctuation */
@@ -405,16 +397,6 @@ div.language-makefile pre code {
     opacity: 70%;
 }
 /* Comment */
-.snippet .c {
-    /* color: #dfd6818b; */
-    font-size:98%;
-    color: #fdefa4b8;
-    /* background-color: #554d464d; */
-    /* font-style: italic; */
-    font-size: 98%;
-    /* font-weight: bolder; */
-    /* opacity: 70%; */
-}
 .dense .c {
     /* color: #dfd6818b; */
     /* color: #bdb56c; */
@@ -488,6 +470,24 @@ div.language-makefile pre code {
 .nt { color:rgba(255, 250, 250, 0.783) ; font-weight: bolder;} /* Name.Tag */
 .nv { color: #c0f4c4 } /* Name.Variable */
 
+.snippet .k { 
+    /* color: #81A1C1;  */
+    color: #A7B3BF;
+    font-weight: bold } /* Keyword */
+.snippet .n { 
+    /* color: #a7b80e90; */
+    color:thistle;
+    }
+.snippet .c {
+    /* color: #dfd6818b; */
+    font-size:98%;
+    color: #fdefa4b8;
+    /* background-color: #554d464d; */
+    /* font-style: italic; */
+    font-size: 98%;
+    /* font-weight: bolder; */
+    /* opacity: 70%; */
+}
 .snippet .nv { /* Name.Variable */
     color: #edc18b;
     /* color: #c0f4c4  */
