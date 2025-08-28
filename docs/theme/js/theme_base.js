@@ -50,8 +50,8 @@ function addImageToHeader(headerId, imgSrc,style="") {
             block.className+=" language-bash language-shell-session";
             Prism.highlightElement(block); });
         
-        document.querySelectorAll('div.highlight').forEach(block => {
-            Prism.highlightElement(block); });
+        // document.querySelectorAll('div.highlight').forEach(block => {
+        //     Prism.highlightElement(block); });
         
         // differentiate code_table_top for snippets vs embeds
         document.querySelectorAll('div.snippet').forEach(block => {

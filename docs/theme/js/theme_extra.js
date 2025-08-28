@@ -8,8 +8,8 @@
 $('div.rst-content table').addClass('docutils');
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
-      compose_keywords={'ispl-keyword': {pattern: /.*(Agent|Environment|Vars|RedStates|Protocol|Evolution|Evaluation|InitStates|Formulae|Obsvars)/, alias:"function"} };
-      Prism.languages.insertBefore('lua', 'keyword', compose_keywords);
+      Prism.languages.insertBefore('haskell', 'builtin', {'ispl-keyword': {pattern: /.*(Agent|Environment|Vars|RedStates|Protocol|Evolution|Evaluation|InitStates|Formulae|Obsvars)/, alias:"ispl-top"} });
+      Prism.languages.insertBefore('haskell', 'builtin', {'ispl-keyword': {pattern: /.*(Actions|Lobsvars)/, alias:"ispl-eq"} });
       Prism.highlightAll()
     }, 100)})
 //     // Wait for MkDocs to fully render the page including ToC
