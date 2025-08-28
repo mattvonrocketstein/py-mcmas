@@ -7,6 +7,7 @@ ask = symbols.ask
 othersayknow = symbols.othersayknow
 know = symbols.know
 
+
 def test_multiple_symbols():
     a, b, c = symbols["a b c"]
     assert str(a + b + c) == "a+b+c"

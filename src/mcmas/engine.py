@@ -398,15 +398,19 @@ def engine(
             result = mcmas(fname=temp_file.name, **kwargs)
             # raise Exception(result.metadata)
             return result
-    elif fname:
-        return mcmas(fname=fname, **kwargs)
+    # elif file and file=='/dev/stdin':
+    #     import sys
+    #     raise Exception(sys.stdin.read())
+    #     return engine(text=sys.stdin.read())
+    elif fname or file:
+        return mcmas(fname=fname or file, **kwargs)
     elif model:
         return engine(data=model.model_dump(), **kwargs)
     elif data:
         return engine(text=util.dict2ispl(data), **kwargs)
     else:
         err = "No input, expected one of {text|model|data}"
-        raise Exception(err)
+        raise Exception(err + f"\n{[fname,text,model,data,file]}")
 
 
 mcmas.validate = validator

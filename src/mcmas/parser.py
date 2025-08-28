@@ -174,7 +174,12 @@ def extract_agents(txt: str) -> dict:
             sub_block = sub_block.split(";")
             agents[agent][section] = [x.strip() for x in sub_block if x.strip()]
             if not agents[agent][section]:
-                if all([agent in ["environment", "Environment"], section in ["obsvars", "evolution"]]):
+                if all(
+                    [
+                        agent in ["environment", "Environment"],
+                        section in ["obsvars", "evolution"],
+                    ]
+                ):
                     LOGGER.debug(f"skipping section `{agent}.{section}` (missing ok)")
                 else:
                     LOGGER.warning(

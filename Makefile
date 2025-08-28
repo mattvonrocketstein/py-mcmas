@@ -115,11 +115,12 @@ ispl -c'print(Agent)'
 ispl -c'print(Agent)'
 ispl --python tests/data/minimal.py --sim
 ispl --python tests/data/minimal.py -c 'print(__spec__)'
-ispl --ispl tests/data/card_games.ispl | jq . |ispl --json /dev/stdin | ispl --ispl /dev/stdin --sim
+ispl --ispl tests/data/card_games.ispl | jq . |ispl --json /dev/stdin | ispl --ispl /dev/stdin > .tmp.ispl.json 
+ispl --json .tmp.ispl.json --sim
 ispl --analyze tests/data/minimal.ispl| jq .symbols.actions
 # FIXME: breaks only in docker??
-# ispl --validate tests/data/minimal.ispl| jq .validates
-# ispl --validate tests/data/minimal.ispl| jq .advice
+# ispl --validate tests/data/minimal.ispl | jq .validates
+# ispl --validate tests/data/minimal.ispl | jq .advice
 endef
 $(call compose.import.script, def=.self.smoke_test)
 

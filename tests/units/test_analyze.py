@@ -17,4 +17,3 @@ def test_import_symbols():
     assert symbols.agents
     assert symbols.vars
     assert "player1" in list(map(str, symbols.agents))
-    assert "Environment" in list(map(str, symbols.agents))

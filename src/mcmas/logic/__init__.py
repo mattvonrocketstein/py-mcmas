@@ -105,7 +105,7 @@ class Symbol(sympy.core.symbol.Symbol):
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
-        source_type,
+        source_type,  # noqa
         handler,  # noqa
     ) -> core_schema.CoreSchema:
         """

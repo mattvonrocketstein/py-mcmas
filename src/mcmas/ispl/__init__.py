@@ -37,17 +37,21 @@ class Fragment(fmtk.Fragment):
 
     def analyze_types(self) -> typing.List[str]:
         """
+        
         """
         types = []
-        types += getattr(self,'vars',{}).values()
-        types += getattr(self,'obsvars',{}).values()
+        types += getattr(self, "vars", {}).values()
+        types += getattr(self, "obsvars", {}).values()
         types = sorted(list({x.strip() for x in types}))
         return types
-    
+
     def analyze_complexity(self) -> typing.Dict:
-        """"""
-        return {}
+        """
         
+        """
+        from mcmas.models import spec  # logic import complexity
+
+        return [spec.ComplexityAnalysis()]
 
     # def model_dump_json(self, **kwargs):
     #     exclude=kwargs.pop('exclude', [])
@@ -87,17 +91,19 @@ class Fragment(fmtk.Fragment):
 
 ###############################################################################
 
+
 def check_slice(*args):
-    assert len(args) in [0,1]
+    assert len(args) in [0, 1]
     slice_maybe = args and args[0]
-    if isinstance(slice_maybe,(slice,tuple,type(None))):
+    if isinstance(slice_maybe, (slice, tuple, type(None))):
         return {}
-    elif isinstance(slice_maybe,(dict,)):
+    elif isinstance(slice_maybe, (dict,)):
         return slice_maybe
     else:
-        err = f'expected slice or dict for posargs, got {[args, type(args)]}'
+        err = f"expected slice or dict for posargs, got {[args, type(args)]}"
         LOGGER.warning(err)
         raise ValueError(err)
+
 
 class Environment(Fragment):
     """
@@ -110,16 +116,15 @@ class Environment(Fragment):
     """
 
     REQUIRED: typing.ClassVar = ["protocol", "evolution", "actions"]
+
     def __class_getitem__(kls, *args, **kwargs):
         kwargs.update(check_slice(*args))
-        from mcmas.logic import symbols 
-        actions=kwargs.pop('actions',[symbols.tick])
-        protocol=kwargs.pop('protocol',dict(Other=[symbols.tick]))
-        vars=kwargs.pop('vars', {})
-        return kls(
-                vars=vars,
-                actions=actions,
-                protocol=protocol, **kwargs)
+
+        actions = kwargs.pop("actions", [symbols.tick])
+        protocol = kwargs.pop("protocol", dict(Other=[symbols.tick]))
+        vars = kwargs.pop("vars", {})
+        return kls(vars=vars, actions=actions, protocol=protocol, **kwargs)
+
     @classmethod
     @pydantic.validate_call
     def from_source(kls, txt: str) -> typing.Self:
@@ -159,8 +164,7 @@ class Agent(Fragment):
     """
     A wrapper for ISPL Agents.
 
-    See
-    http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent
+    Docs: http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent
     """
 
     TrivialAgent: typing.ClassVar
@@ -173,7 +177,8 @@ class Agent(Fragment):
     )
     actions: typing.ActionsType = Field(
         default=[],
-        description="Set of actions that are available to this agent",
+        description=(
+            "Set of actions that are available to this agent"),
     )
 
     vars: typing.VarsType = Field(
@@ -182,10 +187,16 @@ class Agent(Fragment):
     )
     evolution: typing.EvolType = Field(
         default=[],
-        description="Defines how an agent's local variables change in response to the actions performed by all agents.",
+        description=(
+            "Defines how an agent's local variables change in "
+            "response to the actions performed by all agents."
+        ),
     )
     protocol: typing.ProtocolType = Field(
-        description="Defines the rules for when an agent can perform specific actions based on its current state",
+        description=(
+            "Defines the rules for when an agent can perform "
+            "specific actions based on its current state"
+        ),
         default=[],
     )
     obsvars: typing.ObsVarsType = Field(
@@ -210,17 +221,8 @@ class Agent(Fragment):
             actions=self.actions,
             vars=[k.strip() for k in list(self.lobsvars) + list(self.vars)],
             types=self.analyze_types(),
-            complexity=self.analyze_complexity(),
+            # complexity=self.analyze_complexity(),
         )
-
-    # def analyze_operators(self):
-    #     """"""
-    #     operators = []
-    #     for frm in self.formulae:
-    #         for op in ["AF", "X", "F", "G", "U", "A", "E", "AG", "EF", "AX", "EG", "K", "GK", "GCK", "DK"]:
-    #             if f"{op}(" in frm:
-    #                 operators.append(op)
-    #     return sorted(list(set(operators)))
 
     @property
     @pydantic.validate_call
@@ -234,7 +236,6 @@ class Agent(Fragment):
             symbols=self.analyze_symbols(),
             types=self.analyze_types(),
             complexity=self.analyze_complexity(),
-            # self.analyze_operators(),
         )
         # out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]
         # out.vars = [getattr(symbols, x) for x in sorted(list(set(out.vars)))]
@@ -352,12 +353,16 @@ class Agent(Fragment):
 
 TrivialAgent = Agent[:]
 
+
 class ISpec(fmtk.Specification):
     """
     
     """
 
-TrivialEnvironment=Environment[:]
+
+TrivialEnvironment = Environment[:]
+
+
 class ISPL(Fragment):
     """
     An A wrapper for ISPL specifications.
@@ -368,22 +373,23 @@ class ISPL(Fragment):
     See
     http://mattvonrocketstein.github.io/py-mcmas/isplref
     """
+
     def analyze_types(self):
         types = super().analyze_types()
-        for agent in self.agents.values(): types+=agent.analyze_types()
+        for agent in self.agents.values():
+            types += agent.analyze_types()
         return list(set(types))
-        
+
     def __class_getitem__(kls, *args, **kwargs):
         kwargs.update(check_slice(*args))
-        title = kwargs.pop('title','Minimal valid ISPL specification')
-        agents = kwargs.pop('agents', {"TrivialAgent": TrivialAgent })
-        environment = kwargs.pop('environment',
-            Environment.__class_getitem__())
+        title = kwargs.pop("title", "Minimal valid ISPL specification")
+        agents = kwargs.pop("agents", {"TrivialAgent": TrivialAgent})
+        environment = kwargs.pop("environment", Environment.__class_getitem__())
         return kls(
             title=title,
             environment=environment,
-            agents = agents,
-            **kwargs
+            agents=agents,
+            **kwargs,
             # evaluation=[
             #     logic.If(symbols.p, logic.Eq(symbols.Environment.p, symbols.true)),
             #     logic.If(symbols.q, logic.Eq(symbols.Environment.q, symbols.true)),
@@ -397,7 +403,7 @@ class ISPL(Fragment):
             # ],
             # formulae =  ["p; !q; p -> !q;"],
         )
-    
+
     # Metadata: typing.ClassVar = fmtk.SpecificationMetadata
     REQUIRED: typing.ClassVar = ["agents", "evaluation", "formulae"]
     parser: typing.ClassVar
@@ -457,16 +463,7 @@ class ISPL(Fragment):
             "Only available if the specification was loaded from raw ISPL"
         ),
     )
-    def analyze_complexity(self):
-        from mcmas.logic import complexity
-        out = {}
-        for agent in self.agents.values(): out.update(agent.analyze_complexity())
-        for f in self.formulae:
-            expr = f.lstrip().rstrip()
-            # analysis_details = complexity.analyzer.analyze(expr) 
-            out[f] = analysis_details = complexity.analyzer.analyze(expr)
-        return out
-        
+
     def __iadd__(self, other):
         """
         Specification algebra.
@@ -514,31 +511,26 @@ class ISPL(Fragment):
     @property
     def local_advice(self) -> list:
         """
-__spec__ = ISPL(
-    title='Minimal valid ISPL definition in Python',
-    environment=Environment(
+        __spec__ = ISPL( title='Minimal valid ISPL definition in
+        Python', environment=Environment(
         vars=dict(p=symbols.boolean, q=symbols.boolean),
         actions=[symbols.tick],
-        protocol=dict(Other=[symbols.tick]),
-    ),
-    agents = {"Player1": TrivialAgent },
-    
-    evaluation=[
-        logic.If(symbols.p, logic.Eq(symbols.Environment.p, symbols.true)),
-        logic.If(symbols.q, logic.Eq(symbols.Environment.q, symbols.true)),
-    ],
-    
-    init_states=[
-        # Equivalently: Environment.p=true and Environment.q=false
-        logic.And(
-            logic.Eq(symbols.Environment.p, symbols.true),
-            logic.Eq(symbols.Environment.q, symbols.false),
-        )
-    ],
-    formulae =  ["p; !q; p -> !q;"],
-)
-        Returns advice (known blockers for validation/execute)
-        for this object and known subcomponents.
+
+        protocol=dict(Other=[symbols.tick]), ), agents =
+        {"Player1": TrivialAgent },
+
+        evaluation=[     logic.If(symbols.p,
+        logic.Eq(symbols.Environment.p, symbols.true)),
+        logic.If(symbols.q, logic.Eq(symbols.Environment.q,
+        symbols.true)), ],
+
+            init_states=[         # Equivalently:
+        Environment.p=true and Environment.q=false logic.And(
+        logic.Eq(symbols.Environment.p, symbols.true),
+        logic.Eq(symbols.Environment.q, symbols.false),         )
+        ],     formulae =  ["p; !q; p -> !q;"], )         Returns
+        advice (known blockers for validation/execute) for this
+        object and known subcomponents.
         """
         out = []
         for agent in self.agents:
@@ -667,25 +659,66 @@ __spec__ = ISPL(
         #     types += agent.vars.values()
         #     types += agent.obsvars.values()
         # types = sorted(list({x.strip() for x in types}))
-        meta = spec.Analysis(
-            symbols=spec.SymbolMetadata(agents=[], actions=[], vars=[]),
-            # operators=sorted(list(set(operators))),
-            types=self.analyze_types(), 
-            complexity=self.analyze_complexity()
+        import functools
+        import operator
+
+        # compl =  #.model_dump()
+        ents = list(self.agents.values())
+        ents += [self.environment]
+        vars = []
+        for agent in ents:
+            if isinstance(agent, (Agent,)):
+                vars += [k.strip() for k in (agent.lobsvars or []) if k.strip()]
+            vars += [k.strip() for k in (agent.vars or []) if k.strip()]
+        vars = list(set(vars))
+        meta = dict(
+            symbols=spec.SymbolMetadata(
+                agents=[agent for agent in self.agents],
+                vars=vars,
+                actions=list(
+                    set(
+                        functools.reduce(
+                            operator.add,
+                            [self.agents[agent].actions for agent in self.agents],
+                        )
+                    )
+                ),
+            ),
+            types=self.analyze_types(),
+            complexity=self.analyze_complexity(),
         )
-        out = meta.symbols
-        ents = list(self.agents.items()) + [["Environment", self.environment]]
-        for name, agent in ents:
-            out.agents.append(name)
-            if not isinstance(agent, (Environment,)):
-                out.vars += [k.strip() for k in (agent.lobsvars or []) if k.strip()]
-            out.vars += [k.strip() for k in (agent.vars or []) if k.strip()]
-            for action in agent.actions:
-                out.actions.append(action)
-        out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]
-        out.vars = [getattr(symbols, x) for x in sorted(list(set(out.vars)))]
-        out.agents = [getattr(symbols, x) for x in sorted(list(set(out.agents)))]
+        meta = spec.Analysis(**meta)
+        # out = meta.symbols
+        # # ents = list(self.agents.items()) + [["Environment", self.environment]]
+
+        #     # for action in agent.actions:
+        #     #     out.actions.append(action)
+        # out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]
+        # out.vars = [getattr(symbols, x) for x in sorted(list(set(out.vars)))]
+        # out.agents = [getattr(symbols, x) for x in sorted(list(set(out.agents)))]
         return meta
+
+    def analyze_complexity(self) -> typing.List:
+        from mcmas.logic import complexity
+
+        # out = []
+        # super().analyze_complexity().model_dump()
+        # for agent in self.agents.values():
+        #     out.update(agent.analyze_complexity())
+        return [
+            complexity.analyzer.analyze(f.lstrip().rstrip(), index=i)
+            for i, f in enumerate(self.formulae)
+        ]
+        # :
+        #     expr = f.lstrip().rstrip()
+        #     # analysis_details = complexity.analyzer.analyze(expr)
+        #     out.append(
+        #         complexity.analyzer.analyze(expr, index=i)
+        #         # .model_dump(
+        #         #     exclude_unset=True
+        #         # )
+        #     )
+        # return out
 
     def exec(self, strict: bool = False, **kwargs):
         """
@@ -734,6 +767,8 @@ __spec__ = ISPL(
         """
         result_model = self.exec()
         return util.repl(spec=result_model)
+
+
 TrivialSpec = ISPL[:]
 
 

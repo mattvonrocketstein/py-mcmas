@@ -52,14 +52,14 @@ def repl_ns(**kwargs) -> typing.Dict:
     Default namespace that is used with the interactive REPL.
     """
     from mcmas import logic  # noqa
-    from mcmas import (
-        ISPL, Agent, TrivialAgent, Environment, symbols)  # noqa
+    from mcmas import ISPL, Agent, Environment, TrivialAgent, symbols  # noqa
+
     ispl = symbols
     fname = None
-    Equal=Eq=logic.Eq
+    Equal = Eq = logic.Eq
     If, And = logic.If, logic.And
-    true=symbols.true
-    false=symbols.false
+    true = symbols.true
+    false = symbols.false
     ns = dict(**locals())
     ns.pop("kwargs")
     ns.update(**kwargs)
@@ -133,24 +133,23 @@ def ispl_main(
         raise SystemExit(0)
 
     if list_pydantic_models:
-        # raise NotImplementedError(f"{PYDANTIC_MODELS}")
         print(json_module.dumps(PYDANTIC_MODELS, indent=2))
         raise SystemExit(0)
 
     if path and not path.exists():
-        LOGGER.critical(f"specified file not found: {fname}")
+        LOGGER.critical(f"file not found: {fname}")
         raise SystemExit(1)
 
-    # Namespace that will be used for REPLs, 
+    # Namespace that will be used for REPLs,
     # or the execution context of python files that are invoked
     ns = repl_ns(command=command, __file__=fname)
-    
+
     fmodel = {}
     exclude = []
     if not verbose:
         exclude += ["text"]
     if fname:
-        
+
         if fname.endswith(".ispl"):
             ispl = True
             LOGGER.info(f"{fname} .. forcing ISPL")
@@ -160,7 +159,7 @@ def ispl_main(
         elif fname.endswith(".json"):
             json = True
             LOGGER.info(f"{fname} .. forcing JSON")
-        
+
         with open(str(path)) as fhandle:
             fmodel.update({"file": str(path)})
             if ispl:
@@ -174,7 +173,7 @@ def ispl_main(
                     }
                 )
             elif python:
-                assert all([fname, os.path.exists(fname)]),f'{fname} is missing'
+                assert all([fname, os.path.exists(fname)]), f"{fname} is missing"
                 LOGGER.critical([k for k in ns])
                 with open(fname) as fhandle:
                     exec(fhandle.read(), ns)
@@ -210,8 +209,9 @@ def ispl_main(
         print(
             analysis.model_dump_json(
                 # exclude=exclude,
-                # exclude_none=True,
-                indent=2
+                exclude_none=True,
+                exclude_unset=True,
+                indent=2,
             )
         )
 

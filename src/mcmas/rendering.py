@@ -121,7 +121,7 @@ def get_template(
         if from_string:
             template = env.from_string(from_string)
         else:
-            LOGGER.info(f"Looking up {template_path}")
+            LOGGER.debug(f"Looking up template: {template_path}")
             template = env.get_template(template_name)
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")

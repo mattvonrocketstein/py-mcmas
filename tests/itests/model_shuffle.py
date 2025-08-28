@@ -11,7 +11,7 @@ def test_model_shuffle():
     assert not a1.advice, "original agent should be valid"
     assert isinstance(a1, (ispl.Agent,))
     a2 = ai.model_shuffle(obj=a1)
-    assert a1 != a2, "agents are different after shuffle"
+    assert a1 != a2, "agents should be different after shuffle"
     assert not a2.advice, "derivative agent should still be valid"
 
 

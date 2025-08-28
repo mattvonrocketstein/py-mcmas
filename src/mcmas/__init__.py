@@ -1,5 +1,4 @@
-""" py-mcmas: A wrapper for the MCMAS engine and the ISPL language
-"""
+"""py-mcmas: A wrapper for the MCMAS engine and the ISPL language"""
 
 from mcmas.logic import symbols  # noqa
 
@@ -10,7 +9,7 @@ from . import parser  # noqa
 
 # from . import spec  # noqa
 from .engine import engine  # noqa
-from .ispl import (ISPL, Actions, Agent, TrivialAgent, Environment)  # noqa
+from .ispl import ISPL, Actions, Agent, Environment, TrivialAgent  # noqa
 from .sim import Simulation  # noqa
 
 # ## PY-MCMAS API

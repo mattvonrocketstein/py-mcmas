@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Agent": {
-      "description": "A wrapper for ISPL Agents.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref/#agent",
+      "description": "A wrapper for ISPL Agents.\n\nDocs: http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent",
       "properties": {
         "metadata": {
           "$ref": "#/$defs/SpecificationMetadata",

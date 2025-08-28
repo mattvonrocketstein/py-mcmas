@@ -2,7 +2,7 @@
 # See the docs https://mattvonrocketstein.github.io/py-mcmas/demos/pythonic-ispl
 
 __spec__ = ISPL.__class_getitem__(
-    title='Minimal valid ISPL definition in Python',
+    title="Minimal valid ISPL definition in Python",
     environment=Environment[dict(vars=dict(p=symbols.boolean, q=symbols.boolean))],
     # Equivalently: p if Environment.p=true; q if Environment.q=true
     evaluation=[
@@ -16,5 +16,5 @@ __spec__ = ISPL.__class_getitem__(
             Equal(symbols.Environment.q, symbols.false),
         )
     ],
-    formulae =  ["p; !q; p -> !q;"],
+    formulae=["p; !q; p -> !q;"],
 )
