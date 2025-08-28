@@ -52,10 +52,14 @@ def repl_ns(**kwargs) -> typing.Dict:
     Default namespace that is used with the interactive REPL.
     """
     from mcmas import logic  # noqa
-    from mcmas import ISPL, Agent, Environment, symbols  # noqa
-
+    from mcmas import (
+        ISPL, Agent, TrivialAgent, Environment, symbols)  # noqa
     ispl = symbols
     fname = None
+    Equal=Eq=logic.Eq
+    If, And = logic.If, logic.And
+    true=symbols.true
+    false=symbols.false
     ns = dict(**locals())
     ns.pop("kwargs")
     ns.update(**kwargs)
@@ -137,38 +141,40 @@ def ispl_main(
         LOGGER.critical(f"specified file not found: {fname}")
         raise SystemExit(1)
 
+    # Namespace that will be used for REPLs, 
+    # or the execution context of python files that are invoked
     ns = repl_ns(command=command, __file__=fname)
-
+    
+    fmodel = {}
     exclude = []
     if not verbose:
         exclude += ["text"]
     if fname:
+        
         if fname.endswith(".ispl"):
             ispl = True
-            LOGGER.warning("forced ispl from fname")
-        if fname.endswith(".py"):
+            LOGGER.info(f"{fname} .. forcing ISPL")
+        elif fname.endswith(".py"):
             python = True
-            LOGGER.warning("forced python from fname")
-        if fname.endswith(".json"):
+            LOGGER.info(f"{fname} .. forcing python")
+        elif fname.endswith(".json"):
             json = True
-            LOGGER.warning("forced json from fname")
+            LOGGER.info(f"{fname} .. forcing JSON")
+        
         with open(str(path)) as fhandle:
-            fmodel = {}
+            fmodel.update({"file": str(path)})
             if ispl:
-                # fmodel = parser.parse(fhandle.read())
-                fmodel.update({"file": str(path), "text": fhandle.read()})
                 model = ISPL.load_from_ispl_file(**fmodel)
+                fmodel.update(text=fhandle.read())
             elif json:
                 model = ISPL.load_from_json_file(str(path))
                 fmodel.update(
                     {
-                        "file": str(path),
                         "model": model,
                     }
                 )
             elif python:
-
-                assert all([fname, os.path.exists(fname)])
+                assert all([fname, os.path.exists(fname)]),f'{fname} is missing'
                 LOGGER.critical([k for k in ns])
                 with open(fname) as fhandle:
                     exec(fhandle.read(), ns)
@@ -177,6 +183,8 @@ def ispl_main(
                 for x in spec_names:
                     if x in ns:
                         model = ns[x]
+                        LOGGER.info(f"extracted specification at `{x}`:")
+                        LOGGER.info(f"{model}")
                         break
                 err = f"no spec-name like {spec_names} were found in {list(ns.keys())}"
                 assert model is not None, err
@@ -197,7 +205,7 @@ def ispl_main(
         model, fmodel = None, None
 
     if analyze:
-        LOGGER.info("analyzing ..")
+        LOGGER.info(f"analyzing spec: {model.title}")
         analysis = ns["analysis"] = model.analysis
         print(
             analysis.model_dump_json(

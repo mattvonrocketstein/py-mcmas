@@ -2,8 +2,6 @@
 mcmas.logic.
 """
 
-from typing import Any
-
 import sympy
 from pydantic_core import core_schema
 from sympy import Eq as _Eq
@@ -107,7 +105,7 @@ class Symbol(sympy.core.symbol.Symbol):
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
-        source_type: Any,  # noqa
+        source_type,
         handler,  # noqa
     ) -> core_schema.CoreSchema:
         """
@@ -118,7 +116,7 @@ class Symbol(sympy.core.symbol.Symbol):
         'name' and optional symbol properties
         """
 
-        def validate_symbol(value: Any) -> "Symbol":
+        def validate_symbol(value) -> "Symbol":
             """
             Validate and convert input to Symbol.
             """

@@ -10,7 +10,7 @@ from . import parser  # noqa
 
 # from . import spec  # noqa
 from .engine import engine  # noqa
-from .ispl import ISPL, Actions, Agent, Environment  # noqa
+from .ispl import (ISPL, Actions, Agent, TrivialAgent, Environment)  # noqa
 from .sim import Simulation  # noqa
 
 # ## PY-MCMAS API

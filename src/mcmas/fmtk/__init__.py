@@ -65,7 +65,7 @@ class SpecificationFragment(pydantic.BaseModel):
     )
 
     @classmethod
-    def _get_trivial_example(kls):
+    def __class_getitem__(kls, **kwargs):
         """
         Subclassers must implement this.
         """

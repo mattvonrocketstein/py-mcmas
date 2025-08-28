@@ -129,7 +129,7 @@ def extract_agents(txt: str) -> dict:
         path = [agent]
         block = agents[agent]
         agents[agent] = {}
-        LOGGER.critical(f"parsing agent={agent}")
+        LOGGER.debug(f"parsing agent={agent}")
         for sub in ["Lobsvars", "Actions"]:
             section = sub.lower()
             path += [sub]
@@ -174,8 +174,8 @@ def extract_agents(txt: str) -> dict:
             sub_block = sub_block.split(";")
             agents[agent][section] = [x.strip() for x in sub_block if x.strip()]
             if not agents[agent][section]:
-                if all([agent in ["environment", "Environment"], section == "obsvars"]):
-                    LOGGER.info("skipping section {agent}.{section}, expected missing")
+                if all([agent in ["environment", "Environment"], section in ["obsvars", "evolution"]]):
+                    LOGGER.debug(f"skipping section `{agent}.{section}` (missing ok)")
                 else:
                     LOGGER.warning(
                         f"could not extract {agent}.{section} from block:\n{block}\n\n{sub_block}"

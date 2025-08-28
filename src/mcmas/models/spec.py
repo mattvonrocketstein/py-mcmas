@@ -16,7 +16,6 @@ class SymbolMetadata(pydantic.BaseModel):
 
     This extracts details about symbols, namespaces, etc.
     """
-
     actions: typing.SymbolList2 = Field(
         default=[],
         description="Actions list",
@@ -31,20 +30,14 @@ class SymbolMetadata(pydantic.BaseModel):
     )
 
 
-class OperatorMetadata(pydantic.BaseModel):
-    """
-    Details about logical operators that are used in
-    specification's formulae.
+# Details about logical operators that are used in specification's formulae.
+# Coarse detail about operators can be used to derive information about time/space complexity.
 
-    Coarse detail about operators can be used to derive
-    information about time/space complexity.
-    """
-
-    # formulae: typing.SymbolList2 = Field(
-    #     default=[],
-    #     description="Operators used in formulae",
-    # )
-
+FormulaAnalysisDetails=typing.Dict[str, typing.Any]
+ComplexityScore=float
+FormulaAnalysis = FormulaAnalysisDetails
+# FormulaAnalysis = typing.Tuple[ComplexityScore, FormulaAnalysisDetails]
+ComplexityAnalysis = typing.Dict[str,FormulaAnalysis]
 
 class Analysis(fmtk.SpecificationAnalysis):
     """
@@ -58,13 +51,11 @@ class Analysis(fmtk.SpecificationAnalysis):
         description="Symbols (includes vars+actions)",
         default=SymbolMetadata(),
     )
-    operators: typing.List[str] = Field(
+    complexity: ComplexityAnalysis = Field(
         default=[],
-        description="Logical operators that are used",
+        description="Details about time/space complexity for logical operators",
     )
     types: typing.List[str] = Field(
         default=[],
         description="Types that are used",
     )
-    # def model_dump(self, **kwargs):
-    #     result = super().model_dump(**kwargs)

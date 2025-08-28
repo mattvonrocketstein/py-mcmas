@@ -3,9 +3,46 @@
 ## Pythonic ISPL
 <hr style="width:100%;border-bottom:2px solid black;">
 
-Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  There's several reasons why you might want to do this (including the fact that ISPL fragments allow for [AI-powered completion](#), and specification objects [have their own algebra](#))  
+Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  There's a bunch of reasons you might want to do this, but the simplest reason is that ISPL specifications are more like *data* than like programs anyway.  
 
-But the simplest reason is just that ISPL specifications are more like *data* than like programs anyway.  For example, explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup, and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
+* Explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  
+* [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup, and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
+
+In addition to stuff like this, pythonic-ISPL has additional capabilities, such as support for fragments, so that specifications can be built up gradually.  Specifications can also be sliced apart, and there are other ways they have a [built in algebra](#).  
+
+Let's start with a basic example.
+
+### Minimal Example
+<hr style="width:100%;border-bottom:2px solid black;">
+
+The example below is porting the [minimal ISPL example]({{mkdocs.site_relative_url}}/ispl#minimal) to pure python.  
+
+This tries to avoid "magic strings" of raw ISPL and raw logic expressions, and instead makes use of symbols and sympy expressions.
+
+You can run it with the [`ispl` command line tool]({{mkdocs.site_relative_url}}/cli).  
+
+{{site.embed_demo(
+    'tests/data/minimal.py', github=github, type='python')}}
+
+
+{#
+Pythonic specifications can also use [AI-powered completion](#)
+
+# An absolutely minimal ISPL program in pure python.
+# See the docs https://mattvonrocketstein.github.io/py-mcmas/demos/pythonic-ispl
+still requires a do-nothing agent.
+# This example is just enough boilerplate to use the logic-engine for simple stuff.
+# For the pure-ISPL equivalent, see the file at `tests/data/minimal.ispl`.
+
+
+# Imports below are optional if file runs with `ispl --python <fname>`:
+#
+#   from mcmas.ispl import ISPL, Environment, Agent
+#   from mcmas.logic import symbols
+
+
+(including the fact that ISPL fragments allow for 
+#}
 
 ### Flexibile Parsing
 <hr style="width:100%;border-bottom:2px solid black;">
@@ -57,14 +94,6 @@ logic.And(symbols.x, symbols.y) # -> x and y
 
 <br/>
 Compared to a simple string, this is frequently *harder* to read!  But it's more composable, and now we're closer to a real abstract syntax tree.
-
-### Python Example
-<hr style="width:100%;border-bottom:2px solid black;">
-
-The example below is porting the [minimal.ispl example](#original-ispl) to pure python, and you can run it with the [`ispl` command line tool]({{mkdocs.site_relative_url}}/cli).  This example is *very* pythonic in that it tries to avoid "magic strings" of raw ISPL, and instead makes use of symbols and sympy expressions.
-
-{{site.embed_demo(
-    'tests/data/minimal.py', github=github, type='python')}}
 
 ### Original ISPL
 <hr style="width:100%;border-bottom:2px solid black;">
