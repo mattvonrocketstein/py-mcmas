@@ -56,7 +56,7 @@ class SimMetadata(fmtk.SpecificationMetadata):
     """
 
     exit_code: IntMaybe = Field(
-        default=None, description="Posix exit code from the sim process"
+        default=None, description=("Posix exit code from the sim process")
     )
     deadlock: BoolMaybe = Field(
         default=None,
@@ -64,21 +64,18 @@ class SimMetadata(fmtk.SpecificationMetadata):
     )
     validates: BoolMaybe = Field(
         description=(
-            "Whether the Specification parsed successfully *and* had only has True facts"
+            "Whether this specification parsed successfully *and* had only has True facts"
         ),
         default=None,
     )
     parsed: BoolMaybe = Field(
-        description="Whether or not the Specification parsed successfully",
         default=None,
+        description=("Whether or not the Specification parsed successfully"),
     )
     timing: typing.Dict = Field(
         default={},
-        description="Timing details for execution, compilation, etc",
+        description=("Timing details for execution, compilation, etc"),
     )
-
-
-SimMetadataType = typing.Union[SimMetadata, None]
 
 
 class SimBase(pydantic.BaseModel):
@@ -86,14 +83,15 @@ class SimBase(pydantic.BaseModel):
     A Simulation object is the result of having run a spec.
 
     NB: SimBase only has one use-case currently, but is intended to be
-    generic. Don't overfit to ISPL/MCMAS
+    generic. Don't overfit to ISPL/MCMAS!
     """
 
     Metadata: typing.ClassVar = SimMetadata
+
     # spec: typing.Any = Field(description='Back-link to specification',)
     text: Str2List = Field(description="text", default=None)
     error: Str2List = Field(description="error", default=None)
-    metadata: SimMetadataType = Field(description="model", default=None)
+    metadata: SimMetadata = Field(description="model", default=SimMetadata())
     state_space: typing.Dict = Field(description="", default={})
     witnesses: WitnessesType = Field(
         description=(
@@ -108,6 +106,14 @@ class SimBase(pydantic.BaseModel):
         description="Input formulae partitioned as true / false",
         default=FormulaeResult(),
     )
+
+    def model_dump_json(self, **kwargs):
+        """
+        
+        """
+        if not self.error:
+            kwargs["exclude"] = kwargs.get("exclude", []) + ["error"]
+        return super().model_dump_json(**kwargs)
 
     @property
     def spec(self):
@@ -135,7 +141,7 @@ class SimBase(pydantic.BaseModel):
         # from mcmas.logic import symbols
         # # raise Exception(list(map(eval,truth)))
         out = {}
-        for i, item in enumerate(witnesses):
+        for _i, item in enumerate(witnesses):
             formula, states = item
             nform = normalize_formula(formula)
             if nform in falseys:

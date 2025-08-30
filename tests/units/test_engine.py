@@ -1,24 +1,6 @@
 import mcmas
-from mcmas import engine, util
+from mcmas import engine
 from mcmas.sim import Simulation
-
-LOGGER = util.lme.get_logger(__name__)
-
-
-def test_witnesses():
-
-    sim = engine(fname="tests/data/book_store.ispl", output_format="model")
-    assert isinstance(sim, (Simulation,))
-    assert not sim.witnesses
-    sim = engine(
-        fname="tests/data/book_store.ispl", output_format="model", witness=True
-    )
-    assert isinstance(sim, (Simulation,))
-    assert len(sim.witnesses) == 5
-    assert len(sim.counter_examples) == 2
-    # util.repl(**{**locals(),**globals()}) #fname=fname,ISPL=ISPL,engine=engine)
-    # tmp = engine(fname=fname,witnesses=True, output_format=model)
-    # assert len(tmp.sim.witnesses)==2
 
 
 def test_run_filename_return_dict():
@@ -45,22 +27,18 @@ def test_run_text_return_model():
         text = fhandle.read()
     out = mcmas.engine(text=text, output_format="model")
     assert isinstance(out, (Simulation,)), "requested a model? => Simulation"
-    # assert not out.failed
     assert not out.error, "successful run => no error"
     assert out.text, "model encapsulates raw output"
     assert out.metadata, "model has metadata"
 
 
-def test_run_bad_program_wont_validate():
-    text = "ILLEGAL PROGRAM"
-    out = mcmas.engine(text=text, output_format="model")
+def test_run_bad_program_returns_error():
+    out = mcmas.engine(text="ILLEGAL PROGRAM", output_format="model")
     assert isinstance(out, (Simulation,)), "requested a model? => Simulation"
-    # assert not out.text
-    # assert out.error
     assert not out.metadata.validates, "bad program => marked as not valid"
     assert not out.metadata.parsed, "bad program => marked as not parsed"
     assert not out.text, "bad program => `text` not set"
-    assert out.error
+    assert out.error, "expected error but error is not set!"
 
 
 def test_bad_filename():
@@ -75,5 +53,5 @@ def test_bad_filename():
 def test_run_partial():
     ispl = mcmas.ISPL(agents={})
     out = mcmas.engine(model=ispl, strict=False, output_format="model")
-    assert not out.metadata.parsed  # == False
-    assert not out.metadata.validates  # == False
+    assert not out.metadata.parsed, "bad data should not parse!"
+    assert not out.metadata.validates, "bad data should not validate!"

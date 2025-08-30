@@ -1,0 +1,33 @@
+Agent Environment
+{%if model.environment.obsvars | default(false) %}
+  Obsvars:
+    {%- for k,v in model.environment.obsvars.items() %}
+    {{k}}: {{v}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Obsvars
+{%endif-%}
+{%if model.environment.vars|default(false)%}
+  Vars:
+    {%- for k,v in model.environment.vars.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Vars
+{%endif-%}
+{%if model.environment.actions|default(false)%}{%set actions=model.environment.actions %}{%set actions=', '.join(model.environment.actions) if type(actions)==type([]) else actions%}
+  Actions = { {{actions}} };
+{%endif-%}
+{%if model.environment.protocol|default(false)%}
+  Protocol:
+    {%- for k,v in model.environment.protocol.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Protocol
+{%endif-%}
+{%if 'NB: evolution is REQUIRED for environments, even if empty' %}
+  Evolution:
+    {%- for line in model.environment.evolution %}
+    {{line}}{{';' if not line.endswith(';') else ''}}
+    {%- endfor %}
+  end Evolution
+{%endif-%}
+end Agent

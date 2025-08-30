@@ -1,13 +1,13 @@
 """ """
 
-from mcmas import examples, ispl, models, parser, util  # noqa
+from mcmas import Agent, Environment, examples, ispl, models, parser, util  # noqa
 
 LOGGER = util.get_logger(__name__)
 txt = open("tests/data/muddy_children.ispl").read()
 
 
-def test_environment_from_source():
-    env = ispl.Environment.from_source(
+def test_environment_load_from_source():
+    env = Environment.load_from_source(
         """
 Agent Environment
   Vars:
@@ -29,8 +29,8 @@ end Agent"""
     assert not env.advice
 
 
-def test_agent_from_source():
-    agent = ispl.Agent.from_source(
+def test_agent_load_from_source():
+    agent = Agent.load_from_source(
         """
 Agent player1
         Lobsvars={card1};
@@ -61,11 +61,11 @@ def test_parser():
     # raise Exception(agents)
     assert "Environment" in agents
     environment = agents.pop("Environment")
-    environment = ispl.Environment(**environment)
+    environment = Environment(**environment)
     assert environment.advice == []
     assert environment.concrete
     assert "Child1" in agents
-    agents = {a: ispl.Agent(**agents[a]) for a in agents}
+    agents = {a: Agent(**agents[a]) for a in agents}
     for agent in agents:
         assert agents[agent].actions
         # no missing sections
@@ -80,7 +80,7 @@ def test_parser():
 
 
 def test_empty_model_isnt_concrete():
-    assert not ispl.Agent().concrete
+    assert not Agent().concrete
     # child1 = models.strict.Agent(**child1_data)
     # assert child1.actions
     # try:

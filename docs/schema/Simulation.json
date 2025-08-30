@@ -93,7 +93,7 @@
             }
           ],
           "default": null,
-          "description": "Whether the Specification parsed successfully *and* had only has True facts",
+          "description": "Whether this specification parsed successfully *and* had only has True facts",
           "title": "Validates"
         },
         "parsed": {
@@ -158,15 +158,17 @@
       "title": "Error"
     },
     "metadata": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/SimMetadata"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
+      "$ref": "#/$defs/SimMetadata",
+      "default": {
+        "file": null,
+        "engine": "mcmas",
+        "parser": "mcmas.parser",
+        "exit_code": null,
+        "deadlock": null,
+        "validates": null,
+        "parsed": null,
+        "timing": {}
+      },
       "description": "model"
     },
     "state_space": {

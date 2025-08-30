@@ -1,0 +1,7 @@
+The last section hints that *even if you're not trying wrangle simulations,* you might still be working on something that benefits from creating and updating an explicit world-model "in the background".
+
+Although chain-of-thought "reasoning" is *surprisingly capable*, it fundamentally burns up tokens only to pile baseless on baseless.  Chain-of-code seems like a better approach in several ways, but if what we're really doing is reaching for *an appropriate intermediate language* that improves reasoning and reduces hallucinations, how about "chain of specifications"?
+
+There are various tricks you can use to try and *force* a situation where LLMs are tracking an explicit domain model.  For example, there are lots of agentic-workflow proposals for keeping a running plan in markdown, or if your LLM is good with mermaid, you could try to prompt it to make running changes to a diagram as it emits code changes.  Good idea!  But these things are just low-fidelity substitutes for specifications, and still aren't very amenable to analysis, validation, or execution.  
+
+Can't we do better?  Specifications, even *incomplete ones*, are something that can typically be [weighed and measured]({{mkdocs.site_relative_url}}/demos/analysis).  And when you really come down to it, don't most problems reduce to something like planning, scheduling, protocols, games, systems, or sims?

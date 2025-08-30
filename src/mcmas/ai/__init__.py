@@ -1,16 +1,9 @@
 """
 mcmas.ai.
 
-Generic AI-powered "completion" support for pydantic models.  Using this
-module requires mcmas[ai] optional dependencies, e.g. pydantic-ai and
-openai.
-
-NB: Lots of this is manually doing what `pydantic_ai.Agent(..,
-output_type=..)` is supposed to do, but it works better!  Upstream
-implementation seems to be using tools (?) instead of native
-"completion" capabilities.  This one works by passing in json-schema
-details for pydantic models, and might expand to include details like
-pydantic.Field descriptions, model-docstrings, etc.
+Generic AI-powered "completion" support for pydantic models.
+Using this module requires mcmas[ai] optional dependencies, e.g.
+pydantic-ai and openai.
 """
 
 import inspect
@@ -26,7 +19,7 @@ LOGGER = util.get_logger(__name__)
 
 
 from .config import *  # noqa
-from .config import DEFAULT_MODEL, OPENAI_API_KEY, OPENAI_BASE_URL  # noqa
+from .config import DEFAULT_MODEL_NAME, OPENAI_API_KEY, OPENAI_BASE_URL  # noqa
 from .ollama import ollama
 
 try:
@@ -36,7 +29,7 @@ try:
 except (ImportError,) as exc:
     openai = DEFAULT_CLIENT = None
     LOGGER.critical(str(exc))
-    LOGGER.critical("Some features may not be available!")
+    LOGGER.critical("Some features will not be available!")
     LOGGER.critical("Cannot import openai module, consider installing 'mcmas[ai]'")
 
 init = ollama.pull_model
@@ -47,7 +40,7 @@ def _loop(
     fxn: typing.Callable = None,
     max_retries: int = 3,
     temperature: float = 0.1,
-    model: str = DEFAULT_MODEL,
+    model: str = DEFAULT_MODEL_NAME,
     query: str = None,
     schema: typing.Type = None,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
@@ -97,6 +90,24 @@ def _loop(
                 raise
 
 
+import pydantic_ai  # import Agent, NativeOutput
+
+import mcmas
+from mcmas.ai import config
+
+# from pydantic_ai.models.openai import OpenAIModel
+# from pydantic_ai.providers.openai import OpenAIProvider
+
+
+DEFAULT_PROMPT = """
+You always respond with a JSON object that's compatible with this schema:
+
+{schema}
+
+Don't include any text or Markdown fencing before or after.
+"""
+
+
 @pydantic.validate_call
 def agent_completion(
     fxn: typing.Callable = None,
@@ -106,38 +117,73 @@ def agent_completion(
     """
     See module doc-string.
     """
-    schema = ispl.Agent
+
     src = inspect.getsource(fxn)
     src = src[src.find("def ") :]
-    agent = model_completion(schema=schema, **kwargs)
-    LOGGER.critical(f"{agent}")
-    trivial = ispl.TrivialAgent
-    assert not trivial.advice
-    templ = trivial.model_dump()
-    for k in list(
-        set(list(trivial.model_dump().keys()) + list(agent.model_dump().keys()))
-    ):
-        discovered = getattr(agent, k, None)
-        if discovered:
-            templ[k] = discovered
-    templ["actions"] = list(set(agent.actions + trivial.actions))
-    agent = ispl.Agent(**templ)
-    LOGGER.critical(f"after merged with trivial {agent}")
-    # parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
-    if agent.advice:
-        LOGGER.critical(
-            f"\n\nexpecting a completed agent in {agent}\n\nbut found advice {agent.advice}"
+    agent_spec = (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [ispl.Agent],
+                template=DEFAULT_PROMPT
+                + """You build output JSON from function-bodies.  Given function source code, you extract the names of all subroutines mentioned inside the function-body, and store that array as "actions".  Here is the function-body:""",
+            ),
         )
-        agent.protocol = trivial.protocol
-        agent.evolution = trivial.evolution
-    # import IPython; IPython.embed(confirm_exit=False)
-    return agent
+        .run_sync(src)
+        .output
+    )
+    actions = agent_spec.actions
+    sig = mcmas.util.fxn_sig(fxn)
+    LOGGER.warning(f"extracted signature: {sig}")
+    agent_spec = (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [ispl.Agent],
+                name="ispl.Agent",
+                description="Return a ispl.Agent.",
+                template=DEFAULT_PROMPT
+                + """You build output JSON from function-signatures.  Extract function-name to "name" attribute. Map function arguments to "vars" attributeHere is a function signature: """,
+            ),
+        )
+        .run_sync(sig)
+        .output
+    )
+    agent_spec.actions = actions
+    # sig = mcmas.util.fxn_sig.as_dict(fxn)
+    LOGGER.warning(f"Built agent: {agent_spec}")
+    return agent_spec
+
+
+# model_completion(schema=schema, **kwargs)
+# LOGGER.critical(f"{agent}")
+# trivial = ispl.DefaultAgent
+# assert not trivial.advice
+# templ = trivial.model_dump()
+# for k in list(
+#     set(list(trivial.model_dump().keys()) + list(agent.model_dump().keys()))
+# ):
+#     discovered = getattr(agent, k, None)
+#     if discovered:
+#         templ[k] = discovered
+# templ["actions"] = list(set(agent.actions + trivial.actions))
+# agent = ispl.Agent(**templ)
+# LOGGER.critical(f"after merged with trivial {agent}")
+# # parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
+# if agent.advice:
+#     LOGGER.critical(
+#         f"\n\nexpecting a completed agent in {agent}\n\nbut found advice {agent.advice}"
+#     )
+#     agent.protocol = trivial.protocol
+#     agent.evolution = trivial.evolution
+# # import IPython; IPython.embed(confirm_exit=False)
+# return agent
 
 
 @pydantic.validate_call
 def call_completion(
-    fxn: typing.Callable = None,
-    query: str = None,
+    fxn: typing.Union[typing.Callable, None] = None,
+    query: str = "",
     schema: typing.Type = None,
     system_prompt: str = "You are a JSON generator.",
     **kwargs,
@@ -160,9 +206,9 @@ def call_completion(
 
 @pydantic.validate_call
 def model_completion(
-    query: str = None,
-    schema: typing.Type = None,
-    model: str = DEFAULT_MODEL,
+    query: str = "",
+    schema: typing.Union[typing.Type, None] = None,
+    model: str = DEFAULT_MODEL_NAME,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
     **kwargs,
 ) -> typing.Any:
@@ -194,35 +240,31 @@ def model_shuffle(
     query: str = "",
     # schema: typing.Type = None,
     obj=None,
-    model: str = DEFAULT_MODEL,
+    model: str = DEFAULT_MODEL_NAME,
     system_prompt: str = (
-        "You are a program transformer that accepts an "
+        "You are a transformer that accepts an "
         "abstract syntax tree in JSON and returns another "
         "VALID abstract syntax tree."
     ),
-    **kwargs,
+    model_settings={},
 ) -> typing.Any:
     """
     See module doc-string.
     """
-    prompt_t = rendering.get_template("prompts/shuffle-model.md")
-    user_prompt = prompt_t.render(
-        ast=obj.model_dump_json(),
-        variables=obj.analysis.symbols.vars,
+    return (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [obj.__class__],
+                template=DEFAULT_PROMPT,
+            ),
+        )
+        .run_sync(
+            rendering.get_template("prompts/shuffle-model.md").render(),
+            model_settings=model_settings,
+        )
+        .output
     )
-    parsed_json = _loop(
-        model=model, system_prompt=system_prompt, user_prompt=user_prompt, **kwargs
-    )
-    metadata = parsed_json.get("metadata", {})
-    metadata.update(
-        {
-            "file": "<<prompt>>",
-            "parser": f"mcmas.ai.model_shuffle[model={model}]",
-        }
-    )
-    parsed_json.update(metadata=metadata)
-    validated_data = obj.__class__(**parsed_json)
-    return validated_data
 
 
 class Society:

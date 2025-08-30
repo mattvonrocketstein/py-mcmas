@@ -2,22 +2,22 @@
 {#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
 {% import 'macros/base.j2' as macros -%}
 
-{% macro embed_demo(fname, github={}, 
+{% macro embed_demo(fname, mkdocs={}, 
     bottom_middle='', bottom_right='',
-    type='Makefile', title='', 
-    extra_label='', class="")-%}{% set link_prefix=macros.normalize_fname(fname) %}
-<a id="{{link_prefix}}"></a>{% set use_type= (type=='ispl' and 'lua') or type %}{{macros.code_table(fname, 
-    type=type, github=github, 
+    small=False, type='python', title='', 
+    extra_label='', class="")-%}{% set class=(class+' .small') if small else class %}{% set link_prefix=macros.normalize_fname(fname) %}
+<a id="{{link_prefix}}"></a>{% set use_type= (type=='ispl' and 'haskell') or type %}{{macros.code_table(fname, 
+    type=type, mkdocs=mkdocs, 
     link_prefix=link_prefix, code_table_2=extra_label, class=class)}}<details id="{{link_prefix}}_details" open><summary style="display:none;">Summary</summary>
-```{{use_type}} {%raw%}{{%endraw%}{{class}} {{'.language-' + use_type}} {{'.language-cmk' if fname.endswith('.cmk') else ''}}{%raw%}}{%endraw%}
+```{{use_type}} {%raw%}{{%endraw%}{{class}} {{'.language-' + use_type}} {%raw%}}{%endraw%}
 {{open(fname,'r').read().strip()}}
 ```
-{{macros.code_table_bottom(fname, bottom_middle=bottom_middle,bottom_right=bottom_right, title=title, link_prefix=link_prefix, type=type, github=github, class=class)}}<a id="{{link_prefix}}_bottom"></a></details>{%- endmacro -%}
+{{macros.code_table_bottom(fname, bottom_middle=bottom_middle,bottom_right=bottom_right, title=title, link_prefix=link_prefix, type=type, mkdocs=mkdocs, class=class)}}<a id="{{link_prefix}}_bottom"></a></details>{%- endmacro -%}
 
 {## API links ##}
 {#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
 
-{% macro api_link(target, mkdocs,name='',style='') -%}{%set short_name=target.split('.')[-1]%}{% set name=name or target%}{%set mod='/'.join(target.split('.')[:-1])%}{%set link=target.replace('-','').replace('.','').replace('/','').replace('&lt;','').replace('&gt;','').replace('<','').replace('>','')%}<a style="{{style}}" href="{{mkdocs.site_relative_url}}/api/{{mod}}.html#{{short_name}}"><small>api://</small><i>{{name}}</i></a>{%- endmacro -%}
+{% macro api_link(target, mkdocs,name='', protocol=True, style='') -%}{%set short_name=target.split('.')[-1]%}{% set name=name or target%}{%set mod='/'.join(target.split('.')[:-1])%}{%set link=target.replace('-','').replace('.','').replace('/','').replace('&lt;','').replace('&gt;','').replace('<','').replace('>','')%}<a style="{{style}}" href="{{mkdocs.site_relative_url}}/api/{{mod}}.html#{{short_name}}">{{'<small>api://</small>' if protocol else ''}}<i>{{name}}</i></a>{%- endmacro -%}
 
 {% macro api_link_many(target_fam, mkdocs, arg='', exclude='None') -%}
 <div class="docutils api_table">

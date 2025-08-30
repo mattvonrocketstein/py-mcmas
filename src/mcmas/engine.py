@@ -38,7 +38,7 @@ except (docker.errors.DockerException,) as exc:
 
 def relpath(fname):
     try:
-        str(Path(fname).relative_to(os.getcwd()))
+        return str(Path(fname).relative_to(os.getcwd()))
     except ValueError:
         return fname
 
@@ -48,6 +48,8 @@ def parse_engine_output(text: str, file=None, exit_code=None) -> sim.Simulation:
     """
     Parses raw engine output to Simulation.
     """
+    LOGGER.critical(f"file={file} exit_code={exit_code}")
+
     formula_lines = re.findall(r"^\s*Formula number.*$", text, re.MULTILINE)
     true_props = [
         x[x.find(": ") + 2 : -len(", is TRUE in the model")].replace(" && ", " and ")
@@ -103,6 +105,7 @@ def parse_engine_output(text: str, file=None, exit_code=None) -> sim.Simulation:
     if not error:
         metadata = metadata.model_copy(
             update={
+                "file": relpath(file),
                 "timing": {
                     "generate_time": gen_state_space,
                     "execution_time": execution_time,
@@ -163,40 +166,7 @@ def mcmas(
     containerized CLI.
     """
 
-    def create_witness_folder():
-        pass
-
-    def clean_witness_folder(tmpd):
-        """
-        Registered with atexit module.
-
-        this remove the .info and .dot files created by
-        `mcmas`, using the container to avoid permissions issues
-        """
-        LOGGER.warning("cleaning folder for witnesses")
-        docker_client.containers.run(
-            img,
-            volumes=volumes,
-            entrypoint="bash",
-            working_dir="/workspace",
-            stdout=True,
-            stderr=True,
-            command=f"-c 'ls {tmpd}|xargs -I% rm {tmpd}/ || true; rmdir {tmpd}'",
-        )
-
-    LOGGER.info(f"img={img} fname={fname} model={model}")
-    cmd = f"-v {DEFAULT_V} " + cmd if "-v" not in cmd else cmd
-    cmd = "-a " + cmd if "-a " not in cmd else cmd
-    cmd = "-k " + cmd if "-k " not in cmd else cmd
-    volumes = [
-        f"{os.getcwd()}:/workspace",
-    ]
-    if witness:
-        tmpd = f".tmp.mcmas_{time.time()}"
-        cmd = "-c 2 " + cmd if "-c " not in cmd else cmd
-        cmd = f"-p ./{tmpd} " + cmd if "-p " not in cmd else cmd
-    if witness:
-        LOGGER.info(f"paving tmpd for witnesses {tmpd}")
+    def create_witness_folder(tmpd, img):
         container = docker_client.containers.run(
             img,
             entrypoint="bash",
@@ -210,22 +180,54 @@ def mcmas(
         container.wait()
         container.reload()
         exit_code = container.attrs["State"]["ExitCode"]
-        assert exit_code == 0, "failed!"
+        assert exit_code == 0, "failed creating {tmpd} from container {img}!"
 
-        LOGGER.info("registering at exit")
-        atexit.register(clean_witness_folder, tmpd)
+    def clean_witness_folder(tmpd, img):
+        """
+        Registered with atexit module.
+
+        Removes the .info and .dot files created by `mcmas`,
+        using the same container to avoid permissions issues
+        """
+        LOGGER.info("cleaning folder for witnesses")
+        docker_client.containers.run(
+            img,
+            volumes=volumes,
+            entrypoint="bash",
+            working_dir="/workspace",
+            stdout=True,
+            stderr=True,
+            command=f"-c 'mv {tmpd} /tmp'",
+        )
+
+    LOGGER.debug(f"running mcmas with img={img} fname={fname} model={model}")
+    cmd = f"-v {DEFAULT_V} " + cmd if "-v" not in cmd else cmd
+    cmd = "-a " + cmd if "-a " not in cmd else cmd
+    cmd = "-k " + cmd if "-k " not in cmd else cmd
+    volumes = [
+        f"{os.getcwd()}:/workspace",
+    ]
+    if witness:
+        tmpd = f".tmp.mcmas_{time.time()}"
+        cmd = "-c 2 " + cmd if "-c " not in cmd else cmd
+        cmd = f"-p ./{tmpd} " + cmd if "-p " not in cmd else cmd
+        LOGGER.debug(f"paving tmpdir for witnesses: {tmpd}")
+        create_witness_folder(tmpd, img)
+        LOGGER.debug("registering cleanup at exit")
+        atexit.register(clean_witness_folder, tmpd, img)
+
     validate_only = validate_only or "--validate-only" in cmd
     if "--strict" in cmd:
         strict = True
         cmd = cmd.replace("--strict", "")
     if validate_only:
-        LOGGER.info("validating..")
+        LOGGER.info(f"Requested validation (strict={strict})")
         cmd = f"-v {DEFAULT_V} -s"
     else:
         LOGGER.info(f"cmd={cmd}")
     assert fname or model
 
-    if fname:
+    if fname and not str(fname).startswith("<<"):
         LOGGER.debug(f"fname={fname}")
         abspath = pathlib.Path(fname).absolute()
         command = f"{cmd} {abspath}"
@@ -261,11 +263,11 @@ def mcmas(
         text = container.logs(stdout=True, stderr=True).decode()
         exit_code = container.attrs["State"]["ExitCode"]
     except (docker.errors.ContainerError,) as exc:
-        LOGGER.debug(f"\n stderr={exc.stderr.decode('utf-8')}")
+        err = f"failed trying to use the container: stderr=\n\n{exc.stderr.decode('utf-8')}"
+        LOGGER.debug(err)
         if strict:
             raise
         else:
-            LOGGER.critical("failed ")
             text = str(exc)
     if any([exit_code != 0, validate_only]):
         LOGGER.critical(f"exit_code={exit_code} validate_only={validate_only}")
@@ -300,8 +302,10 @@ def mcmas(
                 **tmp,
             )
     else:
-        LOGGER.critical(f"requested sim, not validation, exit_code={exit_code}")
-        sim = parse_engine_output(text, file=relpath(fname), exit_code=exit_code)
+        LOGGER.critical(
+            f"requested sim, not validation, file={fname} exit_code={exit_code}"
+        )
+        sim = parse_engine_output(text, file=fname, exit_code=exit_code)
         if model:
             model = model.model_copy(update={"metadata": sim.metadata})
     if not text:
@@ -402,10 +406,10 @@ def engine(
     #     import sys
     #     raise Exception(sys.stdin.read())
     #     return engine(text=sys.stdin.read())
-    elif fname or file:
-        return mcmas(fname=fname or file, **kwargs)
     elif model:
         return engine(data=model.model_dump(), **kwargs)
+    elif fname or file:
+        return mcmas(fname=fname or file, **kwargs)
     elif data:
         return engine(text=util.dict2ispl(data), **kwargs)
     else:

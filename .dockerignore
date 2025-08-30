@@ -3,6 +3,7 @@ __pycache__
 .eggs
 .coverage
 .flux.*
+.tmp.*
 scratch
 *.egg-info
 .tmp.*
@@ -14,6 +15,6 @@ src/mcmas/_version.py
 .pytest_cache
 dist
 .tox
-docs/schema/*.md
+docs/*
 .vscode
 .cmk/local.mk

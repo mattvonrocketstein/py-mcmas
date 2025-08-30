@@ -65,14 +65,14 @@ class SpecificationFragment(pydantic.BaseModel):
     )
 
     @classmethod
-    def __class_getitem__(kls, **kwargs):
+    def get_trivial(kls, **kwargs):
         """
         Subclassers must implement this.
         """
         raise NotImplementedError(f"{kls}")
 
     @classmethod
-    def from_source(kls, txt) -> typing.Self:
+    def load_from_source(kls, txt) -> typing.Self:
         """
         Creates this piece of a specification from raw source-
         code.
@@ -86,15 +86,22 @@ class SpecificationFragment(pydantic.BaseModel):
         raise NotImplementedError(f"{self}")
 
     @property
-    def concrete(self):
+    def valid(self):
         """
-        True if this agent is concrete, i.e. ready to run and not
-        a fragment.
+        True if this agent is valid, i.e. ready to run and not a
+        fragment.
         """
         return not self.advice
 
+    concrete = valid
+
     @property
     def advice(self) -> list:
+        """
+        Returns a list of any problems with this object.
+
+        See also `valid` property
+        """
         required = getattr(self.__class__, "REQUIRED", [])
         if not required:
             LOGGER.warning(

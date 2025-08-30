@@ -1,0 +1,19 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Code-to-Specification via Annotation
+<hr style="width:100%;border-bottom:2px solid black;">
+
+There's an experimental approach for generating partial specifications from code [in this demo]({{mkdocs.site_relative_url}}demos/pydantic-ai/).  That technique uses a combination of introspection and LLM-backed autocompletion, but it's limited, not necessarily reliable, and only as powerful as your backend model.  
+
+This page describes an alternative (or complementary) approach, which uses **explicitly annotated objects** to build specs alongside an existing implementation.  The basic idea is similar to gradual typing[^1],  so let's call it *gradual specification* by analogy.  Gradual-specs could help to enhance readability by advertising intentition, and should be *syntactically legal* and *relatively unobtrusive*, even if the specification is *not immediately complete enough to be directly executed or enforced*.  
+
+In theory.. once there is "enough" specification in place, one could do things like validating system properties as part of automatic tests, check for divergence between specs/implementations, or actually **inspect specifications at runtime** and use that information *inside* implementations.
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('References','../img/list-details')
+}, 100);});
+</script>

@@ -24,6 +24,20 @@ Actions = typing.ActionsType
 
 LOGGER = util.get_logger(__name__)
 
+
+def check_slice(*args):
+    assert len(args) in [0, 1]
+    slice_maybe = args and args[0]
+    if slice_maybe == Ellipsis or isinstance(slice_maybe, (slice, tuple, type(None))):
+        return {}
+    elif isinstance(slice_maybe, (dict,)):
+        return slice_maybe
+    else:
+        err = f"expected slice or dict for posargs, got {[args, type(args)]}"
+        LOGGER.warning(err)
+        raise ValueError(err)
+
+
 ###############################################################################
 
 
@@ -34,6 +48,80 @@ class Fragment(fmtk.Fragment):
     May or may not be "concrete" as of yet, i.e. this may not yet
     be useful for actually running a simulation!
     """
+
+    PROMPT_HINTS: typing.ClassVar = ""
+
+    def __init__(self, *args, **kwargs):
+        """
+        
+        """
+        if args and args[0] and args[0] == Ellipsis:
+            tmp = self.__class__.get_trivial().model_dump()
+            tmp.update(**kwargs)
+            super().__init__(**tmp)
+        else:
+            super().__init__(*args, **kwargs)
+
+    def __call__(self, **kwargs):
+        """
+        
+        """
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        return self
+
+    def __class_getitem__(kls, other):
+        """
+        
+        """
+        if other == Ellipsis:
+            return kls(other)
+        else:
+            mod_name = other.__class__.__module__
+            cname = "_load_from_" + mod_name.replace(".", "_")
+            tname = "_load_from_" + type(other).__name__
+            alt = getattr(kls, tname, None)
+            constructor = getattr(kls, cname, alt)
+            if constructor is None:
+                err = (
+                    f"could not find constructor for `{kls}.{cname}` or `{kls}.{tname}`"
+                )
+                LOGGER.critical(err)
+                raise ValueError(err)
+            else:
+                LOGGER.info(f"using constructor: {constructor}")
+                return constructor(other)
+
+    @classmethod
+    def _load_from_prompt(kls, txt, **extra) -> typing.Self:
+        """
+        Create ISPL agent from the given prompt.
+        """
+        import pydantic_ai
+
+        from mcmas.ai import DEFAULT_PROMPT, config
+
+        hints = """"""
+        prompt = DEFAULT_PROMPT + kls.PROMPT_HINTS
+        LOGGER.info(f"Attempting to load object from prompt:\n\n{prompt}")
+        agent = (
+            pydantic_ai.Agent(
+                config.DEFAULT_MODEL,
+                output_type=pydantic_ai.PromptedOutput(
+                    [kls],
+                    template=prompt,
+                ),
+            )
+            .run_sync(txt)
+            .output
+        )
+        # FIXME: agent-only post-processing; move to subclass
+        if hasattr(agent, "name"):
+            agent.name = agent.name.lower()
+        agent.metadata.parser = f"{kls.__module__}.{kls.__name__}._load_from_prompt"
+        return agent
+
+    _load_from_str = _load_from_prompt
 
     def analyze_types(self) -> typing.List[str]:
         """
@@ -49,29 +137,24 @@ class Fragment(fmtk.Fragment):
         """
         
         """
-        from mcmas.models import spec  # logic import complexity
+        from mcmas.models import spec
 
         return [spec.ComplexityAnalysis()]
 
-    # def model_dump_json(self, **kwargs):
-    #     exclude=kwargs.pop('exclude', [])
-    #     exclude= ['metadata']+exclude if 'metadata' not in exclude else exclude
-    #     return super().model_dump_json(exclude=exclude, **kwargs)
-
     @pydantic.validate_call
     def update(self, data: dict) -> typing.Self:
+        """
+        
+        """
         for k, v in self.model_dump().items():
             setattr(self, k, v)
         return self
-        # update = self.dict()
-        # update.update(data)
-        # for k,v in self.validate(update).dict(exclude_defaults=True).items():
-        # # .debug(f"updating value of '{k}' from '{getattr(self, k, None)}' to '{v}'")
-        #     setattr(self, k, v)
-        # return self
 
     @pydantic.validate_call
     def spec_validate(self) -> typing.Dict:
+        """
+        
+        """
         return dict(
             metadata=self.metadata.model_dump(),
             validates=self.validates,
@@ -92,42 +175,33 @@ class Fragment(fmtk.Fragment):
 ###############################################################################
 
 
-def check_slice(*args):
-    assert len(args) in [0, 1]
-    slice_maybe = args and args[0]
-    if isinstance(slice_maybe, (slice, tuple, type(None))):
-        return {}
-    elif isinstance(slice_maybe, (dict,)):
-        return slice_maybe
-    else:
-        err = f"expected slice or dict for posargs, got {[args, type(args)]}"
-        LOGGER.warning(err)
-        raise ValueError(err)
-
-
 class Environment(Fragment):
     """
-    A wrapper for ISPL Environments. Environments models the
-    shared infrastructure and boundary conditions that all
-    standard agents can observe.
+    Python wrapper for ISPL Environments. Environments model the
+    shared information and boundary conditions that all other
+    agents can observe.
 
-    See
-    http://mattvonrocketstein.github.io/py-mcmas/isplref/#environment
+    See also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#environment)
     """
 
-    REQUIRED: typing.ClassVar = ["protocol", "evolution", "actions"]
+    REQUIRED: typing.ClassVar = ["protocol", "actions"]
+    DefaultEnvironment: typing.ClassVar
 
-    def __class_getitem__(kls, *args, **kwargs):
+    @util.classproperty
+    def DefaultEnvironment(kls):
+        return kls(...)
+
+    @classmethod
+    def get_trivial(kls, *args, **kwargs):
         kwargs.update(check_slice(*args))
-
         actions = kwargs.pop("actions", [symbols.tick])
         protocol = kwargs.pop("protocol", dict(Other=[symbols.tick]))
-        vars = kwargs.pop("vars", {})
+        vars = kwargs.pop("vars", dict(ticking="boolean"))
         return kls(vars=vars, actions=actions, protocol=protocol, **kwargs)
 
     @classmethod
     @pydantic.validate_call
-    def from_source(kls, txt: str) -> typing.Self:
+    def load_from_source(kls, txt: str) -> typing.Self:
         """
         Creates an Environment from string.
         """
@@ -140,7 +214,10 @@ class Environment(Fragment):
 
     actions: typing.ActionsType = Field(
         default=[],
-        description="Defines the set of actions an agent can perform, which are visible to all other agents.",
+        description=(
+            "Defines the set of actions an agent can perform."
+            "Visible to all other agents."
+        ),
     )
     evolution: typing.EvolType = Field(
         default=[],
@@ -152,22 +229,22 @@ class Environment(Fragment):
     )
     vars: typing.VarsType = Field(
         default={},
-        description="Private variables - only the Environment can access",
+        description=("Private variables. Only the Environment can access"),
     )
     obsvars: typing.ObsVarsType = Field(
         default={},
-        description="Observable variables - can be seen by other agents",
+        description=("Observable variables.  Can be seen by other agents"),
     )
 
 
 class Agent(Fragment):
     """
-    A wrapper for ISPL Agents.
+    Python wrapper for ISPL Agents.
 
-    Docs: http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent
+    See also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent)
     """
 
-    TrivialAgent: typing.ClassVar
+    DefaultAgent: typing.ClassVar
     REQUIRED: typing.ClassVar = ["protocol", "evolution", "actions"]
     parser: typing.ClassVar
 
@@ -177,8 +254,7 @@ class Agent(Fragment):
     )
     actions: typing.ActionsType = Field(
         default=[],
-        description=(
-            "Set of actions that are available to this agent"),
+        description=("Set of actions that are available to this agent"),
     )
 
     vars: typing.VarsType = Field(
@@ -212,23 +288,49 @@ class Agent(Fragment):
         default=[],
     )
 
+    @util.classproperty
+    def DefaultAgent(kls):
+        return kls(...)
+
+    @classmethod
+    def _load_from_pydantic_ai_agent(kls, pagent, **extra) -> typing.Self:
+        """
+        Create ISPL agent from the given pydantic agent.
+        """
+        out = None
+        from mcmas import util
+
+        actions = list(pagent._function_toolset.tools.keys())
+        tool = list(pagent._function_toolset.tools.values())[0]
+        vars = util.fxn_sig.as_dict(tool.function)
+        return Agent(
+            name=pagent.name,
+            actions=actions,
+            vars=vars,
+            metadata=dict(
+                parser=f"{kls.__module__}.{kls.__name__}._load_from_pydantic_ai_agent",
+                file=inspect.getfile(pagent.__class__),
+            ),
+            **extra,
+        ).model_completion()
+
     def analyze_symbols(self) -> typing.List[str]:
         """
-        
+        Returns symbol-related metadata including agent-names,
+        actions, variables, and type info.
         """
         return spec.SymbolMetadata(
             agents=[self.name],
             actions=self.actions,
             vars=[k.strip() for k in list(self.lobsvars) + list(self.vars)],
             types=self.analyze_types(),
-            # complexity=self.analyze_complexity(),
         )
 
     @property
     @pydantic.validate_call
     def analysis(self) -> spec.Analysis:
         """
-        Static-analysis for this ISPL specification.
+        Static-analysis for this Agent specification.
 
         Returns details about symbols and logical operators.
         """
@@ -242,23 +344,27 @@ class Agent(Fragment):
         # out.agents = [getattr(symbols, x) for x in sorted(list(set(out.agents)))]
         # return meta
 
-    @pydantic.validate_call
+    def __pow__(self, other: float = 0.1) -> typing.Self:
+        """
+        
+        """
+        from mcmas import ai
+
+        return ai.model_shuffle(obj=self, model_settings=dict(top_p=other))
+
     def __invert__(self) -> typing.Self:
-        """Model interpolation: returns this model"""
         """
         Trigger completion for this Agent.
 
-        This makes minimal changes to
         This is NOT backed by an LLM; see instead `mcmas.ai.agent_completion`.
         """
         if not self.advice:
-            LOGGER.warning(
-                f"{self} is already valid, returning it instead of completing"
-            )
+            err = f"{self} is already valid, returning it instead of completing"
+            LOGGER.warning(err)
             return self
         else:
             tmp = self
-            trivial = TrivialAgent
+            trivial = DefaultAgent
             defaults = dict(
                 protocol=trivial.protocol,
                 vars=trivial.vars,
@@ -276,31 +382,29 @@ class Agent(Fragment):
 
     model_completion = __invert__
 
-    @util.classproperty
-    def TrivialAgent(kls):
-        return kls._trivial_agent()
-
-    def __class_getitem__(kls, *args, **kwargs):
+    @classmethod
+    def get_trivial(kls, *args, **kwargs):
         """
         Smallest legal agent.
         """
         kwargs.update(check_slice(*args))
-        # raise Exception([kls,args,kwargs,isinstance(args[0],(slice,))])
         return kls(
             name="trivial",
             vars=dict(ticking="boolean"),
             actions=["tick"],
             protocol=["Other : {tick}"],
-            # ["Other: {none};"]
             evolution=["ticking=true if Action=tick;"],
-            # ["thinking=true if bob.Action = tool2;"]
         )
 
     def model_dump_source(self):
         """
         Dump the source-code for this piece of the specification.
         """
-        return util.dict2ispl(dict(agents={self.name: self.model_dump()}))
+        from mcmas import rendering
+
+        return rendering.get_template("Agent.j2").render(
+            name=self.name, agent=self.model_dump()
+        )
 
     @util.classproperty
     def parser(self) -> typing.Callable:
@@ -313,37 +417,14 @@ class Agent(Fragment):
 
     @classmethod
     @pydantic.validate_call
-    def from_pydantic_agent(kls, pagent, **extra) -> typing.Self:
-        """
-        Create ISPL agent from the given pydantic agent.
-        """
-        from mcmas import ctx
-
-        pydantic_ai = ctx.get_pydantic_ai()
-        out = None
-        if pydantic_ai and pagent:
-            actions = list(pagent._function_toolset.tools.keys())
-            return kls(
-                name=pagent.name,
-                actions=actions,
-                metadata=dict(
-                    parser=f"{kls.__module__}.{kls.__name__}.from_pydantic_agent",
-                    file=inspect.getfile(pagent.__class__),
-                ),
-                **extra,
-            ).model_completion()
-        return out
-
-    @classmethod
-    @pydantic.validate_call
-    def from_source(kls, txt, strict: bool = False) -> typing.Self:
+    def load_from_source(kls, txt, strict: bool = False) -> typing.Self:
         """
         Load ISPL agent from string.
         """
         agents = kls.parser(txt)
         agents.pop("Environment", None)
         if len(agents) != 1:
-            LOGGER.critical("from_source: more than 1 agent! returning first..")
+            LOGGER.critical("load_from_source: more than 1 agent! returning first..")
         return Agent(**list(agents.values())[0])
 
     @property
@@ -351,7 +432,8 @@ class Agent(Fragment):
         return []
 
 
-TrivialAgent = Agent[:]
+DefaultAgent = Agent.DefaultAgent
+DefaultEnvironment = Environment.DefaultEnvironment
 
 
 class ISpec(fmtk.Specification):
@@ -360,19 +442,23 @@ class ISpec(fmtk.Specification):
     """
 
 
-TrivialEnvironment = Environment[:]
+import functools
+import operator
 
 
 class ISPL(Fragment):
     """
-    An A wrapper for ISPL specifications.
+    Python wrapper for ISPL specifications.
 
-    This permits partials or "fragments", i.e. the specification
-    need not be complete and ready to run.
+    This permits partials or "fragments", i.e. the specification need not be complete and ready to run.
 
-    See
-    http://mattvonrocketstein.github.io/py-mcmas/isplref
+    See the ISPL reference here: http://mattvonrocketstein.github.io/py-mcmas/isplref
     """
+
+    PROMPT_HINTS: typing.ClassVar = "Individual proper nouns refer to separate agents."
+
+    def __str__(self):
+        return f"<ISPL: agents={len(self.agents)} vars={len(self.environment.vars)}>"
 
     def analyze_types(self):
         types = super().analyze_types()
@@ -380,28 +466,30 @@ class ISPL(Fragment):
             types += agent.analyze_types()
         return list(set(types))
 
-    def __class_getitem__(kls, *args, **kwargs):
+    @classmethod
+    def get_trivial(kls, *args, **kwargs):
+        """
+        ISPL(...) notation.  Unlike ISPL(..)
+
+        This returns the trivial specification, with just enough
+        structure to validate and run, plus any optional
+        overrides.
+        """
         kwargs.update(check_slice(*args))
         title = kwargs.pop("title", "Minimal valid ISPL specification")
-        agents = kwargs.pop("agents", {"TrivialAgent": TrivialAgent})
-        environment = kwargs.pop("environment", Environment.__class_getitem__())
+        agents = kwargs.pop("agents", {"DefaultAgent": DefaultAgent})
+        environment = kwargs.pop("environment", Environment(...))
+        evaluation = kwargs.pop("evaluation", ["ticking if Environment.ticking=true"])
+        init_states = kwargs.pop("init_states", ["Environment.ticking=true"])
+        formulae = kwargs.pop("formulae", ["ticking"])
         return kls(
             title=title,
             environment=environment,
+            evaluation=evaluation,
+            init_states=init_states,
+            formulae=formulae,
             agents=agents,
             **kwargs,
-            # evaluation=[
-            #     logic.If(symbols.p, logic.Eq(symbols.Environment.p, symbols.true)),
-            #     logic.If(symbols.q, logic.Eq(symbols.Environment.q, symbols.true)),
-            # ],
-            # init_states=[
-            #     # Equivalently: Environment.p=true and Environment.q=false
-            #     logic.And(
-            #         logic.Eq(symbols.Environment.p, symbols.true),
-            #         logic.Eq(symbols.Environment.q, symbols.false),
-            #     )
-            # ],
-            # formulae =  ["p; !q; p -> !q;"],
         )
 
     # Metadata: typing.ClassVar = fmtk.SpecificationMetadata
@@ -511,26 +599,7 @@ class ISPL(Fragment):
     @property
     def local_advice(self) -> list:
         """
-        __spec__ = ISPL( title='Minimal valid ISPL definition in
-        Python', environment=Environment(
-        vars=dict(p=symbols.boolean, q=symbols.boolean),
-        actions=[symbols.tick],
-
-        protocol=dict(Other=[symbols.tick]), ), agents =
-        {"Player1": TrivialAgent },
-
-        evaluation=[     logic.If(symbols.p,
-        logic.Eq(symbols.Environment.p, symbols.true)),
-        logic.If(symbols.q, logic.Eq(symbols.Environment.q,
-        symbols.true)), ],
-
-            init_states=[         # Equivalently:
-        Environment.p=true and Environment.q=false logic.And(
-        logic.Eq(symbols.Environment.p, symbols.true),
-        logic.Eq(symbols.Environment.q, symbols.false),         )
-        ],     formulae =  ["p; !q; p -> !q;"], )         Returns
-        advice (known blockers for validation/execute) for this
-        object and known subcomponents.
+        
         """
         out = []
         for agent in self.agents:
@@ -540,7 +609,9 @@ class ISPL(Fragment):
 
     @classmethod
     @pydantic.validate_call
-    def from_source(kls, txt, strict: bool = False) -> typing.Dict[str, typing.Self]:
+    def load_from_source(
+        kls, txt, strict: bool = False
+    ) -> typing.Dict[str, typing.Self]:
         """
         Return ISPL object from given string.
         """
@@ -549,7 +620,10 @@ class ISPL(Fragment):
 
     @classmethod
     @pydantic.validate_call
-    def load_from_ispl_file(kls, file: str = None, text=None):
+    def load_from_ispl_file(
+        kls,
+        file: str = None,
+    ):
         """
         Return ISPL object from contents of given file.
         """
@@ -618,9 +692,9 @@ class ISPL(Fragment):
     @pydantic.validate_call
     def validates(self) -> bool:
         """
-        Asks the engine whether this spec validates.
+        Asks the engine directly whether this spec validates.
 
-        NB: no caching
+        Note that this is ground-truth and not heuristic like the `valid` property elsewhere!
         """
         return mcmas.engine.validate(model=self)
 
@@ -632,37 +706,6 @@ class ISPL(Fragment):
 
         Returns details about symbols and logical operators.
         """
-        # operators = []
-        # for frm in self.formulae:
-        #     for op in [
-        #         "AF",
-        #         "X",
-        #         "F",
-        #         "G",
-        #         "U",
-        #         "A",
-        #         "E",
-        #         "AG",
-        #         "EF",
-        #         "AX",
-        #         "EG",
-        #         "K",
-        #         "GK",
-        #         "GCK",
-        #         "DK",
-        #     ]:
-        #         if f"{op}(" in frm:
-        #             operators.append(op)
-        # types = []
-        # agents = list(self.agents.values()) + [self.environment]
-        # for agent in agents:
-        #     types += agent.vars.values()
-        #     types += agent.obsvars.values()
-        # types = sorted(list({x.strip() for x in types}))
-        import functools
-        import operator
-
-        # compl =  #.model_dump()
         ents = list(self.agents.values())
         ents += [self.environment]
         vars = []
@@ -688,39 +731,17 @@ class ISPL(Fragment):
             complexity=self.analyze_complexity(),
         )
         meta = spec.Analysis(**meta)
-        # out = meta.symbols
-        # # ents = list(self.agents.items()) + [["Environment", self.environment]]
-
-        #     # for action in agent.actions:
-        #     #     out.actions.append(action)
-        # out.actions = [getattr(symbols, x) for x in sorted(list(set(out.actions)))]
-        # out.vars = [getattr(symbols, x) for x in sorted(list(set(out.vars)))]
-        # out.agents = [getattr(symbols, x) for x in sorted(list(set(out.agents)))]
         return meta
 
     def analyze_complexity(self) -> typing.List:
         from mcmas.logic import complexity
 
-        # out = []
-        # super().analyze_complexity().model_dump()
-        # for agent in self.agents.values():
-        #     out.update(agent.analyze_complexity())
         return [
             complexity.analyzer.analyze(f.lstrip().rstrip(), index=i)
             for i, f in enumerate(self.formulae)
         ]
-        # :
-        #     expr = f.lstrip().rstrip()
-        #     # analysis_details = complexity.analyzer.analyze(expr)
-        #     out.append(
-        #         complexity.analyzer.analyze(expr, index=i)
-        #         # .model_dump(
-        #         #     exclude_unset=True
-        #         # )
-        #     )
-        # return out
 
-    def exec(self, strict: bool = False, **kwargs):
+    def exec(self, strict: bool = False, **kwargs) -> typing.Self:
         """
         Execute this ISPL specification.
         """
@@ -769,31 +790,4 @@ class ISPL(Fragment):
         return util.repl(spec=result_model)
 
 
-TrivialSpec = ISPL[:]
-
-
-# def make_strict(model: type[spec.Specification]) -> type[spec.Specification]:
-#     """
-#     Creates a new Pydantic model where all fields from the input model are
-#     required, effectively removing any default values.
-#     """
-#     strict_fields = {}
-#     for field_name, field_info in model.model_fields.items():
-#         # if field_name=='obsvars': raise Exception(field_info)
-#         # Create a new FieldInfo object without default values
-#         # data = field_info.model_dump()
-#         if not field_info.is_required:
-#             LOGGER.critical(f"not required {field_info}")
-#             field = Field(
-#                 default=field_info.default,
-#                 is_required=field_info.is_required,
-#                 alias=field_info.alias)
-#         else:
-#             field = Field(default=PydanticUndefined, alias=field_info.alias)
-#         strict_fields[field_name] = field_info.annotation, field
-#     # Dynamically create the new model
-#     strict_model = create_model(f"Strict{model.__name__}", **strict_fields)
-#     return strict_model
-# class strict:
-#     Agent = make_strict(Agent)
-#     ISPL = make_strict(ISPL)
+DefaultISPL = ISPL(...)

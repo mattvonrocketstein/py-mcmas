@@ -1,50 +1,47 @@
 """
+mcmas.logic.complexity.
 
+A collection of (very unsophisticated!) heuristics for extracting
+metadata from logical expressions, including details about their
+time/space complexity.  Consider this is a placeholder for
+something smarter ;)  Weights in particular are suggested by AI,
+and NOT based on close reading of all the literature on
+theoretical analysis.
 """
 
 import math
 import re
 
-# from typing import Dict, List, Tuple, Set
-from dataclasses import dataclass
-
 from mcmas import typing
 from mcmas.models.spec import *  # noqa
 
-@dataclass
-class ComplexityWeights:
-    """
-    Complexity weights based on theoretical analysis.
-    """
+# Basic propositional logic
+PROPOSITIONAL = 0.1
 
-    # Basic propositional logic
-    PROPOSITIONAL = 0.1
+# Temporal operators (CTL/LTL)
+TEMPORAL_BASIC = 0.3  # X, F, G
+TEMPORAL_UNTIL = 0.4  # U (more complex)
 
-    # Temporal operators (CTL/LTL)
-    TEMPORAL_BASIC = 0.3  # X, F, G
-    TEMPORAL_UNTIL = 0.4  # U (more complex)
+# Path quantifiers
+PATH_QUANTIFIER = 0.2  # A, E
 
-    # Path quantifiers
-    PATH_QUANTIFIER = 0.2  # A, E
+# Epistemic operators
+KNOWLEDGE_SINGLE = 0.5  # K(i, φ) - PSPACE
+KNOWLEDGE_GROUP = 0.6  # GK(G, φ)
+KNOWLEDGE_DISTRIBUTED = 0.7  # DK(G, φ)
+COMMON_KNOWLEDGE = 0.9  # GCK(G, φ) - EXPSPACE, approaching undecidable
 
-    # Epistemic operators
-    KNOWLEDGE_SINGLE = 0.5  # K(i, φ) - PSPACE
-    KNOWLEDGE_GROUP = 0.6  # GK(G, φ)
-    KNOWLEDGE_DISTRIBUTED = 0.7  # DK(G, φ)
-    COMMON_KNOWLEDGE = 0.9  # GCK(G, φ) - EXPSPACE, approaching undecidable
+# Strategic operators (ATL)
+STRATEGIC_BASIC = 0.6  # <group>X, <group>F, <group>G
+STRATEGIC_COMPLEX = 0.8  # Complex coalition strategies
 
-    # Strategic operators (ATL)
-    STRATEGIC_BASIC = 0.6  # <group>X, <group>F, <group>G
-    STRATEGIC_COMPLEX = 0.8  # Complex coalition strategies
+# Deontic logic
+OBLIGATION = 0.2  # O(φ)
 
-    # Deontic logic
-    OBLIGATION = 0.2  # O(φ)
+# Nesting penalty (exponential growth)
+NESTING_BASE = 1.3
+MAX_REASONABLE_DEPTH = 10
 
-    # Nesting penalty (exponential growth)
-    NESTING_BASE = 1.3
-    MAX_REASONABLE_DEPTH = 10
-
-WEIGHTS = ComplexityWeights()
 
 # Regex patterns for different operator types
 PATTERNS = {
@@ -63,7 +60,7 @@ PATTERNS = {
     "knowledge_single": r"K\s*\(\s*\w+\s*,",
     "knowledge_group": r"GK\s*\(\s*\{[^}]+\}\s*,",
     "knowledge_distributed": r"DK\s*\(\s*\{[^}]+\}\s*,",
-    "common_knowledge": r"GCK\s*\(\s*\{[^}]+\}\s*,",
+    "common_knowledge": r"GCK\s*\(.*\)",
     # Strategic operators (ATL)
     "strategic": r"<[^>]+>[XFG]\s*\(",
     # Deontic operators
@@ -72,9 +69,8 @@ PATTERNS = {
     "propositional": r"[a-z]\w*(?!\s*\()",
 }
 
-class LogicalComplexityAnalyzer:
-    """
-    """
+
+class ExpressionAnalyzer:
 
     def extract_agents_and_groups(self, expression: str) -> typing.Tuple[int, int, int]:
         """
@@ -140,11 +136,11 @@ class LogicalComplexityAnalyzer:
         score = 0.0
 
         # Temporal operators
-        score += op_stats.temporal_basic * WEIGHTS.TEMPORAL_BASIC
-        score += op_stats.temporal_until * WEIGHTS.TEMPORAL_UNTIL
+        score += op_stats.temporal_basic * TEMPORAL_BASIC
+        score += op_stats.temporal_until * TEMPORAL_UNTIL
 
         # Path quantifiers
-        score += op_stats.path_quantifier * WEIGHTS.PATH_QUANTIFIER
+        score += op_stats.path_quantifier * PATH_QUANTIFIER
 
         # CTL combinations (higher weight than individual components)
         ctl_ops = [
@@ -155,38 +151,32 @@ class LogicalComplexityAnalyzer:
             "ctl_possibly_always",
         ]
         for op in ctl_ops:
-            score += getattr(op_stats, op) * (
-                WEIGHTS.TEMPORAL_BASIC + WEIGHTS.PATH_QUANTIFIER
-            )
+            score += getattr(op_stats, op) * (TEMPORAL_BASIC + PATH_QUANTIFIER)
 
         # Epistemic operators (scaled by number of agents)
         agent_factor = 1 + math.log2(max(1, num_agents))
-        score += op_stats.knowledge_single * WEIGHTS.KNOWLEDGE_SINGLE * agent_factor
-        score += op_stats.knowledge_group * WEIGHTS.KNOWLEDGE_GROUP * agent_factor
-        score += (
-            op_stats.knowledge_distributed
-            * WEIGHTS.KNOWLEDGE_DISTRIBUTED
-            * agent_factor
-        )
+        score += op_stats.knowledge_single * KNOWLEDGE_SINGLE * agent_factor
+        score += op_stats.knowledge_group * KNOWLEDGE_GROUP * agent_factor
+        score += op_stats.knowledge_distributed * KNOWLEDGE_DISTRIBUTED * agent_factor
 
         # Common knowledge (exponential in agent count, capped near 1.0)
         ck_count = op_stats.common_knowledge
         if ck_count > 0:
-            ck_complexity = WEIGHTS.COMMON_KNOWLEDGE * (1 + num_agents * 0.05)
+            ck_complexity = COMMON_KNOWLEDGE * (1 + num_agents * 0.05)
             score += ck_count * min(ck_complexity, 0.95)
 
         # Strategic operators (exponential in coalition size)
         strategic_count = op_stats.strategic
         if strategic_count > 0:
             coalition_factor = 1 + math.log2(max(1, max_coalition))
-            strategic_complexity = WEIGHTS.STRATEGIC_BASIC * coalition_factor
+            strategic_complexity = STRATEGIC_BASIC * coalition_factor
             score += strategic_count * min(strategic_complexity, 0.85)
 
         # Deontic operators
-        score += op_stats.obligation * WEIGHTS.OBLIGATION
+        score += op_stats.obligation * OBLIGATION
 
         # Propositional variables (minimal complexity)
-        score += op_stats.propositional * WEIGHTS.PROPOSITIONAL
+        score += op_stats.propositional * PROPOSITIONAL
 
         return score
 
@@ -199,11 +189,11 @@ class LogicalComplexityAnalyzer:
 
         # Exponential growth with depth, but bounded
         depth_factor = min(
-            math.pow(WEIGHTS.NESTING_BASE, depth - 1), 10.0  # Cap the multiplier
+            math.pow(NESTING_BASE, depth - 1), 10.0  # Cap the multiplier
         )
 
         return base_score * depth_factor
-    
+
     @staticmethod
     def normalize_score(raw_score: float) -> float:
         """
@@ -272,31 +262,7 @@ class LogicalComplexityAnalyzer:
             ).model_dump(),
         )
 
+    __call__ = analyze
 
-analyzer = LogicalComplexityAnalyzer()
 
-# def logical_complexity(expression: str) -> float:
-#     """
-#     Convenience function that returns just the complexity score.
-
-#     Args:
-#         expression: Logical formula as string
-
-#     Returns:
-#         Float between 0 and 1, where:
-#         - 0: Constant time/space (simple propositional)
-#         - 1: Infinite/undecidable complexity
-
-#     Examples:
-#         >>> logical_complexity("p & q")
-#         0.18...  # Simple propositional
-
-#         >>> logical_complexity("AG(p)")
-#         0.45...  # CTL temporal logic
-
-#         >>> logical_complexity("GCK({a1,a2,a3}, K(a1, p))")
-#         0.87...  # Common knowledge - very complex
-#     """
-#     analyzer = LogicalComplexityAnalyzer()
-#     score, _ = analyzer.analyze(expression)[]
-#     return score
+analyzer = ExpressionAnalyzer()

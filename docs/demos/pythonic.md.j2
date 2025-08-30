@@ -3,53 +3,53 @@
 ## Pythonic ISPL
 <hr style="width:100%;border-bottom:2px solid black;">
 
-Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  There's a bunch of reasons you might want to do this, but the simplest reason is that ISPL specifications are more like *data* than like programs anyway.  
+Using `py-mcmas`, you can write ISPL specifications directly in python in a straightforward way.  One reason this might be convenient is that ISPL specifications are more like *data* than like programs anyway.  But there are other reasons too. For example:
 
-* Explicitly using [logical operators](#logical-expressions) instead of strings is frequently harder to *read*, but is easier to *generate*, and much more composable.  
-* [`InitStates`]({{mkdocs.site_relative_url}}/isplref/#initstates) in particular are often tedious to setup, and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations, etc.
+* [`InitState`]({{mkdocs.site_relative_url}}/isplref/#initstates) sections can be tedious to setup, and it's nice to leverage pythonic iteration or use `math.comb` for generating combinations.
+* [`Vars`]({{mkdocs.site_relative_url}}/isplref/#vars) sections can frequently benefit from pythonic dictionary-comprehensions.
+* [`Agents`]({{mkdocs.site_relative_url}}/isplref/#agents) and [`Actions`]({{mkdocs.site_relative_url}}/isplref/#actions) sections can use a kind of inheritance.
 
-In addition to stuff like this, pythonic-ISPL has additional capabilities, such as support for fragments, so that specifications can be built up gradually.  Specifications can also be sliced apart, and there are other ways they have a [built in algebra](#).  
+Using [sympy-style symbols and operators](#logical-expressions) instead of [logical formulae strings]({{mkdocs.site_relative_url}}/isplref/#formulae) is frequently harder to *read*, but is often easier to *generate*, and is often more composable.  Pythonic-ISPL has additional capabilities too, such as support for fragments, so that specifications can be built up gradually.  Specifications can also be sliced apart, and have a [built-in algebra]({{mkdocs.site_relative_url}}/demos/spec-algebra).  
 
 Let's start with a basic example.
 
 ### Minimal Example
 <hr style="width:100%;border-bottom:2px solid black;">
 
-The example below is porting the [minimal ISPL example]({{mkdocs.site_relative_url}}/ispl#minimal) to pure python.  
+Let's make a first pass at expressing the [minimal ISPL example]({{mkdocs.site_relative_url}}/ispl#minimal) in pure python.  This tries to avoid "magic strings" of raw ISPL and raw logical expressions, and instead makes use of symbols and sympy expressions[^1].  
 
-This tries to avoid "magic strings" of raw ISPL and raw logic expressions, and instead makes use of symbols and sympy expressions.
+You can run it with the [`ispl` command line tool]({{mkdocs.site_relative_url}}/cli) like this:
 
-You can run it with the [`ispl` command line tool]({{mkdocs.site_relative_url}}/cli).  
+```bash {.cli_example}
+# Converts python spec -> ISPL source
+ispl --python tests/data/minimal.py
+
+# Run a simulation for the spec
+ispl --python tests/data/minimal.py --sim
+```
+
+As a 1:1 translation from the ISPL, the "minimal" example below doesn't feel that small!  We'll get to more abbreviated version next.
 
 {{site.embed_demo(
-    'tests/data/minimal.py', github=github, type='python')}}
+    'tests/data/minimal.py', github=github, type='python', small=1)}}
 
+Keeping in mind the goal for this example.. we really only needed the "no-op" agent so that the ISPL would validate and execute.  Let's introduce some notation so that defaults are safe to omit and make a few other improvements. 
 
-{#
-Pythonic specifications can also use [AI-powered completion](#)
+{{site.embed_demo(
+    'tests/data/minimal2.py', github=github, type='python', small=1)}}
 
-# An absolutely minimal ISPL program in pure python.
-# See the docs https://mattvonrocketstein.github.io/py-mcmas/demos/pythonic-ispl
-still requires a do-nothing agent.
-# This example is just enough boilerplate to use the logic-engine for simple stuff.
-# For the pure-ISPL equivalent, see the file at `tests/data/minimal.ispl`.
+This version has several differences:
 
-
-# Imports below are optional if file runs with `ispl --python <fname>`:
-#
-#   from mcmas.ispl import ISPL, Environment, Agent
-#   from mcmas.logic import symbols
-
-
-(including the fact that ISPL fragments allow for 
-#}
+* Statements such as `ISPL(...)(**kwargs)` return a *minimum legal construct* + overrides.  This is called **ellipsis notation** and is described in more detail [here]({{mkdocs.site_relative_url}}/demos/spec-algebra#ellipsis-notation).
+* We drop the `If(..)` statements in favor of `>>` for [logical expressions]({{mkdocs.site_relative_url}}/demos/spec-algebra#opref)
+* We use a dictionary-comprehension to define `vars` section.
 
 ### Flexibile Parsing
 <hr style="width:100%;border-bottom:2px solid black;">
 
-**At a high level,** you'll want to use the pydantic models for [`mcmas.ispl.Environment`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Environment) and [`mcmas.ispl.Agent`]({{mkdocs.site_relative_url}}api/mcmas/ispl.html#Agent), which mirror their [counterpart primitives in pure-ISPL]({{mkdocs.site_relative_url}}/isplref#Environment).
+**At a high level,** you'll want to use the pydantic models for {{site.api_link('mcmas.Environment', mkdocs=mkdocs)}} and {{site.api_link('mcmas.Agent', mkdocs=mkdocs)}}, which mirror their [counterpart primitives in pure-ISPL]({{mkdocs.site_relative_url}}/isplref#Environment).
 
-**For individual blocks though,** although the JSON schema for *output* is strict, input-parsing is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block in pure ISPL might look like this:
+**For individual sections of ISPL,**  the JSON schema for *output* is strict, but input-parsing is flexible, and *most things that seem to make sense* will just work.  For example,  an `Actions` block in pure ISPL might look like this:
 
 ```ispl {.language-lua}
 Agent foo 
@@ -60,22 +60,22 @@ end Agent
 ```
 
 <br/>
-Translated to python, this could look like 
+Translated to python, this could look like any of the following:
 
 ```python {.language-python .small}
 from mcmas.ispl import Agent, symbols 
-Agent(...,actions='{keep, swap, none};',...)
-Agent(...,actions=['keep', 'swap', 'none'],...)
-Agent(...,actions=[symbols.keep, symbols.swap,symbols.none],...)
+Agent(..., actions='{keep, swap, none};',...)
+Agent(..., actions=['keep', 'swap', 'none'],...)
+Agent(..., actions=[symbols.keep, symbols.swap,symbols.none],...)
 ```
 
 <br/>
-The situation is similar with sections like `Vars`, `ObsVars`, and `Lobsvars`, except that dictionaries are used.Most sections accept strings, sympy symbols or expressions that can be converted to strings, lists of strings and symbols, or dictionaries.
+Most sections accept strings, sympy symbols or expressions that can be converted to strings, lists of strings and symbols.  The situation is similar with other sections like `Vars`, `ObsVars`, and `Lobsvars`, except that dictionaries are also supported.  
 
 ### Logical Expressions
 <hr style="width:100%;border-bottom:2px solid black;">
 
-We've already met `symbols` in the last section, which is basically just a factory for sympy symbols[^1].  Get a symbol by simply mentioning it, and combine them in natural ways like this:
+We've already met `symbols` previously, which is basically just a factory for sympy symbols[^1].  Get a symbol by simply mentioning it, and combine them in natural ways like this:
 
 ```python {.small .language-python}
 from mcmas.logic import symbols 
@@ -83,7 +83,7 @@ assert symbols.x + symbols.y == "x+y"
 ```
 
 <br/>
-Symbols are actually callable, so that e.g. `symbol.K(symbol.predicate)` is one way to use the [knowledge operator]({{mkdocs.site_relative_url}}/opref).  For other kinds of expressions, you can use things from `mcmas.logic` like this:
+Symbols are actually callable, so that e.g. `symbol.K(symbol.predicate)` is one way to use the [knowledge operator]({{mkdocs.site_relative_url}}/opref#dynamic-epistemic-logic).  For other kinds of expressions, you can use things from `mcmas.logic` like this:
 
 ```python {.small .language-python}
 from mcmas import logic
@@ -93,12 +93,17 @@ logic.And(symbols.x, symbols.y) # -> x and y
 ```
 
 <br/>
-Compared to a simple string, this is frequently *harder* to read!  But it's more composable, and now we're closer to a real abstract syntax tree.
+Compared to a simple string, this is frequently *harder* to read!  But it's more composable, and now we're closer to a real abstract syntax tree, perhaps opening up future possibilities for leveraging different combinations of LLMS + tree-sitter[^2], and genetic programming [^3].  Preference for operators instead of functions can be a decent and more abbreviated compromise here, and we've already met `>>` as shorthand for `If`.  See also the [spec-algebra demos]({{mkdocs.site_relative_url}}/demos/spec-algebra/) for more details along those lines.
 
-### Original ISPL
-<hr style="width:100%;border-bottom:2px solid black;">
+## References
+<hr style="width:100%;border-bottom:3px solid black;">
 
-The pure ISPL for the python example above:
+[^1]: [SymPy official docs](https://docs.sympy.org/latest/tutorials/intro-tutorial/basic_operations.html)
+[^2]: [As seen in aider](https://aider.chat/2024/05/22/linting.html)
+[^3]: [Evolving Code with A Large Language Model](https://arxiv.org/abs/2401.07102)
 
-{{site.embed_demo(
-    'tests/data/minimal.ispl', github=github, type='ispl')}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+    addImageToHeader('references','img/list-details')
+}, 100);});
+</script>

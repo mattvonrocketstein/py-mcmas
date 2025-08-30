@@ -294,7 +294,17 @@ div .code_table_top_snippet {
   /* background-color: red; */
   font-weight: bolder;
 }
-
+div .code_table_bottom {
+  background-color: rgb(240, 241, 231);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  align-items: center;     /* vertical alignment */
+  border:2px solid black;
+  position: relative;
+  top: -1em;
+  align:center;
+  display: flex; justify-content: space-between; width: 100%;
+}
 .code_table_1 a {
   color:black; }
 div .highlight.api_docs {
@@ -308,7 +318,7 @@ div .code_table_top.api_docs {
   justify-content: center; /* horizontal alignment */
   border-bottom:1px dotted black;
   margin-bottom: 0px;
-  margin-top: -1.5em;
+  /* margin-top: -1.5em; */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -325,7 +335,7 @@ div .code_table_top.api_docs {
   align-items: center;     /* vertical alignment */
   justify-content: center; /* horizontal alignment */
   border:2px solid black;
-  margin-bottom: 0px;
+  /* margin-bottom: -10px; */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -390,17 +400,7 @@ html.writer-html5 .rst-content table.docutils th {
   /* width:70%;
   align-self: center; */
 }
-div .code_table_bottom {
-  background-color: rgb(240, 241, 231);
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  align-items: center;     /* vertical alignment */
-  border:2px solid black;
-  position: relative;
-  /* top: -2em; */
-  align:center;
-  display: flex; justify-content: space-between; width: 100%;
-}
+
 p:empty {
   display: none;
 }

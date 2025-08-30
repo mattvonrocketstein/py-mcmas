@@ -2,13 +2,13 @@
 mcmas.util: for logging, repl-helpers, model-validators, etc.
 """
 
+import contextlib
 import gc
-import importlib.util
 import inspect
 import os
 import re
-import sys
 import typing
+from typing import Any, get_type_hints
 
 import pydantic
 
@@ -79,6 +79,7 @@ class classproperty:
 
     def __init__(self, fxn):
         self.fxn = fxn
+        self.__doc__ = fxn.__doc__
 
     def __get__(self, obj, owner) -> OptionalAny:  # noqa
         """
@@ -112,22 +113,6 @@ def find_instances(cls) -> typing.List:
         if isinstance(obj, cls):
             instances.append(obj)
     return instances
-
-
-@pydantic.validate_call
-def lazy_module(fullname: str):
-    """
-    Used with lazy imports.
-    """
-    try:
-        return sys.modules[fullname]
-    except KeyError:
-        spec = importlib.util.find_spec(fullname)
-        module = importlib.util.module_from_spec(spec)
-        loader = importlib.util.LazyLoader(spec.loader)
-        # Make module with proper locking and get it inserted into sys.modules.
-        loader.exec_module(module)
-        return module
 
 
 @pydantic.validate_call
@@ -175,19 +160,37 @@ def fxn_sig(func: typing.Callable) -> typing.Dict[str, typing.Dict[str, typing.A
     anno = sig.return_annotation
     anno = anno.__name__ if anno != inspect._empty else "typing.Any"
     return f"{header} -> {anno}"
-    # result = {}
-    # for param_name, param in sig.parameters.items():
-    #     param_info = {
-    #         'name': param.name,
-    #         'kind': param.kind.name,  # POSITIONAL_ONLY, POSITIONAL_OR_KEYWORD, etc.
-    #         'default': param.default if param.default != inspect.Parameter.empty else None,
-    #         'annotation': param.annotation if param.annotation != inspect.Parameter.empty else None,
-    #         'has_default': param.default != inspect.Parameter.empty
-    #     }
-    #     result[param_name] = param_info
-    # # Add return annotation if present
-    # if sig.return_annotation != inspect.Signature.empty:
-    #     result['__return__'] = {
-    #         'annotation': sig.return_annotation
-    #     }
-    # return result
+
+
+def fxn_sig_as_dict(func) -> typing.Dict[str, typing.Any]:
+    """
+    Extract function signature as a dictionary of parameter names
+    to their types.
+
+    Args:
+        func: The function to inspect
+
+    Returns:
+        Dict mapping parameter names to their type annotations
+    """
+    sig = inspect.signature(func)
+    signature_dict = {}
+    type_hints = {}
+    try:
+        type_hints = get_type_hints(func)
+    except contextlib.suppress(NameError, AttributeError, TypeError):
+        # get_type_hints can fail, so we'll use direct annotations instead
+        pass
+    for param_name, param in sig.parameters.items():
+        # Use type hint if available, otherwise use annotation from parameter
+        if param_name in type_hints:
+            signature_dict[param_name] = type_hints[param_name]
+        elif param.annotation != inspect.Parameter.empty:
+            signature_dict[param_name] = param.annotation
+        # Here we'll use Any to indicate no specific type was provided
+        else:
+            signature_dict[param_name] = Any
+    return signature_dict
+
+
+fxn_sig.as_dict = fxn_sig_as_dict

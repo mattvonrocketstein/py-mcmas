@@ -26,3 +26,5 @@ docs/api/search.js
 docs/api/mcmas
 docs/api/index.html
 docs/api/mcmas.html
+docs/includes/*
+docs/demos/*.md

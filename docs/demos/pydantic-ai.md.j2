@@ -3,5 +3,23 @@
 ## Pydantic Agents -> ISPL
 <hr style="width:100%;border-bottom:2px solid black;">
 
+Through a combination of inspection and LLM-backed completion, `py-mcmas` can guess about how to write ISPL specs from your existing pydantic-agents.  This process is experimental and probably best thought of as *semi-automatic* at best, and your milage may vary depending on how powerful your LLM backend is!  
+
+If you're interested in something more deterministic, see the demo for [gradual annotation of agent-frameworks]({{mkdocs.site_relative_url}}/demos/annotation).
+
+### Intro to Societies 
+<hr style="width:100%;border-bottom:2px solid black;">
+
+For starters, you'll probably want to *enumerate existing agents*, and that's part of what {{site.api_link('mcmas.Society', mkdocs=mkdocs)}} does.  See the example below:
+
+{{site.embed_demo(
+    'tests/itests/agent_society.py', github=github, type='python')}}
+    
+### Code to Specification
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=code-to-spec></a>
+
+Using [constructor notation]({{mkdocs.site_relative_url}}/demos/spec-algebra#constructor-notation) you can get specification objects from pydantic agents like this:
+
 {{site.embed_demo(
     'tests/itests/test_pydantic_agents.py', github=github, type='python')}}

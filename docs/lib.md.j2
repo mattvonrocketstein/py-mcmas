@@ -1,17 +1,22 @@
 {% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
 {% import 'macros/site.j2' as site -%}
 
-## Library Usageapi_link(target, mkdocs, arg='',style="")
+## Library Usage
+<hr style="width:100%;border-bottom:2px solid black;">
 
-This is a quick, guided tutorial style introduction to important parts of the codebase.  See the [full API here]({{mkdocs.site_relative_url}}/api/).
+{# api_link(target, mkdocs, arg='',style="") #}
 
-<a name=engine></a>
-### `mcmas.engine`
+This is a quick, tutorial-style introduction to some important parts of the `py-mcmas` codebase.  
+
+See the [full API here]({{mkdocs.site_relative_url}}/api/).
+
+### Engine
 <hr style="width:100%;border-bottom:3px solid black;">
+<a name=mcmas-engine></a>
 
 Low-level access to the MCMAS model-checker is via [api://`mcmas.engine`]({{mkdocs.site_relative_url}}/api/mcmas/engine.html#engine).
 
-**Supported inputs** include JSON, pythonic ISPL / [Specification objects](#specifications-simulations), or files/paths that point to raw ISPL source code.  Regardless of input-format, you'll probably want to learn about [the ISPL primitives]({{mkdocs.site_relative_url}}/isplref).
+**Supported inputs** include raw ISPL source, pythonic ISPL (aka [Specification objects](#specifications-simulations)), or file that have ISPL source.  Regardless of input-format.. you'll probably want to learn about the ISPL primitives, which you can read about [here]({{mkdocs.site_relative_url}}/isplref).
 
 **Supported outputs** include [Simulation objects](#specifications-simulations), python-dictionaries, and [JSON]({{mkdocs.site_relative_url}}/schemas).
 
@@ -19,25 +24,36 @@ Check out the tests below for more usage hints.
 
 {{site.embed_demo('tests/units/test_engine.py', github=github, type='python')}}
 
-<a name=specification></a>
-<a name=simulation></a>
 ### Specifications & Simulations
 <hr style="width:100%;border-bottom:3px solid black;">
+<a name=specification></a><a name=simulation></a>
 
-
-
-{{site.api_link('mcmas.ispl.ISPL', mkdocs=mkdocs)}} is an input to an {{site.api_link('mcmas.engine.engine', mkdocs=mkdocs, name='Engine')}}, returning {{site.api_link('mcmas.models.ispl.Simulation', mkdocs=mkdocs, name='Simulation')}}.  Although it's not used directly, {{site.api_link('mcmas.spec.Specification',mkdocs=mkdocs)}} is an abstract base class that ISPL extends.
+{{site.api_link('mcmas.ISPL', mkdocs=mkdocs)}} is an input to an {{site.api_link('mcmas.engine', mkdocs=mkdocs, name='mcmas.engine')}}, and returns {{site.api_link('mcmas.Simulation', mkdocs=mkdocs, name='Simulation')}}.  
+{#
+Although it's not used directly, {{site.api_link('mcmas.Specification',mkdocs=mkdocs)}} is an abstract base class that ISPL extends.
+#}
 
 Partial specifications are supported so that you can build specifications up in pieces.  For each case.. `py-mcmas` uses pydantic models for datastructures and typing.  
 
 Pydantic models are easily extended from python, or easily exported as JSON-schema in case that helps to pass data downstream to other tools, or to [MCP]({{mkdocs.site_relative_url}}/demos/mcp).
 
-* [json-schema://ISPL]({{mkdocs.site_relative_url}}/schema#ISPL)
-* [json-schema://Specification]({{mkdocs.site_relative_url}}/schema#Specification#specification)
+* [json-schema://Specification]({{mkdocs.site_relative_url}}/schema#specification)
 * [json-schema://Simulation]({{mkdocs.site_relative_url}}/schema#simulation)
 
-<a name=data-to-ispl></a>
+Check out the test suite below for some example usage.
+
+{#
+<a name=pydantic-models-simulation></a>
+#### Simulation Model
+<hr style="width:100%;border-bottom:1px dashed black;">
+#}
+
+{{site.embed_demo(
+	'tests/units/test_sim.py', github=github, type='python')}}
+
+{#
 ##### `ISPL.load`
+<a name=data-to-ispl></a>
 ------------------------
 
 {{site.embed_demo(
@@ -48,45 +64,42 @@ Pydantic models are easily extended from python, or easily exported as JSON-sche
 {{site.embed_demo(
 	'tests/units/test_ispl_exec.py', github=github, type='python')}}
 
-<a name=pydantic-models-simulation></a>
-### Simulation Model
-<hr style="width:100%;border-bottom:3px solid black;">
-
-{{site.embed_demo(
-	'tests/units/test_sim.py', github=github, type='python')}}
 
 #### Classes to ISPL
 <hr style="width:95%;border-bottom:1px dashed black;">
 
 {{site.embed_demo('tests/units/test_model.py', github=github, type='python')}}
+#### Importing Symbols
+<hr style="width:95%;border-bottom:1px dashed black;">
 
-### Logic & Analysis
+#}
+
+### Logical Expressions
 <hr style="width:100%;border-bottom:3px solid black;">
+<a name=sympy></a><a name=logic></a>
 
-The `mcmas.logic` module provides helpers for generating ISPL fragments, including [formulae statements]({{mkdocs.site_relative_url}}/isplref#formulae) that use [modal logic operators]({{mkdocs.site_relative_url}}/opref).
-
-<a name=sympy></a>
-#### Sympy Support
-<hr style="width:100%;border-bottom:3px solid black;">
-
+The `mcmas.logic` module provides some helpers for generating ISPL fragments, including [formulae statements]({{mkdocs.site_relative_url}}/isplref#formulae) that use [modal logic operators]({{mkdocs.site_relative_url}}/opref).  See the test suite for some examples:
 
 {{site.embed_demo('tests/units/test_logic.py', github=github, type='python')}}
 
-#### Validating Specifications and Spec-Fragments
+### Validation
 <hr style="width:95%;border-bottom:1px dashed black;">
+<a name=validation></a>
 
-#### Importing Symbols
-<hr style="width:95%;border-bottom:1px dashed black;">
+See also the [demos for witnesses and analysis]({{mkdocs.site_relative_url}}/demos/analysis)
+
+{#
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
+#}
 
 ### References
 <hr style="width:100%;border-bottom:3px solid black;">
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
-	//addImageToHeader('translation','../img/reflection.svg')
+	addImageToHeader('References','img/list-details')
 }, 100);});
 </script>
 
-{#
-[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
-#}

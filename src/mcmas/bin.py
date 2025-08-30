@@ -52,7 +52,7 @@ def repl_ns(**kwargs) -> typing.Dict:
     Default namespace that is used with the interactive REPL.
     """
     from mcmas import logic  # noqa
-    from mcmas import ISPL, Agent, Environment, TrivialAgent, symbols  # noqa
+    from mcmas import ISPL, Agent, DefaultAgent, Environment, symbols  # noqa
 
     ispl = symbols
     fname = None
@@ -67,13 +67,38 @@ def repl_ns(**kwargs) -> typing.Dict:
 
 
 @click.command()
-@click.option("-j", "--json", is_flag=True, help="Load MCMAS spec from json file")
-@click.option("-i", "--ispl", is_flag=True, help="Load MCMAS spec from the given ISPL")
+@click.option(
+    "-j",
+    "--json",
+    is_flag=True,
+    help="Load ISPL spec from JSON file.  (Implied if filename ends in .json)",
+)
+@click.option(
+    "-i",
+    "--ispl",
+    is_flag=True,
+    help="Load ISPL spec from the given ISPL  (Implied if filename ends in .ispl)",
+)
 @click.option("-r", "--repl", is_flag=True, help="Start a REPL with this context")
 @click.option("-c", "--command", default="", help="Command to execute")
-@click.option("-s", "--sim", is_flag=True, help="spec after loading one")
-@click.option("-a", "--analyze", is_flag=True, help="analyze spec after loading one")
-@click.option("-p", "--python", is_flag=True, help="Load spec from python")
+@click.option(
+    "-s",
+    "--sim",
+    is_flag=True,
+    help="Simulate the specification after loading one.  Returns JSON",
+)
+@click.option(
+    "-a",
+    "--analyze",
+    is_flag=True,
+    help="Analyze specification after loading one.  (Cannot be used with --sim)",
+)
+@click.option(
+    "-p",
+    "--python",
+    is_flag=True,
+    help="Load ISPL specification from python.  (Implied if filename ends in .py)",
+)
 @click.option(
     "-W",
     "--witness",
@@ -84,6 +109,13 @@ def repl_ns(**kwargs) -> typing.Dict:
     "-w",
     "--counter-example",
     is_flag=True,
+    help="Generate ALL witnesses (implies --sim)",
+)
+@click.option(
+    "-q",
+    "--quiet",
+    is_flag=True,
+    default=False,
     help="Generate ALL witnesses (implies --sim)",
 )
 @click.option(
@@ -106,6 +138,7 @@ def ispl_main(
     list_pydantic_models: bool = False,
     repl: bool = False,
     verbose: bool = True,
+    quiet: bool = False,
     json: bool = False,
     witness: bool = False,
     counter_example: bool = False,
@@ -118,7 +151,20 @@ def ispl_main(
     """
     Helper for interacting with ISPL files.
     """
-    from mcmas import models
+
+    def find_spec(ns, strict=False):
+        model = None
+        spec_names = ["__spec__", "__specification__"]
+        for x in spec_names:
+            if x in ns:
+                model = ns[x]
+                LOGGER.info(f"extracted specification at `{x}`:")
+                LOGGER.info(f"{model}")
+                return model
+        if strict:
+            err = f"no spec-name like {spec_names} were found in {list(ns.keys())}"
+            assert model is not None, err
+        # raise Exception(fmodel)
 
     witness = witness or counter_example
     sim = any([sim, witness])
@@ -137,7 +183,7 @@ def ispl_main(
         raise SystemExit(0)
 
     if path and not path.exists():
-        LOGGER.critical(f"file not found: {fname}")
+        LOGGER.critical(f"specified file not found: {fname}")
         raise SystemExit(1)
 
     # Namespace that will be used for REPLs,
@@ -148,8 +194,8 @@ def ispl_main(
     exclude = []
     if not verbose:
         exclude += ["text"]
-    if fname:
 
+    if fname:
         if fname.endswith(".ispl"):
             ispl = True
             LOGGER.info(f"{fname} .. forcing ISPL")
@@ -159,6 +205,7 @@ def ispl_main(
         elif fname.endswith(".json"):
             json = True
             LOGGER.info(f"{fname} .. forcing JSON")
+        from mcmas import ISPL
 
         with open(str(path)) as fhandle:
             fmodel.update({"file": str(path)})
@@ -177,22 +224,11 @@ def ispl_main(
                 LOGGER.critical([k for k in ns])
                 with open(fname) as fhandle:
                     exec(fhandle.read(), ns)
-                model = None
-                spec_names = ["__spec__", "__specification__"]
-                for x in spec_names:
-                    if x in ns:
-                        model = ns[x]
-                        LOGGER.info(f"extracted specification at `{x}`:")
-                        LOGGER.info(f"{model}")
-                        break
-                err = f"no spec-name like {spec_names} were found in {list(ns.keys())}"
-                assert model is not None, err
-                fmodel.update(
-                    {
-                        "file": str(path),
-                        "model": model,
-                    }
-                )
+                model = find_spec(ns)
+                model.metadata.file = str(fname)
+                fmodel = {
+                    "model": model,
+                }
             else:
                 LOGGER.warning(
                     "must pass one of --python --json or --ispl to get a model."
@@ -202,6 +238,17 @@ def ispl_main(
         ns["spec"] = ns["__specification__"] = model
     else:
         model, fmodel = None, None
+        if command:
+            LOGGER.warning("No file to load specification from!")
+            LOGGER.warning("Checking if command provides spec..")
+            model = eval(command, ns)
+            from mcmas import ISPL
+
+            if isinstance(model, (ISPL,)):
+                LOGGER.warning(f"Found spec: {model}")
+            else:
+                LOGGER.warning(f"Command is not spec, got {type(model)}")
+            fmodel = dict(file="<<stream>>", model=model)
 
     if analyze:
         LOGGER.info(f"analyzing spec: {model.title}")
@@ -216,21 +263,25 @@ def ispl_main(
         )
 
     if validate:
-        LOGGER.info("validating ..")
+        LOGGER.info(f"validating .. {fname}")
         LOGGER.warning(model.advice)
         out = model.spec_validate()
         print(json_module.dumps(out, indent=2))
         LOGGER.warning(out)
         raise SystemExit(0 if out["validates"] else 1)
+
     if sim and not fmodel:
-        LOGGER.info("requested --sim but no way to create a specification!")
+        LOGGER.warning("Requested --sim but no way to create a specification!")
+
     if fmodel and sim:
         verbose and LOGGER.info(f"Running simulation for {fname} (witnesses={witness})")
         sim_out = engine(output_format="model", witness=witness, **fmodel)
-        metadata = {
-            **sim_out.metadata.model_dump(),
-            **model.metadata.model_dump(),
-        }
+        metadata = sim_out.Metadata(
+            **{
+                **model.metadata.model_dump(),
+                **sim_out.metadata.model_dump(),
+            }
+        )
         # raise Exception(sim_out.witnesses)
         sim_out = sim_out.model_copy(update={"metadata": metadata, "spec": model})
         if counter_example:
@@ -264,21 +315,22 @@ def ispl_main(
 
     if not any([sim, validate, analyze]):
         if repl:
-            ns["sim"] = ns["__simulation__"] = models.Simulation()
-            LOGGER.warning("No simulation requiested with --sim")
+            ns["sim"] = ns["__simulation__"] = Simulation()
+            LOGGER.warning("No simulation requested with --sim")
             LOGGER.warning("Both `sim` and `__simulation__` will be null!")
         elif python and model:
             print(model.model_dump_source())
-            LOGGER.warning(f"Converted {fname} to ISPL")
+            LOGGER.warning(f"Converted `{fname or command}` to ISPL")
         elif json and model:
             print(model.model_dump_source())
-            json and LOGGER.info(f"Converted {fname} to ISPL")
+            json and LOGGER.info(f"Converted `{fname or command}` to ISPL")
         elif ispl and model:
             print(model.model_dump_json(exclude=exclude, exclude_none=True, indent=2))
-            ispl and LOGGER.warning(f"Converted {fname} to JSON")
-        warn = "No simulation requested, try passing --sim to run spec"
-        # not any([command, analyze]) or
-        LOGGER.warning(warn)
+            ispl and LOGGER.warning(f"Converted `{fname or command}` to JSON")
+
+        # warn = f"No type hints, try passing --sim to run spec"
+        # # not any([command, analyze]) or
+        # LOGGER.warning(warn)
 
     if command:
         exec(command, ns)

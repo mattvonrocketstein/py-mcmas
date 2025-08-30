@@ -87,6 +87,10 @@ class Eq(_Eq):
 
 Equal = Eq
 
+from mcmas import util
+
+LOGGER = util.get_logger(__name__)
+
 
 class Symbol(sympy.core.symbol.Symbol):
     """
@@ -147,10 +151,18 @@ class Symbol(sympy.core.symbol.Symbol):
         # Create the core schema (simplified version without custom serialization)
         return core_schema.no_info_plain_validator_function(validate_symbol)
 
+    def __matmul__(self, other):
+        """
+        
+        """
+        return Eq(self, other)
+
     def __eq__(self, other):
         """
         
         """
+        LOGGER.critical(f"[{self},{other}]")
+        # return f"{self}={other}"
         if isinstance(other, str):
             # Compare with symbol name
             return self.name == other
@@ -267,6 +279,8 @@ printer = CustomStrPrinter()
 sympy2ispl = printer.doprint
 
 symbols = Symbol("")
+types = Symbol("")
+types.bool = types.boolean = types.boolean
 true = symbols.true
 false = symbols.false
 Environment = symbols.Environment
@@ -288,3 +302,4 @@ K = symbols.K
 CK = symbols.CK
 
 # ATL <<G >>F φ	Group G can enforce φ eventually
+from .complexity import analyzer  # noqa

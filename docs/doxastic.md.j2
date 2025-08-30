@@ -3,12 +3,6 @@
 ## Knowledge vs Belief
 <hr style="width:100%;border-bottom:3px solid black;">
 
-{#
-### Background
-<hr style="width:100%;border-bottom:3px solid black;">
-#}
-
-
 The difference between knowledge and belief is that while beliefs could be false, knowledge *must* be true.  And without splitting lots of hairs, that intuition is exactly the difference between epistemic vs doxastic[^1] logics too.
 
 From [the operator reference]({{mkdocs.site_relative_url}}/opref/#dynamic-epistemic-logic), you might have noticed epistemic logic as presented does *not* talk about belief though, and belief has no corresponding primitive in ISPL.  This raises the question.. does MCMAS/ISPL handle belief or not?  
@@ -20,14 +14,14 @@ The answer is.. *sort of*.  It turns out that the operators
 
 have most of the same properties in terms of entailment and extensionality.  You can read more about this than you probably want to know here[^3], but the biggest difference is just an *extra truth axiom* that is basically the same as the intution we started with.  *If an agent knows something, it must be true by definition* i.e. *`K(agent,predicate) → predicate `*.
 
-This suggests that changing how you think about the semantics, and by adding some extra assertions, ISPL can indeed support `B(..)` and `K(..)`, even though it has to syntactic support for `B(..)`.
+This suggests that by changing our perspective of semantics, and by adding some extra assertions, ISPL can indeed support `B(..)` and `K(..)`, even though it has to syntactic support for `B(..)`.
 
 ### The Problem
 <hr style="width:100%;border-bottom:3px solid black;">
 
 The trouble with the last section is that it describes how to express knowledge *or* belief.  If you actually want to track *both*, then you need to track a lot of extra state.  (See [this section](#) for a sketch in ISPL.)
 
-{{site.embed_demo('tests/data/doxastic.ispl', github=github, type='lua')}}
+{{site.embed_demo('tests/data/doxastic.ispl', github=github, class='small', type='lua')}}
 
 ### The Opportunity
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -38,7 +32,7 @@ Tracking knowledge/belief separately isn't just a neat idea, but also has practi
 <hr style="width:100%;border-bottom:3px solid black;">
 
 [^1]: [wiki://Dynamic_epistemic_logic#Knowledge_versus_Belief](https://en.wikipedia.org/wiki/Dynamic_epistemic_logic#Knowledge_versus_Belief)
-[^2]: [wiki://Dynamic_epistemic_logic#Knowledge_versus_Belief](https://en.wikipedia.org/wiki/Dynamic_epistemic_logic#Knowledge_versus_Belief)
+[^2]: [wiki://Doxastic/Types-of-Reasoners](https://en.wikipedia.org/wiki/Doxastic_logic#Types_of_reasoners)
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {

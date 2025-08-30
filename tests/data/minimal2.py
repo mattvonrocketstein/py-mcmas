@@ -1,20 +1,24 @@
-# An absolutely minimal ISPL program in pure python.
-# See the docs https://mattvonrocketstein.github.io/py-mcmas/demos/pythonic-ispl
+"""
+A more idiomatic/abbreviated version of `minimal.py`
+Run this using `ispl --sim tests/data/minimal2.py`
+See the docs https://mattvonrocketstein.github.io/py-mcmas/demos/pythonic-ispl
+"""
 
-__spec__ = ISPL.__class_getitem__(
+from mcmas import ISPL, And, Environment, false, symbols, true
+from mcmas.logic import types
+
+__spec__ = ISPL(...)(
     title="Minimal valid ISPL definition in Python",
-    environment=Environment[dict(vars=dict(p=symbols.boolean, q=symbols.boolean))],
-    # Equivalently: p if Environment.p=true; q if Environment.q=true
+    environment=Environment(...)(vars={var: types.bool for var in "pq"}),
     evaluation=[
-        If(symbols.p, Equal(symbols.Environment.p, true)),
-        If(symbols.q, Equal(symbols.Environment.q, true)),
+        symbols.p >> symbols.Environment.p @ true,
+        symbols.q >> symbols.Environment.q @ true,
     ],
-    # Equivalently: Environment.p=true and Environment.q=false
     init_states=[
         And(
-            Equal(symbols.Environment.p, true),
-            Equal(symbols.Environment.q, symbols.false),
+            symbols.Environment.p @ true,
+            symbols.Environment.q @ false,
         )
     ],
-    formulae=["p; !q; p -> !q;"],
+    formulae=["p", "!q", "p -> !q"],
 )

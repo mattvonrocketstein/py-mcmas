@@ -16,7 +16,7 @@ py.pkg_name=mcmas
 export CMK_LOG_IMPORTS?=0
 export MKDOCS_LISTEN_PORT=8003
 
-.PHONY: build docs 
+.PHONY: build docs docs/includes
 
 include .cmk/compose.mk
 $(call compose.import, file=docker-compose.yml)
@@ -41,9 +41,16 @@ init: flux.stage/init mk.stat docker.stat \
 	@# Project init. `{py.init docs.init}`
 
 docs: flux.stage/doc \
-	docs.init docs/api docs/schema \
+	docs.init docs/includes \
+	docs/api docs/schema \
 	README.md CITATION.bib docs.jinja \
 	docs.pynchon.dispatch/.docs.build
+
+docs/includes:
+	set -x \
+	&& ispl --help > docs/includes/cli/ispl-help.txt \
+	&& mcmas --help > docs/includes/cli/mcmas-help.txt \
+
 .docs.build:
 	$(call log.target, building)
 	set -x && (mkdocs build --clean --verbose && tree site) \

@@ -1,26 +1,26 @@
--- An absolutely minimal ISPL program still requires a do-nothing agent.
--- This example is just enough boilerplate to use the logic-engine for simple stuff.
+-- Minimal ISPL specification
+-- See the docs https://mattvonrocketstein.github.io/py-mcmas/ispl#minimal
 
 Agent Environment
     Vars:
-        p : boolean;
-        q : boolean;
+      p: boolean;
+      q: boolean;
     end Vars
     Actions = {tick};
     Protocol:
-        Other : {tick};
+      Other : {tick};
     end Protocol
     Evolution:
     end Evolution
 end Agent
 
-Agent NOOP
+Agent DefaultAgent
     Vars:
-        ticking:boolean;
+      ticking: boolean;
     end Vars
     Actions = {tick};
     Protocol:
-        Other : {tick};
+      Other : {tick};
     end Protocol
     Evolution:
         ticking=true if Action=tick;
@@ -37,6 +37,7 @@ InitStates
 end InitStates
 
 Formulae
-  p; !q; p -> !q;
+  p; !q; 
+  p -> !q;
 end Formulae
 

@@ -7,7 +7,7 @@ from pydantic import Field
 
 from mcmas import fmtk, typing, util
 
-LOGGER = util.get_logger(__name__)
+LOGGER = util.get_logger(__name__)  # noqa
 
 
 class SymbolMetadata(pydantic.BaseModel):
@@ -92,7 +92,6 @@ class CoalitionStats(pydantic.BaseModel):
     def model_dump(self, *args, **kwargs):
         tmp = super().model_dump(*args, **kwargs)
         out = {k: v for k, v in tmp.items() if v not in [0, "0", 0.0]}
-        LOGGER.critical(out)
         return out
 
 
@@ -109,12 +108,6 @@ class ComplexityStats(pydantic.BaseModel):
             coalitions=self.coalitions.model_dump(*args, **kwargs),
             operators=self.operators.model_dump(*args, **kwargs),
         )
-        # raise Exception(self.operators.model_dump())
-
-    #     return dict(coalitions=self.coalitions.model_dump(),operators=self.operators.model_dump())
-    # super().model_dump(*args, **kwargs)
-    # skip = [k for k in tmp if tmp[k] == 0]
-    # return {k: tmp[k] for k in tmp if k not in skip}
 
 
 class ComplexityAnalysis(pydantic.BaseModel):
@@ -156,10 +149,3 @@ class Analysis(fmtk.SpecificationAnalysis):
         default=[],
         description="Types that are used",
     )
-
-    # def model_dump(self, *args, **kwargs):
-    #     return dict(
-    #         symbols=self.symbols.model_dump(),
-    #         complexity=self.complexity.model_dump(),
-    #         types=self.types.model_dump(),
-    #     )

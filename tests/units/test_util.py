@@ -1,4 +1,5 @@
 import typing
+from typing import Any, List
 
 import mcmas
 
@@ -28,3 +29,44 @@ def test_fxn_sig():
     assert tmp.startswith("def foo"), "function name is missing"
     assert 'c="d"' in tmp, "function args missing"
     assert "-> Dict" in tmp, "return annotation detail is missing"
+
+
+def func1(a: int, b: str, c: float = 3.14) -> bool:
+    return True
+
+
+def func2(x, y: str, z: int = 10):
+    # Test function 2: Mixed annotations
+    pass
+
+
+def func3(arg1, arg2="default"):
+    # Test function 3: No annotations
+    pass
+
+
+def func4(
+    items: typing.List[str],
+    mapping: typing.Dict[str, int],
+    optional: typing.Optional[bool] = None,
+):
+    # Test function 4: Complex types
+    pass
+
+
+def test_fxn_sig_dict():
+    tmp = mcmas.util.fxn_sig.as_dict(func1)
+    assert tmp["a"] == int
+    assert tmp["b"] == str
+    assert tmp["c"] == float
+    tmp = mcmas.util.fxn_sig.as_dict(func2)
+    assert "x" in tmp
+    assert "y" in tmp
+    assert "z" in tmp
+    tmp = mcmas.util.fxn_sig.as_dict(func3)
+    assert "arg1" in tmp
+    assert tmp["arg1"] == Any
+    assert "arg2" in tmp
+    tmp = mcmas.util.fxn_sig.as_dict(func4)
+    assert tmp["items"] == List[str]
+    assert len(tmp) == 3

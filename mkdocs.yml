@@ -36,17 +36,17 @@ nav:
   - 'Demos':
     - "Pythonic ISPL": "demos/pythonic.md"
     - "PydanticAI Agents -> ISPL": "demos/pydantic-ai.md"
-    - "OpenAI Agents -> ISPL": "demos/openai.md"
+    # - "OpenAI Agents -> ISPL": "demos/openai.md"
     # - "Agent Societies": demos/societies.md
     # - "CamelAI Agents -> ISPL": "demos/camelai.md"
     - "Specification Algebra": demos/spec-algebra.md
+    - "MCP": "demos/mcp.md"
   - 'Reference':
     - 'Python API': 'api/'
     - 'Schemas & Pydantic Models': schema/index.md
     - 'ISPL Primitives': 'isplref.md'
     - 'Logical Operators': 'opref.md'
     - 'Logic Overview': 'logic.md'
-    # - 'Operator Reference': 'opref.md'
     - 'Knowledge vs Belief': 'doxastic.md'
     - 'Epistemics in Model Checkers': 'epistemics-in-model-checkers.md'
     # - 'Intro to Epistemics': 'logic/#epistemics'
@@ -74,4 +74,4 @@ markdown_extensions:
   - attr_list
 docs_dir: docs
 site_dir: site
-  
+pip_default_version: v1.0

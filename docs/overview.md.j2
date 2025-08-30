@@ -23,26 +23,12 @@
 
 `py-mcmas` is a python wrapper for the `mcmas` model-checking engine.  It also has some support for *parsing, analysis, and code-generation* of the ISPL specification language, both [via the CLI]({{mkdocs.site_relative_url}}/cli) and via [the API]({{mkdocs.site_relative_url}}/lib).  Here's a high-level overview of some of the data-flow:
 
-{#title='Datastructures & Plumbing:', 
-#### Features
-<hr style="width:100%;border-bottom:2px solid black;">
-:  [JSON ↔ ISPL]({{mkdocs.site_relative_url}}/lib#json-to-ispl), [Sympy Expressions ↔ Modal Logic]({{mkdocs.site_relative_url}}/logic), [Pydantic dataclasses / Python Dicts ↔ ISPL]({{mkdocs.site_relative_url}}/lib#json-to-ispl)
-
-:  [Validate ISPL Programs or Fragments]({{mkdocs.site_relative_url}}/cli/#validation), Convert [SymPy symbols ↔ ISPL Actions / States ↔ JSON]({{mkdocs.site_relative_url}}/lib/#sympy)[^19] 
-
-### Use Cases
-<hr style="width:100%;border-bottom:3px solid black;">
-* Normalize / lint / analyze raw ISPL source
-* Write ISPL-in-Python, using pydantic models that serialize to raw ISPL source.
-* Hijack MCMAS logic engine, use it from sympy.  
-* Manipulate symbols *from* sympy, generating ISPL-compatible propositions.
-* Synthetic data generation, for training LLM models on ISPL
-* Have LLMs target JSON/python/pydantic out *instead* of ISPL, using pydantic-ai for generating specifications or spec-fragments.
-#}
-
 {{macros.figure_table([
 	dict(figure="mmd-pymcmas-1",)
     ], mkdocs=mkdocs, cols=2, width='66%')}}
+
+### Main Features
+<hr style="width:100%;border-bottom:3px solid black;">
 
 {{macros.subheader('Containerized Engine')}}
 :  Execute ISPL anywhere, from/to any of the formats above. Avoids platform-specific details for building and running the `mcmas` backend so that it won't become a dependency. [^7] 
@@ -57,40 +43,30 @@
 {{macros.subheader('Structured Output')}}
 :  Because downstream processes might want to pass/fail model candidates, or act based on witnesses[^10], or want to avoid parsing text to figure out which model properties hold.
 
-{#{macros.subheader('Validation:')}
-#### Main Use Cases
-<hr style="width:100%;border-bottom:2px solid black;">
-{{macros.subheader('Run Anywhere')}}
-:  Avoids platform-specific details for building and running the `mcmas` backend so that it won't become a dependency.  ).  
-#}
 
 ### Model-Checking & Agentic AI
 <hr style="width:100%;border-bottom:3px solid black;">
 
-Perhaps you read this far because you're trying to figure out if this is related to agentic AI?  Actually `py-mcmas` has [experimental features](#) along these lines.  But before diving into details or roadmap, let's look at the two elephants in the room:
+Perhaps you've only read this far because you're trying to figure out if this is related to agentic AI?  Actually `py-mcmas` has [experimental features](#ai-features) along these lines.  Before diving into details though, let's setup some of the context.  There are two really basic issues:
 
 {{macros.subheader('What <i>is</i> an agent, anyway?',id='elephant1')}}
-:  <i>Agent</i> has never been well-defined, and means different things to different people.  There's the multi-agent system[^11] sense, and the agent based modeling[^12] sense, and these things are great for a variety of reasons, but that work also isn't necessarily related to what most people mean when they talk about agentic AI with LLMs.
+:  <i>Agent</i> is tough to define, and means different things to different people.  There's the multi-agent system[^11] sense and the agent based modeling[^12] sense, and these things are great for a variety of reasons, but that work also isn't related to what most people mean when they talk about agentic AI with LLMs.
 : &nbsp;
 
 {{macros.subheader("Specification languages aren't programming languages.",id='elephant2')}}
 :  Proving properties about systems is really *nice*, but it usually doesn't step you closer to actually *building* that system.  And if you *do* have a running system already.. modeling it is basically a separate activity that starts from scratch.
 : &nbsp;
 
-In both cases, you could say that there's a gap between theory and practice.  One might ask.. **does it have to be that way**?  Formalisms could see more industry-adoption if they were easier to use.  Meanwhile agentic-AI could benefit from using more rigorous formalisms in both design at the system level, and in implementations at the level of agent-code and and agent-frameworks.
+In both cases, you could say that there's a gap between theory and practice.  One might ask.. **does it have to be that way**?  Formalisms could see more industry adoption if they were easier to use.  Meanwhile agentic-AI could benefit from using more rigorous formalisms, both *at the system layer* in terms of design, and *in implementation layers*, at the level of agentic code and agentic frameworks.  Building bridges that connect classic MAS research with agentic-AI is a big project.  Bridging the gap between between programming languages and specification languages in useful ways is an ever *bigger* project!  But isn't it about time to combine the strengths of these approaches?
 
-So.. building bridges that connect MAS research with agentic-AI, or connect programming languages with specification languages, is a huge project.  But isn't it about time to combine the strengths of these approaches?  One goal for `py-mcmas` is to function as kind of lab (and lab notebook!) exploring related ideas.  
+One goal for `py-mcmas` is to function as kind of lab **(and lab notebook!)** for exploring related ideas.  
 
-If you'll tolerate *even more background*, read on in the next section for more motivation and use-cases.  Otherwise, jump directly to [a feature list](#ai-features) or [check out some demo code]({{mkdocs.site_relative_url}}/demos).
+The next section has more discussion on motivation and use-cases.  If you dislike *informal remarks on formal methods*, skip it and  feel free to jump into [some demo code]({{mkdocs.site_relative_url}}/demos).
 
-{#
-### Use Cases
+### AI Road Map / Philosophy
 <hr style="width:100%;border-bottom:3px solid black;">
-<hr style="width:95%;border-bottom:1px dashed black;">
-#}
-
-### Road Map / Philosophy
-<hr style="width:100%;border-bottom:3px solid black;">
+<a name=road-map></a>
+<a name=philosophy></a>
 
 So what's the appeal of connecting model-checking and agent-based-modeling with agentic-AI anyway?  Let's start with a list of things that would be nice to have:
 
@@ -102,271 +78,87 @@ So what's the appeal of connecting model-checking and agent-based-modeling with 
 * Agent coordination & intelligent routing between agents,
 * Agents that can directly track, update, and inspect their own knowledge and beliefs
 
-More controversially.. maybe a lot of this boils down to just a few questions: How to do more explicit domain modeling? How exactly should we hybridize LLMs / symbolics?  How can we get a better layer of persistent metadata, preferably one that can represent things like confidence, provenance, topology, and traces.  
+More controversially.. maybe a lot of this boils down to a small number of hard questions: How to do more explicit domain modeling? How exactly should we hybridize LLMs / symbolics?  How can we get a better layer of persistent metadata, ideally one that can represent things like confidence, topology, and traces?  
 
-There is also *(gestures vaguely)* all of the rest of the architectural stuff that we need to build *around* our amazing new stochastic oracles, so that we can stack them up into systems that are predictable and reliable.  One recent write-up that's touching on lots of these ideas argues that *AGI is now an Engineering Problem*[^13], and that's well worth a read.  But really, you could argue that chain-of-code[^14] as an alternative to chain-of-thought, emerging superstructure in agent-frameworks[^15], and even MCP in general[^16], are all evidence of movement in this direction.
+Discovering bugs automatically from specifications that are *automatically generated from code* is the dream of course, and it's starting to seem closer[^13]!  But this raises other questions, like whether we can go the other way and generate code from specs. Could we work with both side by side in a way that's mutually reinforcing, or for lack of a better term, "cogenerative" in interesting ways?
+
+There is also *(gestures vaguely)* all of the other stuff that we need to build *around* our amazing new stochastic oracles, so that we can stack them up into systems that are reliable and predictable.  One recent write-up that's touching on lots of these ideas argues that *AGI is now an Engineering Problem*[^14], and that's well worth a read.  But you could argue that chain-of-code[^15] as an alternative to chain-of-thought, emerging superstructure in agent-frameworks[^16], increasing interest in world-models[^17] and really even MCP in general[^18], are all evidence of movement in this direction.
+
+### AI Features / WIP / Wish List
+<hr style="width:100%;border-bottom:3px solid black;">
+<a name=ai-features></a><a name=WIP></a><a name=wish-list></a>
 
 The rest of this section is about how `py-mcmas` (or something like it) might fit in.
 
-<hr style="width:95%;border-bottom:1px dashed black;">
-
-{{macros.subheader('Towards Simulation-Wrangling')}}
-
-For lots of work, what we really want is **user-prompted domain modeling** that's flexible and frictionless, but is also *constrained or grounded* in useful ways.  LLMs nail the flexible and frictionless part, but don't typically create or evolve any kind of explicit domain model. For many use-cases, "creativity" is an ambiguous virtue!  
-
-If you're not targeting "code" as an output, then there's a good chance you're looking for something like *answers, or evidence, or arguments*, and preferably something you can check.  Even if you think you can tolerate some hallucinated output as a *leaf*, what if we're in the middle of a problem-solving process? Probably you would prefer an artifact like a witness, counter-example, or trace, and a problem-specification that you can actually evolve and iterate on.
-
-An LLM that's structured so as to **only output valid structures for things like constraint-problems, simulations, and games** might seem more useful for planning or general problem solving than it is for code.  But since model-checkers easily accomodate things like *namespaces, basic data-types, states, and transitions*, they also serve as a reasonable abstraction for code too.  Vibe-coding, viewed as a guided search through *implementation space*, is missing something.  Stepping through *specification-space* as an intermediate step basically *partitions implementation-space* by throwing away lots of useless candidates.
-
-<hr style="width:95%;border-bottom:1px dashed black;">
-
-{{macros.subheader('Intermediate Language & Chain-of-Spec')}}  
-
-The last section hints that *even if you're not trying wrangle simulations,* you might still be working on something that benefits from creating and updating an explicit world-model "in the background".
-
-Although chain-of-thought "reasoning" is *surprisingly capable*, it fundamentally burns up tokens only to pile baseless on baseless.  Chain-of-code seems like a better approach in several ways, but if what we're really doing is reaching for *an appropriate intermediate language* that improves reasoning and reduces hallucinations, how about "chain of specifications"?
-
-There are various tricks you can use to try and *force* a situation where LLMs are tracking an explicit domain model.  For example, there are lots of agentic-workflow proposals for keeping a running plan in markdown, or if your LLM is good with mermaid, you could try to prompt it to make running changes to a diagram as it emits code changes.  Good idea!  But these things are just low-fidelity substitutes for specifications, and still aren't very amenable to analysis, validation, or execution.  
-
-Can't we do better?  Specifications, even *incomplete ones*, are something that can typically be weighed and measured.  And when you really come down to it, don't most problems reduce to something like planning, scheduling, protocols, games, systems, or sims?
-
-{#
-The basic idea here is to treat LLM's as a compiler, with specification-languages as an intermediate language,
-to encode *fuzzy problem descriptions* as something a model-checker can actually run.  Representations that are too flawed to actually *run* can be detected and rejected, and ones that validate could give *complex but grounded* advice and answers, including witnesses[^12].  
-#}
-
-<hr style="width:95%;border-bottom:1px dashed black;">
-
-{{macros.subheader('Reflection & Meta-Analysis')}}  
-
-The applications so far are pretty obvious, and sort of argue in favor of combining agentic-AI with *formal methods in general*.  That's a big toolkit to choose from, and the goal of [fmtk](#) is to lay some of groundwork for multiple tools on the backend.
-
-But the main focus of `py-mcmas` is ISPL because **the model-checker itself *also* has a concept of "Agents"**.  This kind of reflection seems useful for things like meta-analysis, especially if you can generate specifications automatically or semi-automatically.  What's that good for?  How about things like:
-
-* Intelligent routing
-* Design-layer validation of "societies" of agentic-tools
-* Proving theorems about your system-level agent-interactions
-
-Does this or that mixture of weighted skeptic/critic/creator roles for your agents ever converge to stable quorum?  If you had this layer for meta-analysis.. could you query it from the agentic-ai implementation-layer, allowing your agents the chance to reason about how they interact with other agents?  
-
-Add to this the ISPL support for explicitly modeling [epistemics]({{mkdocs.site_relative_url}}/opref/#DEL), [temporals]({{mkdocs.site_relative_url}}/opref/#TL), [aggregates]({{mkdocs.site_relative_url}}/isplref/#group), and [strategies]({{mkdocs.site_relative_url}}/opref/#ATL).   Is it useful to allow agents to *disbelieve* other agents, or their own perceptions of their environment?  Have you ever wanted to actually rank agents in some kind of hierarchy, maybe even categorize them as stable, unstable, or peculiar[^25]?  Are there other ways we should be thinking about organizing stuff, and can we find [the scaling laws for agents](https://github.com/camel-ai/camel)?
-
-<a name=ai-features></a>
-<a name=WIP></a>
-### WIP / Wish List
-<hr style="width:100%;border-bottom:3px solid black;">
-
-{#
-https://cekrem.github.io/posts/programming-as-theory-building-naur/
-- Pull in things like NetworkX or SymPy for heavy lifting
-#}
-
-{{macros.subheader('Towards Generative ISPL',mkdocs)}}
-
-There's not a ton of ISPL to train on, so LLMs aren't great at generating it.  There's a chicken and egg aspect, because if you could generate **synthetic data** easily, you'd have more to train on.  Here's the idea:
-
-1. Build ISPL expressions pythonically, with [mcmas.ispl]({{mkdocs.site_relative_url}}/demos/) *(pydantic models)* and [mcmas.logic.symbols]({{mkdocs.site_relative_url}}/demos/) *(sympy expressions)*.  
-1. Use any method to generate, recombine, and permute expression-trees programmatically, outside of ISPL.  
-1. Generate source from expression trees, then train on new source
-
-**Avoiding raw ISPL source as the preferred representation** is another option.  This could fare better with LLMs in general, without any need for fine-tuning.  For this to work, 
-
-1. Leverage pydantic-ai [^17] and / or JSON-schema to constrain LLM output.  
-1. Enjoy "completion" of ISPL fragments or full specifications, converting to ISPL-source only to validate or simulate them
-
-What's actually the input for LM's in this scenario?  In the spirit of [simulation wrangling,](#simulation-wrangling) you can try your luck [autocomplete system specifications from natural language]({{mkdocs.site_relative_url}}/demos/).
-
-
-<hr style="width:95%;border-bottom:1px dashed black;">
-
-{{macros.subheader('Agentic AI Systems ↔ ISPL Specifications')}}  
-
-On the other hand, if you're already deep into practical agentic-AI with a framework like PydanticAI, OpenAI, or CamelAI SDKs... this suggests something else you might want to "autocomplete".   In other words: Can we work as usual in our agent-framework and get a concrete multi-agent-system specification for free? For each of these 3 frameworks, converting your existing agents to a system-level description in ISPL is at least *partially* automated.  
-
-Autocompleting back-and-forth *to* specifications *from* their implementations in programming-languages and agent-frameworks is experimental, and your milage will vary based on how smart your backend LLM is.  But `py-mcmas` works locally, aims for deterministic results, and tries to be clever about context and prompting.  More details in [this demo]({{mkdocs.site_relative_url}}/demos/).  
-
-<hr style="width:95%;border-bottom:1px dashed black;">
-
-{{macros.subheader('ISPL Annotations in Agent Frameworks')}}  
-
-The last section raises the possibility of completion, but in the spirit of [less magic](#road-map) an approach involving annotations, inspection, and reflection is another possibility.  Think of it like gradual-typing: as your practical efforts towards building multi-agent systems evolve, you tag, categorize, and annotate the tools themselves as the expectations around them become more clear. More details in [this demo]({{mkdocs.site_relative_url}}/demos/)
-
-{# 
-{{macros.svg('brightness-up',mkdocs)}} 
-
-#### Model-Checking & Agentic AI
-<hr style="width:100%;border-bottom:2px solid black;">
-#}
-
-
-{#{{macros.subheader('Real bindings',mkdocs)}}
-: Beyond what's exposed in the CLI or via ISPL, there is no support yet for low-level access to anything like an engine API, In other words, **not** what you'd really consider *bindings* for MCMAS.  Worthwhile to hook into the C++ machinery for crunching state-spaces and BDDs[^3]?
-
-{{macros.subheader('Real lexer',mkdocs)}}
-:  Beyond what's exposed in the CLI or via ISPL, there is no support for low-level access to anything like an engine API, In other words, **not** what you'd really consider *bindings* for MCMAS.  Is it worthwhile to hook into the C++ machinery for crunching state-spaces and BDDs[^3]?
-
-
-
-#### A Diagram
-<hr style="width:100%;border-bottom:2px solid black;">
-
-This involves setting up some parsing, plumbing, and capabilities for conversion between these data structures:
-
-{#{macros.embed_figure("mmd-pymcmas-1.png", mkdocs, title='', width="98%",class="figure")}#}
-
-{#
-
-{{macros.figure_table([
-    dict(figure="mmd-pymcmas-1",title='Datastructures & Plumbing',width='33%'),
-    dict(figure="mmd-pymcmas-1",title='Agentic AI',width='33%'),
-    dict(figure="mmd-pymcmas-1",title='Agentic AI',width='33%'),
-    dict(figure="mmd-pymcmas-1",title='Agentic AI',width='33%'),
-    ], mkdocs=mkdocs, cols=2, title='Diagrams')}}
-
-**For other analysis/linting**, there is limited support[^9] for parsing ISPL, validating [specifications and spec-fragments]({{mkdocs.site_relative_url}}/lib/specification), and "importing" certain information directly from ISPL.
-
-**Code-generation for ISPL** is a work in progress, but `py-mcmas` can handle the following use-cases:
-#### ISPL Execution
-#}
-{#:  - Return more structured data as JSON, with [Simulation objects]({{mkdocs.site_relative_url}}/lib#simulation)
----------------------------------------
-#}
-
-{#
-#### ISPL Generation and Parsing
-<hr style="width:100%;border-bottom:2px solid black;">
----------------------------------------
-#}
-
-
-{#
-:  - [Python annotations -> ISPL]({{mkdocs.site_relative_url}}/lib#annotations-to-ispl)
-* [Python ASTs -> ISPL]({{mkdocs.site_relative_url}}/lib#asts-to-ispl)
-#}
-
-{#
----------------------------------------
-
-#### ISPL Analysis
-<hr style="width:100%;border-bottom:2px solid black;">
-#}
-
-
-{#
-:  - [Lint ISPL Programs]({{mkdocs.site_relative_url}}/#)
-:  - [Completion for ISPL Fragments]({{mkdocs.site_relative_url}}/#)
-{{macros.subheader('How to drive the MCMAS engine, without explicitly using ISPL?')}}
-:  For example from sympy, or in concert with other libraries focused on game-theory or simulations.
-
-{{macros.subheader('Use Cases:')}}
-:  * 
------------------
-### Philosophy
-<hr style="width:100%;border-bottom:3px solid black;">
-#}
-
-{#
-In principle the ISPL grammar could be bootstrapped into a full python-backed lexer/parser/ast.  But, 
----------------------------------
-
----------------------------------
-#}
-
-{#
-: * Fuzzy problem descriptions -> Explicit Simulations -> Proofs or Counter-Examples
-
-:  ISPL can be used as an intermediate language, enabling LLMs to generate, execute, and update explicit world models.  Prompting 
-
-Opening up simple pathways for Python --> JSON --> ISPL conversion might be the simplest way towards better code-generation, and might help future work with MCP[^5] too.
-
-Like hypotheses.. domain models can can be accepted or rejected.  Like code you can run it and check results, but you can also also based on their definitions or complexity.  perhaps based on executing them,   Like code they can be executed, but can beand generate witnesses and counter-examples.
-
-{{macros.subheader('Model Checking in Tool-Usage & Chain-of-Thought')}}  
-: Regardless of whether you're actually aiming at wrangling simulations, you might be working on something that benefits from creating/updating an explicit world-model "in the background".  
-: <br/>
-:	{{macros.svg('brightness-down', mkdocs)}} Purely linguistic chain-of-thought approximates reasoning *surprisingly often!*. But compared to unstructured output, domain models are something that can be weighed, measured, and executed.  Domain models have extra structure that makes them more amenable to analysis and execution.  
-
-#### Future Work
-<hr style="width:100%;border-bottom:2px solid black;">
----------------------------------
-#}
+{{macros.collapsed_include(
+	'includes/towards-sim-wrangling.md.j2', 
+	title="Towards Simulation-Wrangling",
+	mkdocs=mkdocs,collapsed=False)}}
+
+{{macros.collapsed_include(
+	'includes/chain-of-spec.md.j2', 
+	title="Intermediate Language & Chain-of-Spec",
+	mkdocs=mkdocs,)}}
+
+{{macros.collapsed_include(
+	'includes/meta-analysis.md.j2', 
+	title="Reflection & Meta-Analysis",
+	mkdocs=mkdocs,)}}
+
+{{macros.collapsed_include(
+	'includes/synthetic-data.md.j2', 
+	title="Towards Generative ISPL",
+	mkdocs=mkdocs,)}}
+
+{{macros.collapsed_include(
+	'includes/spec-from-society.md.j2', 
+	title="Agentic AI Systems ↔ ISPL Specifications",
+	mkdocs=mkdocs,)}}
+
+{{macros.collapsed_include(
+	'includes/annotations.md.j2', 
+	title="ISPL Annotations in Agent Frameworks",
+	mkdocs=mkdocs,)}}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('References','../img/list-details')
 	addImageToHeader('background-mcmas','../img/stack-middle.svg')
 	addImageToHeader('py-mcmas','../img/python')
-		addImageToHeader('containerized-engine','../img/packages')
+	addImageToHeader('containerized-engine','../img/packages')
 	addImageToHeader('supported transforms','../img/reflection')
-	addImageToHeader('analysis--symbol','../img/zoom')
-	{# addImageToHeader('analysis--symbol','../img/alpha.svg',style="height:1em;") #}
+	addImageToHeader('analysis-symbol','../img/alpha')
 	addImageToHeader('build-ispl-specs','../img/python')
-	
 	addImageToHeader('run-anywhere','../img/circle-check')
 	addImageToHeader('structured-output','../img/circle-check')
 	addImageToHeader('structured-input','../img/circle-check')
 	addImageToHeader('synthetic data generation','../img/circle-dashed-check')
 	addImageToHeader('model checking in','../img/robot')
-	addImageToHeader('real-bindings','../img/circle-dashed-minus')
-	addImageToHeader('real-lexer','../img/circle-dashed-minus')
 	addImageToHeader('pythonic-specifications','../img/python')
-			
 	addImageToHeader('ISPL-annotations','../img/circle-dashed-check')
-		addImageToHeader('validation','../img/adjustments-check.svg',style="height:1.2em;")
-	//addImageToHeader('model-checking-agentic','../img/directions')
 	addImageToHeader('model-checking-agentic','../img/road-map')
 	addImageToHeader('road map','../img/directions')
-		addImageToHeader('elephant1','../img/alert-square-rounded')
-		addImageToHeader('elephant2','../img/alert-square-rounded')
-		addImageToHeader('towards generative','../img/circle-dashed-check')
-		addImageToHeader('towards simulation','../img/circle-dashed-check')
-
+	addImageToHeader('towards generative','../img/circle-dashed-check')
+	addImageToHeader('towards simulation','../img/circle-dashed-check')
+	addImageToHeader('reflection','../img/circle-dashed-check')
+	addImageToHeader('agentic-ai-systems','../img/circle-dashed-check')
+	addImageToHeader('intermediate','../img/circle-dashed-check',style="height:1em;")
 }, 100);});
 </script>
 
 
-{#
-
-:  Can we annotate existing agentic code in a programming language, and get back an executable model (or at least a partial system specification..) for free?  And the reverse question: how far can we go in generating programming-language *implementations* starting from modeling-language *specifications*?
-
-###### How might ISPL fit in with agentic AI?
-{{macros.subheader('How to shrink the gap between modeling languages and programming languages?')}}
-
-{{macros.subheader('Tool Use & Chain-of-Thought')}}  
-:  As tool-use option and/or an intermediate language that enables LLMs to generate/run simulations, and exercise or reject candidate problem specifications as part of chain-of-thought.  
-
-{{macros.subheader('How to shrink the gap between modeling languages and programming languages?')}}
-
-##### How might ISPL fit in with those "other" agents, i.e. agentic AI?
-
-:  For example as a tool-use option and/or an intermediate language that enables LLMs to generate/run simulations, and exercise or reject candidate problem specifications as part of chain-of-thought.  Opening up simple pathways for Python --> JSON --> ISPL conversion might be the simplest way towards better code-generation, and might help future work with MCP[^5] too.
-
-Currently `py-mcmas` is a `mcmas` wrapper, and facilities for some ISPL code-generation are a bonus.  In other words, **not** what you'd really consider *bindings* for MCMAS (yet).  Beyond what's exposed in the CLI or via ISPL, there is no support for low-level access to anything like an engine API. 
-
-Currently `py-mcmas` is a `mcmas` wrapper, and facilities for some ISPL code-generation are a bonus.    
-
-## References
-<hr style="width:100%;border-bottom:3px solid black;">
-
-* [pydantic](https://docs.pydantic.dev/latest/)
-* [pydantic-ai](https://ai.pydantic.dev)
-* [camel-ai](https://github.com/camel-ai/camel)
-* [sympy](https://docs.sympy.org/latest/index.html)
-[MCP schema](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/schema/2025-06-18/schema.json)
-
-#}
-
 ## Cite 
 <hr style="width:100%;border-bottom:3px solid black;">
 
-```
-{%include "CITATION.bib.j2"%}
+```bibtex
+{% include "CITATION.bib.j2" %}
 ```
 
 ## References
 <hr style="width:100%;border-bottom:3px solid black;">
 
 [^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015 (*pdf*)
-[^2]: [wiki://specification-language](https://en.wikipedia.org/wiki/Specification_language)
+[^2]: [wiki://Specification-language](https://en.wikipedia.org/wiki/Specification_language)
 [^3]: [Official SAIL page]({{jinja.vars.mcmas_official}})
 [^4]: [Engine source mirror]({{jinja.vars.mcmas_mirror}}) *(github)*
 [^5]: [Official user-manual]({{jinja.vars.mcmas_manual}}) *(pdf)*
@@ -374,16 +166,19 @@ Currently `py-mcmas` is a `mcmas` wrapper, and facilities for some ISPL code-gen
 [^7]: The container[^8] is managed by the `python-docker` SDK[^9], but you still need a docker daemon ready (or available at [DOCKER_HOST]({{mkdocs.site_relative_url}}/config)).
 [^8]: For a look at the container py-mcmas uses, see [docker-mcmas.git]({{jinja.vars.mcmas_docker}}).
 [^9]: [rtd://docker-py](https://docker-py.readthedocs.io/en/stable/)
-[^10]: [wiki://witnesess](https://en.wikipedia.org/wiki/Witness_(mathematics))
-[^11]: [wiki://Multi-Agent System](https://en.wikipedia.org/wiki/Multi-agent_system)
-[^12]: [wiki://Agent-Based Model](https://en.wikipedia.org/wiki/Agent-based_model)
-[^13]: [AGI is an engineering problem](https://www.vincirufus.com/posts/agi-is-engineering-problem/)
-[^14]: [chain of code](https://chain-of-code.github.io/)
-[^15]: [Camel AI](https://github.com/camel-ai/camel)
-[^16]: [MCP in general](https://modelcontextprotocol.io)
-[^17]: https://ai.pydantic.dev
+[^10]: [wiki://Witnesess](https://en.wikipedia.org/wiki/Witness_(mathematics))
+[^11]: [wiki://Multi-Agent-System](https://en.wikipedia.org/wiki/Multi-agent_system)
+[^12]: [wiki://Agent-Based-Model](https://en.wikipedia.org/wiki/Agent-based_model)
+[^13]: [The coming AI Revolution in Distributed Systems](https://zfhuang99.github.io/github%20copilot/formal%20verification/tla+/2025/05/24/ai-revolution-in-distributed-systems.html)
+[^14]: [AGI is an engineering problem](https://www.vincirufus.com/posts/agi-is-engineering-problem/)
+[^15]: [ghio://Chain-of-Code](https://chain-of-code.github.io/)
+[^16]: [gh://Camel-AI](https://github.com/camel-ai/camel)
+[^17]: [World Models](https://www.quantamagazine.org/world-models-an-old-idea-in-ai-mount-a-comeback-20250902/)
+[^18]: [MCP Overview](https://modelcontextprotocol.io)
+[^19]: [wiki://Doxastic/Types-of-Reasoners](https://en.wikipedia.org/wiki/Doxastic_logic#Types_of_reasoners)
 
-[^25]: [wiki://Doxastic/Types-of-Reasoners](https://en.wikipedia.org/wiki/Doxastic_logic#Types_of_reasoners)
+{#
+[^19]: https://ai.pydantic.dev
 
 [^31]: [Reasoning about Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al 1995
 [^5]: [wiki://Dynamic_epistemic_logic/Syntax](https://en.wikipedia.org/wiki/Dynamic_epistemic_logic#Syntax)
@@ -391,3 +186,4 @@ Currently `py-mcmas` is a `mcmas` wrapper, and facilities for some ISPL code-gen
 [^9]:  There's a EBNF-style grammar for ISPL available [in the documentation](#) and the engine source uses flex/bison.
 [^19]: [pyModelChecking symbols ↔ ISPL Logic ]({{mkdocs.site_relative_url}}/lib/#pymodelchecking)
 [^99]: ISPL primitives are well-suited to this, but ideally such a system could directly target other kinds of solvers[^11] other formalisms like mean-field games[^12].
+#}

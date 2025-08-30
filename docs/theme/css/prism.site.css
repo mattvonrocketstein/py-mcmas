@@ -511,7 +511,7 @@ div.language-makefile pre code {
 .sb { color: #A3BE8C } /* Literal.String.Backtick */
 .sc { color: #A3BE8C } /* Literal.String.Char */
 .dl { color: #A3BE8C } /* Literal.String.Delimiter */
-.sd { color: #616E87 } /* Literal.String.Doc */
+.sd { color: #D1DBEC; } /* Literal.String.Doc */
 .s2 { color: #b3b3b3 } /* Literal.String.Double */
 .se { color: #EBCB8B } /* Literal.String.Escape */
 .sh { color: #A3BE8C } /* Literal.String.Heredoc */
@@ -567,7 +567,7 @@ div.language-makefile pre code {
  
  :not(pre) > code[class*="language-"],
  pre[class*="language-"] {
-     background: #2b2b2b;
+     /* background: #2b2b2b; */
  }
  
  /* Inline code */

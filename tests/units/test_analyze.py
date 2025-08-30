@@ -8,7 +8,7 @@ LOGGER = util.get_logger(__name__)
 
 
 def test_import_symbols():
-    model = ISPL.from_source(examples.card_game_ispl)
+    model = ISPL.load_from_source(examples.card_game_ispl)
     meta = model.analysis
     symbols = meta.symbols
     assert isinstance(meta, (models.spec.Analysis,))
