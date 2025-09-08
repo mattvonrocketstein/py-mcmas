@@ -1,45 +1,26 @@
 """
 mcmas.ai.
 
-Generic AI-powered "completion" support for pydantic models.  Using this
-module requires mcmas[ai] optional dependencies, e.g. pydantic-ai and
-openai.
-
-NB: Lots of this is manually doing what `pydantic_ai.Agent(..,
-output_type=..)` is supposed to do, but it works better!  Upstream
-implementation seems to be using tools (?) instead of native
-"completion" capabilities.  This one works by passing in json-schema
-details for pydantic models, and might expand to include details like
-pydantic.Field descriptions, model-docstrings, etc.
+Generic AI-powered "completion" support for pydantic models.
+Using this module requires mcmas[ai] optional dependencies, e.g.
+pydantic-ai and openai.
 """
 
 import inspect
 import json
-import os
 import typing
 
 import pydantic
 from pydantic import ValidationError
 
-import mcmas
-from mcmas import rendering, util
+from mcmas import ispl, rendering, util
 
-LOGGER = mcmas.util.get_logger(__name__)
-DEFAULT_MODEL = "granite3-dense:2b"
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", f"{OLLAMA_URL}/v1")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "ollama")
-LLM_MODEL_NAME = os.environ.get(
-    "LLM_MODEL_NAME", os.environ.get("MODEL", DEFAULT_MODEL)
-)
+LOGGER = util.get_logger(__name__)
 
-try:
-    import ollama as ollama_mod
-except (ImportError,) as exc:
-    ollama_mod = None
-    LOGGER.critical(str(exc))
-    LOGGER.warning("some features may not be available!")
-    LOGGER.warning("cannot import ollama module, consider installing 'mcmas[ai]'")
+
+from .config import *  # noqa
+from .config import DEFAULT_MODEL_NAME, OPENAI_API_KEY, OPENAI_BASE_URL  # noqa
+from .ollama import ollama
 
 try:
     import openai
@@ -48,18 +29,20 @@ try:
 except (ImportError,) as exc:
     openai = DEFAULT_CLIENT = None
     LOGGER.critical(str(exc))
-    LOGGER.warning("some features may not be available!")
-    LOGGER.warning("cannot import openai module, consider installing 'mcmas[ai]'")
+    LOGGER.critical("Some features will not be available!")
+    LOGGER.critical("Cannot import openai module, consider installing 'mcmas[ai]'")
+
+init = ollama.pull_model
 
 
 def _loop(
     client: typing.Any = None,
     fxn: typing.Callable = None,
-    model: str = DEFAULT_MODEL,
-    query: str = None,
-    schema: typing.Type = None,
     max_retries: int = 3,
     temperature: float = 0.1,
+    model: str = DEFAULT_MODEL_NAME,
+    query: str = None,
+    schema: typing.Type = None,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
     user_prompt: str = None,
 ):
@@ -67,6 +50,8 @@ def _loop(
     Inner loop for openai completion.
     """
     client = client or DEFAULT_CLIENT
+    # ollama.pull_model()
+    LOGGER.critical(f"{system_prompt}\n\n{user_prompt}")
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -79,6 +64,7 @@ def _loop(
                 max_tokens=1000,
             )
             content = response.choices[0].message.content.strip()
+            LOGGER.critical(f"{content}")
             if content.startswith("```json"):
                 content = content[7:]
             if content.endswith("```"):
@@ -104,6 +90,24 @@ def _loop(
                 raise
 
 
+import pydantic_ai  # import Agent, NativeOutput
+
+import mcmas
+from mcmas.ai import config
+
+# from pydantic_ai.models.openai import OpenAIModel
+# from pydantic_ai.providers.openai import OpenAIProvider
+
+
+DEFAULT_PROMPT = """
+You always respond with a JSON object that's compatible with this schema:
+
+{schema}
+
+Don't include any text or Markdown fencing before or after.
+"""
+
+
 @pydantic.validate_call
 def agent_completion(
     fxn: typing.Callable = None,
@@ -114,59 +118,87 @@ def agent_completion(
     See module doc-string.
     """
 
-    from mcmas import ispl
-
-    schema = ispl.Agent
-    prompt_t = rendering.get_template("prompts/agent-generator.md")
     src = inspect.getsource(fxn)
-    src = src[src.find("def ") :]  # .split('\n'); src=src
-    query = prompt_t.render(
-        user_query=src,
-        json_schema=json.dumps(schema.model_json_schema(), indent=2),
-    )
-    agent = model_completion(schema=schema, **kwargs)
-    LOGGER.critical(f"{agent}")
-    trivial = ispl.Agent.trivial_agent()
-    assert not trivial.advice
-    templ = trivial.model_dump()
-    for k in list(
-        set(list(trivial.model_dump().keys()) + list(agent.model_dump().keys()))
-    ):
-        discovered = getattr(agent, k, None)
-        if discovered:
-            templ[k] = discovered
-            # update()
-            # tmp = getattr(agent, k, None)
-        # templ[k] = getattr(agent, k, tmp or templ[k])
-    templ["actions"] = list(set(agent.actions + trivial.actions))
-    agent = ispl.Agent(**templ)
-    LOGGER.critical(f"after merged with trivial {agent}")
-    # parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
-    if agent.advice:
-        LOGGER.critical(
-            f"\n\nexpecting a completed agent in {agent}\n\nbut found advice {agent.advice}"
+    src = src[src.find("def ") :]
+    agent_spec = (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [ispl.Agent],
+                template=DEFAULT_PROMPT
+                + """You build output JSON from function-bodies.  Given function source code, you extract the names of all subroutines mentioned inside the function-body, and store that array as "actions".  Here is the function-body:""",
+            ),
         )
-        agent.protocol = trivial.protocol
-        agent.evolution = trivial.evolution
-    # import IPython; IPython.embed(confirm_exit=False)
-    return agent
+        .run_sync(src)
+        .output
+    )
+    actions = agent_spec.actions
+    sig = mcmas.util.fxn_sig(fxn)
+    LOGGER.warning(f"extracted signature: {sig}")
+    agent_spec = (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [ispl.Agent],
+                name="ispl.Agent",
+                description="Return a ispl.Agent.",
+                template=DEFAULT_PROMPT
+                + """You build output JSON from function-signatures.  Extract function-name to "name" attribute. Map function arguments to "vars" attributeHere is a function signature: """,
+            ),
+        )
+        .run_sync(sig)
+        .output
+    )
+    agent_spec.actions = actions
+    # sig = mcmas.util.fxn_sig.as_dict(fxn)
+    LOGGER.warning(f"Built agent: {agent_spec}")
+    return agent_spec
+
+
+# model_completion(schema=schema, **kwargs)
+# LOGGER.critical(f"{agent}")
+# trivial = ispl.DefaultAgent
+# assert not trivial.advice
+# templ = trivial.model_dump()
+# for k in list(
+#     set(list(trivial.model_dump().keys()) + list(agent.model_dump().keys()))
+# ):
+#     discovered = getattr(agent, k, None)
+#     if discovered:
+#         templ[k] = discovered
+# templ["actions"] = list(set(agent.actions + trivial.actions))
+# agent = ispl.Agent(**templ)
+# LOGGER.critical(f"after merged with trivial {agent}")
+# # parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
+# if agent.advice:
+#     LOGGER.critical(
+#         f"\n\nexpecting a completed agent in {agent}\n\nbut found advice {agent.advice}"
+#     )
+#     agent.protocol = trivial.protocol
+#     agent.evolution = trivial.evolution
+# # import IPython; IPython.embed(confirm_exit=False)
+# return agent
 
 
 @pydantic.validate_call
 def call_completion(
-    fxn: typing.Callable = None,
-    query: str = None,
+    fxn: typing.Union[typing.Callable, None] = None,
+    query: str = "",
     schema: typing.Type = None,
-    system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
+    system_prompt: str = "You are a JSON generator.",
     **kwargs,
 ) -> typing.Any:
     """
     See module doc-string.
     """
+    if util.accepts_posargs(fxn):
+        err = f"call_completion: expected kwargs-only function, but {fxn} uses posargs"
+        LOGGER.critical(err)
+        raise RuntimeError(err)
     prompt_t = rendering.get_template("prompts/function-call-generator.md")
     user_prompt = prompt_t.render(
         user_query=query,
-        function_sig=util.fxn_metadata(fxn),
+        function_sig=util.fxn_sig(fxn),
     )
     parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
     return parsed_json
@@ -174,9 +206,9 @@ def call_completion(
 
 @pydantic.validate_call
 def model_completion(
-    query: str = None,
-    schema: typing.Type = None,
-    model: str = DEFAULT_MODEL,
+    query: str = "",
+    schema: typing.Union[typing.Type, None] = None,
+    model: str = DEFAULT_MODEL_NAME,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
     **kwargs,
 ) -> typing.Any:
@@ -203,51 +235,36 @@ def model_completion(
     return validated_data
 
 
-class OllamaWrapper:
+@pydantic.validate_call
+def model_shuffle(
+    query: str = "",
+    # schema: typing.Type = None,
+    obj=None,
+    model: str = DEFAULT_MODEL_NAME,
+    system_prompt: str = (
+        "You are a transformer that accepts an "
+        "abstract syntax tree in JSON and returns another "
+        "VALID abstract syntax tree."
+    ),
+    model_settings={},
+) -> typing.Any:
     """
-    A wrapper for using the ollama module.
+    See module doc-string.
     """
-
-    @util.classproperty_cached
-    def client(self):
-        """
-        Returns a (cached) ollama client.
-
-        This respects ${OLLAMA_URL} from environment
-        """
-        return ollama_mod.Client(host=OLLAMA_URL)
-
-    def list(self):
-        """
-        List available models.
-        """
-        # LOGGER.warning("❌ Failed to connect to Ollama. Make sure it's running.")
-        # LOGGER.info("✅ Connected to Ollama successfully!")
-        return self.client.list()
-
-    def pull_model(self, model_name: str = "") -> None:
-        """
-        Pull the given model, or ${LLM_MODEL_NAME} or ${MODEL},
-        whichever is found first.
-        """
-        model_name = model_name or LLM_MODEL_NAME
-        LOGGER.debug("Checking connection..")
-        models = self.list()
-        LOGGER.debug("Connection ok.")
-        LOGGER.debug(f"Found {len(models['models'])} models:")
-
-        # for model in models["models"]:
-        # LOGGER.debug(f"   * {model.model}")
-        if model_name not in models["models"]:
-            LOGGER.debug(f"Pulling model: {model_name}")
-            self.client.pull(model_name)
-            LOGGER.debug(f"Successfully pulled: {model_name}")
-        else:
-            LOGGER.debug(f"Model {model_name} is available.")
-
-
-ollama = OllamaWrapper()
-ollama_pull_model = ollama.pull_model
+    return (
+        pydantic_ai.Agent(
+            config.DEFAULT_MODEL,
+            output_type=pydantic_ai.PromptedOutput(
+                [obj.__class__],
+                template=DEFAULT_PROMPT,
+            ),
+        )
+        .run_sync(
+            rendering.get_template("prompts/shuffle-model.md").render(),
+            model_settings=model_settings,
+        )
+        .output
+    )
 
 
 class Society:
@@ -265,6 +282,12 @@ class Society:
     """
 
     def __getitem__(self, other):
+        return self.get_spec(other)
+
+    def get_spec(self, other):
+        """
+        
+        """
         tmp = [x for x in self]
         if isinstance(other, (str,)):
             agent = None
@@ -275,15 +298,13 @@ class Society:
             agent = other
         return agent_completion(agent=agent, framework=self.module)
 
-    def get_spec(self, agent):
-        """
-        
-        """
-        return self[agent]
-
     def __init__(self, module):
         """
-        
+        Instantiate a Society with the framework module, or a
+        string version of the module name.
+
+        This auto-detects all agents that are defined /
+        instantiated for this runtime.
         """
         name = getattr(module, "__name__", module)
         assert name in ["pydantic_ai", "openai", "agents"]
@@ -329,13 +350,3 @@ class Society:
         Finds all the openai agents.
         """
         return kls("openai")
-
-    # @classmethod
-    # def index(kls):
-    #     """"""
-    #     out = {"pydantic": kls.pydantic, "openai": kls.openai}
-    #     for name, members in out.items():
-    #         LOGGER.warning(f"Found {len(members)} {name} agents in current runtime")
-    #         for agentic in members:
-    #             LOGGER.warning(f"  {agentic.__class__.__name__}: {agentic.name}")
-    #     return out

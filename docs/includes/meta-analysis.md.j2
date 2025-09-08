@@ -1,0 +1,13 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+The applications so far are pretty obvious, and sort of argue in favor of combining agentic-AI with *formal methods in general*.  That's a big toolkit to choose from, and the goal of {{site.api_link('mcmas.fmtk', mkdocs=mkdocs)}} is to lay some of groundwork for multiple tools on the backend.
+
+But the main focus of `py-mcmas` is ISPL because **the model-checker itself *also* has a concept of "Agents"**.  This kind of reflection seems useful for things like meta-analysis, especially if you can generate specifications automatically or semi-automatically.  What's that good for?  How about things like:
+
+* Intelligent routing
+* Design-layer validation of "societies" of agentic-tools
+* Proving theorems about your system-level agent-interactions
+
+Does this or that mixture of weighted skeptic/critic/creator roles for your agents ever converge to stable quorum?  Given a layer for meta-analysis.. could we query it from the agentic-ai implementation-layer, allowing agents the chance to reason about how they interact with other agents?  
+
+Add to this the ISPL support for explicitly modeling [epistemics]({{mkdocs.site_relative_url}}/opref/#DEL), [temporals]({{mkdocs.site_relative_url}}/opref/#TL), [aggregates]({{mkdocs.site_relative_url}}/isplref/#group), and [strategies]({{mkdocs.site_relative_url}}/opref/#ATL).   Is it useful for agents to treat other agents skeptically, perhaps even to disblieve their own perceptions of their environment?  Could we rank agents in some kind of hierarchy, categorizing them as [stable, unstable, or peculiar]({{mkdocs.site_relative_url}}/doxastic)?

@@ -9,6 +9,49 @@ from mcmas import util
 LOGGER = util.get_logger(__name__)
 
 
+def extract_witnesses(text: str, fname: str = ""):  # -> typing.Dict:
+    """
+    Parse agent state text into a list of dictionaries. Captures
+    ALL key=value pairs, not just 'state'.
+
+    Args:
+        text (str): Input text with Agent sections and indented key=value pairs
+
+    Returns:
+        list: List of dictionaries with all namespaced properties
+    """
+    states = [x.strip() for x in text.strip().split("-- State ") if x.strip()]
+    LOGGER.info(f"decoded {len(states)} states from {fname}")
+    output = []
+    for state in states:
+        result = []
+        current_namespace = None
+        lines = [x for x in state.strip().split("\n") if x.strip()][1:]
+        lines = state.strip().split("\n")
+        for line in lines:
+            if not line.strip() or line.lstrip().startswith("--"):
+                continue
+            # Agent section header
+            agent_match = re.match(r"^  Agent\s+(\w+)$", line)
+            if agent_match:
+                current_namespace = agent_match.group(1)
+                continue
+            # Indented key=value pairs
+            kv_match = re.match(r"^\s+(\w+)=(\w+)$", line)
+            if kv_match and current_namespace:
+                key = kv_match.group(1)
+                value = kv_match.group(2)
+                result.append({f"{current_namespace}.{key}": value})
+        # raise Exception(result)
+        tmp = {}
+        for item in result:
+            # result = dict([k,v] for k,v in result)
+            tmp.update(item)
+        if tmp:
+            output += [tmp]
+    return output
+
+
 def extract_block(
     text: str,
     pattern=None,
@@ -56,6 +99,8 @@ def extract_toplevel(txt: str, section="Formulae") -> list:
         r"^" + section + r"\s*\n(.*?)^\s*end\s+" + section + r"\b",
         re.MULTILINE | re.DOTALL,
     )
+    txt = [x for x in txt.split("\n") if not x.lstrip().startswith("--")]
+    txt = "\n".join(txt)
     for match in pattern.finditer(txt):
         if match:
             return [
@@ -84,7 +129,7 @@ def extract_agents(txt: str) -> dict:
         path = [agent]
         block = agents[agent]
         agents[agent] = {}
-        LOGGER.critical(f"parsing agent={agent}")
+        LOGGER.debug(f"parsing agent={agent}")
         for sub in ["Lobsvars", "Actions"]:
             section = sub.lower()
             path += [sub]
@@ -129,8 +174,13 @@ def extract_agents(txt: str) -> dict:
             sub_block = sub_block.split(";")
             agents[agent][section] = [x.strip() for x in sub_block if x.strip()]
             if not agents[agent][section]:
-                if all([agent in ["environment", "Environment"], section == "obsvars"]):
-                    LOGGER.info("skipping section {agent}.{section}, expected missing")
+                if all(
+                    [
+                        agent in ["environment", "Environment"],
+                        section in ["obsvars", "evolution"],
+                    ]
+                ):
+                    LOGGER.debug(f"skipping section `{agent}.{section}` (missing ok)")
                 else:
                     LOGGER.warning(
                         f"could not extract {agent}.{section} from block:\n{block}\n\n{sub_block}"

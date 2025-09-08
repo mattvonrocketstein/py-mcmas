@@ -1,0 +1,29 @@
+{% import 'macros/base.j2' as macros -%}{% import 'macros/site.j2' as site -%}
+
+## Analysis, Witnesses, Traces
+
+### Witnesses 
+<hr style="width:100%;border-bottom:3px solid black;">
+
+**Witnesses**[^1] are something that many model-checkers support.  They are not proofs per se, but more akin to things like *examples, counter-examples, or execution traces.*  MCMAS supports this too, at least for certain types of [formulae]({{mkdocs.site_relative_url}}/isplref#formulae).  See the official user-manual[^2] for details about what kinds of [logical expressions](#) are  supported.  Default behaviour for mcmas involves output of *.info* files that are not necessarily very friendly for downstream use-cases but in `py-mcmas`, witness output is available as structured data.
+
+### Static Analysis 
+<hr style="width:100%;border-bottom:3px solid black;">
+
+We've seen that witnesses require that specifications should actually be *simulated*, but `py-mcmas` also provides some limited facilities for static-analysis of specifications or partial specifications.  The focus is on stuff that amounts to specification metadata simple extraction of symbols and other .
+
+
+### Complexity Analysis for Logical Expressions
+<hr style="width:100%;border-bottom:3px solid black;">
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: [wiki://witnesess](https://en.wikipedia.org/wiki/Witness_(mathematics))
+[^2]: [Official user-manual]({{jinja.vars.mcmas_manual}}) *(pdf)*
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('References','../img/list-details')
+}, 100);});
+</script>

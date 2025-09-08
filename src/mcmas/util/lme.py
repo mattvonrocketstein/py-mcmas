@@ -47,6 +47,10 @@ print = CONSOLE.print
 
 
 class Fake:
+    """
+    A fake logger.
+    """
+
     warning = debug = info = critical = lambda *args, **kwargs: None
 
 

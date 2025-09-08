@@ -7,36 +7,13 @@
 
 $('div.rst-content table').addClass('docutils');
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for MkDocs to fully render the page including ToC
     setTimeout(function() {
-        Prism.languages.insertBefore('bash', 'comment', {
-            'backtick-content': {
-                pattern: /`[^`\n]*`/,
-                inside: {
-                    'punctuation': /`/
-                }
-            },
-            'cmk-recursion': {pattern: /(?:\b)(?:if|and|KG|AG|Agent|Formulae|end|Vars|Actions|Obsvars|Protocol|Evolution|InitStates|Environment)/,}, 
-            'cmk-syntax': {pattern: /\b(|jq)\b/,},
-            'shell-command': {
-                pattern: /(?:echo|cat|apk|wget|tar|apt-get|pip3|pip|npm|ansible) /,
-                // alias:'important'
-                },
-            'shell-install': {
-                pattern: /(?:apk|apt-get) /,
-                // alias:''
-            },
-            'cmk-fxn': {
-                pattern: /(?:io|log|cmk|docker|Dockerfile|flux|stage|mk|stream|tux)[.]([a-z._])+(?:(\/|,|\())/,},
-            'cmk-integral-open':{
-                pattern: /^⨖(?!\s+with\b).*$/m,
-                inside: {
-                    'symbol': /^⨖/,
-                    'defname': /\b.*\b/,
-                }, alias:'token cmk-line-feed si punctuation cmk-syntax'},
-            });
-    }, 100); // Small delay to ensure ToC is already processed
-    })
+      Prism.languages.insertBefore('haskell', 'builtin', {'ispl-keyword': {pattern: /.*(Agent|Environment|Vars|RedStates|Protocol|Evolution|Evaluation|InitStates|Formulae|Obsvars)/, alias:"ispl-top"} });
+      Prism.languages.insertBefore('haskell', 'builtin', {'ispl-keyword': {pattern: /.*(Actions|Lobsvars)/, alias:"ispl-eq"} });
+      Prism.highlightAll()
+    }, 100)})
+//     // Wait for MkDocs to fully render the page including ToC
+// })
 
 
 function prefixHeader(headerId, txt, style="") {
@@ -89,11 +66,6 @@ function addImageToHeader(headerId, imgSrc,style="") {
     heading.insertBefore(img, heading.firstChild);
     }}
 
-/**
- * Find contiguous blocks of spans with class "inside_define" and wrap them in divs
- * Plain text nodes between spans with the class should be included in the blocks
- * Newlines and <br> tags don't break continuity
- */
 function wrapContiguousDefineBlocks() {
     // Get the container element to process
     const container = document.body;
@@ -107,7 +79,6 @@ function wrapContiguousDefineBlocks() {
       null,
       false
     );
-    
     let currentNode = walker.nextNode();
     
     while (currentNode) {
@@ -133,15 +104,12 @@ function wrapContiguousDefineBlocks() {
           // We have a complete block - wrap it
           wrapNodesInDefineBlock(currentNodes);
         }
-        
         // Reset for next block
         currentNodes = [];
         hasDefineSpan = false;
       }
-      
       currentNode = nextNode;
     }
-    
     // Handle any remaining block at the end
     if (hasDefineSpan && currentNodes.length > 0) {
       wrapNodesInDefineBlock(currentNodes.slice(1));
@@ -169,10 +137,3 @@ function wrapContiguousDefineBlocks() {
     });
   }
   
-//   // Run the function when the DOM is fully loaded
-//   document.addEventListener('DOMContentLoaded',);
-  
-//   // Or run immediately if the DOM is already loaded
-//   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-//     wrapContiguousDefineBlocks();
-//   }

@@ -39,8 +39,24 @@
         <td class=wrap>
        Used implicitly by <a href=https://docker-py.readthedocs.io/en/stable/client.html#docker.client.from_env><code>docker.from_env()</code></a></td>
     </tr>
-
+    <tr>
+        <td><code>OLLAMA_URL</code></td>
+        <td class=wrap>Defaults to <code>http://localhost:11434</code></a></td>
+    </tr>
+    <tr>
+        <td><code>LLM_MODEL_NAME</code></td>
+        <td class=wrap>If not set, this falls back to <code>${MODEL}</code>, then defaults to <code>granite3-dense:2b</code></td>
+    </tr>
+    <tr>
+        <td><code>OPENAI_BASE_URL</code></td>
+        <td class=wrap>Defaults to <code>${OLLAMA_URL}/v1</code></td>
+    </tr>
+    <tr>
+        <td><code>OPENAI_API_KEY</code></td>
+        <td class=wrap>Defaults to <code>ollama</code></td>
+    </tr>
 </table>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
 	addImageToHeader('configuration','../img/config.svg')

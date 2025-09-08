@@ -1,0 +1,27 @@
+Usage: ispl [OPTIONS] [FNAME]
+
+  Helper for interacting with ISPL files.
+
+Options:
+  -j, --json              Load ISPL spec from JSON file.  (Implied if filename
+                          ends in .json)
+  -i, --ispl              Load ISPL spec from the given ISPL  (Implied if
+                          filename ends in .ispl)
+  -r, --repl              Start a REPL with this context
+  -c, --command TEXT      Command to execute
+  -s, --sim               Simulate the specification after loading one.
+                          Returns JSON
+  -a, --analyze           Analyze specification after loading one.  (Cannot be
+                          used with --sim)
+  -p, --python            Load ISPL specification from python.  (Implied if
+                          filename ends in .py)
+  -W, --witness           Generate witnesses (implies --sim).\Returns counter-
+                          examples only (witnesses for false formulae)
+  -w, --counter-example   Generate ALL witnesses (implies --sim)
+  -q, --quiet             Generate ALL witnesses (implies --sim)
+  --list-pydantic-models  List available pydantic models
+  --schema                Return JSON schema for named model
+  --validate              Validate specification
+  -v, --verbose           Do not include raw output from engine (used with
+                          --sim)
+  --help                  Show this message and exit.

@@ -3,41 +3,45 @@
 ## ISPL Examples
 <hr style="width:100%;border-bottom:3px solid black;">
  
-For all ISPL examples that ship with the engine source, [go here]({{jinja.vars.mcmas_examples}}).  
 
-This page inlines the example for the classical "muddy children" puzzle, providing some extra context, and cross-referencing to the small [language reference](#).  Gradually this page will grow to collect other examples.
+You'll probably prefer to write [pythonic ISPL]({{mkdocs.site_relative_url}}/demos/pythonic), but this page inlines some examples of raw ISPL for study/reference.  The [first example](#minimal-example) focuses on minimalism.  The second example is the classic [muddy children puzzle](#muddy-children), one of many examples that ship with the `mcmas` engine source code[^1].  
+
+### Minimal Example
+<hr style="width:100%;border-bottom:3px solid black;">
+
+The goal for this example is to exercise the mcmas engine as **a solver for simple logic**, basically ignoring the ISPL language capabilities for other things like agents and time-evolution.  Nevertheless we *need an agent and rules for time-evolution anyway* just to have legal ISPL, so this sets up enough scaffolding for a "trivial" Agent that does nothing, then validates a few simple logical expressions.
+
+{{site.embed_demo(
+    'tests/data/minimal.ispl', mkdocs=mkdocs, type='haskell')}}
+
+[The pythonic equivalent]({{mkdocs.site_relative_url}}/demos/pythonic) is more succinct and flexible, but the verbose version here illustrates more of the primitives.  See the ISPL Reference for: {% for x in 'environment agent evaluation init-states formulae'.split() %} [{{x.title()}}]({{mkdocs.site_relative_url}}/isplref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
 
 ### Muddy Children
 <hr style="width:100%;border-bottom:3px solid black;">
 
-Introducing agents and knowledge with Muddy-children is traditional.  
+Introducing agents and knowledge with Muddy-children is traditional.
 
-* Wikipedia on the problem definition: ([wiki](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle)), here;
-* Original example in engine-source: ([wiki]({{jinja.vars.mcmas_examples}}/muddy_children.ispl)
-* Section 1.1 in [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf)
+* Original example in engine-source [here]({{jinja.vars.mcmas_examples}}/muddy_children.ispl)
+* Wikipedia on the problem definition: ([wiki://Induction-Puzzles#MuddyChildren](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle)), here;
+* Section 1.1 in Reasoning About Knowledge[^2]
 
 **ISPL References:** {% for x in 'environment agent evaluation init-states formulae'.split() %} [{{x.title()}}]({{mkdocs.site_relative_url}}/isplref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
 
-**Logic Op-Reference:** {% for x in 'ag k'.split() %} [`{{x.upper()}}(..)`]({{mkdocs.site_relative_url}}/opref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
+**Logic Operator Reference:** {% for x in 'ag k'.split() %} [`{{x.upper()}}(..)`]({{mkdocs.site_relative_url}}/opref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
 
-{{site.embed_demo('tests/data/muddy_children.ispl', github=github, type='haskell')}}
+{{site.embed_demo('tests/data/muddy_children.ispl', mkdocs=mkdocs, type='haskell')}}
 
 ### References
 <hr style="width:100%;border-bottom:3px solid black;">
 
-[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
-
+[^1]: [ISPL examples that ship with the engine source]({{jinja.vars.mcmas_examples}})
+[^2]: [Reasoning about Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
-	addImageToHeader('examples','../img/abc')
-	addImageToHeader('muddy children','../img/123')
-	addImageToHeader('references','../img/list-details')
+	addImageToHeader('examples', '../img/abc')
+	addImageToHeader('muddy children', '../img/123')
+	addImageToHeader('minimal example', '../img/123')
+	addImageToHeader('references', '../img/list-details')
 }, 100);});
 </script>
-
-
-{#
-#### Background
-<hr style="width:95%;border-bottom:1px dashed black;">
-#}

@@ -35,7 +35,6 @@ jobs:
       - name: Setup Rendering
         run: |
           make clean init 
-          pip install -e '.[docs]'
       - name: Build Docs
         run: |
           make docs

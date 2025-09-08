@@ -16,7 +16,7 @@ py.pkg_name=mcmas
 export CMK_LOG_IMPORTS?=0
 export MKDOCS_LISTEN_PORT=8003
 
-.PHONY: build docs 
+.PHONY: build docs docs/includes
 
 include .cmk/compose.mk
 $(call compose.import, file=docker-compose.yml)
@@ -41,15 +41,27 @@ init: flux.stage/init mk.stat docker.stat \
 	@# Project init. `{py.init docs.init}`
 
 docs: flux.stage/doc \
-	docs.init docs/api docs/schema \
-	README.md CITATION.bib docs.jinja mkdocs.build
+	docs.init docs/includes \
+	docs/api docs/schema \
+	README.md CITATION.bib docs.jinja \
+	docs.pynchon.dispatch/.docs.build
+
+docs/includes:
+	set -x \
+	&& ispl --help > docs/includes/cli/ispl-help.txt \
+	&& mcmas --help > docs/includes/cli/mcmas-help.txt \
+
+.docs.build:
+	$(call log.target, building)
+	set -x && (mkdocs build --clean --verbose && tree site) \
+	; find site docs | xargs chmod o+rw; ls site/index.html
 
 release: pypi.release docker.mcmas.release
 
 version: py.version
 	@# Alias for py.version
 
-test: flux.stage/test py.test #docker.pymcmas.test #lint 
+test: flux.stage/test py.test #docker.pymcmas.test
 
 
 # Import tox environments.
@@ -96,8 +108,8 @@ self.units:
 	env | grep TOX && pytest -s -vv tests/units
 
 smoke-test: stest
-self.stest: flux.timer/.self.stest
-define .self.stest
+self.smoke_test: flux.timer/.self.smoke_test
+define .self.smoke_test
 set -x 
 python -m mcmas -h
 python -m mcmas tests/data/muddy_children.ispl 
@@ -110,20 +122,25 @@ ispl -c'print(Agent)'
 ispl -c'print(Agent)'
 ispl --python tests/data/minimal.py --sim
 ispl --python tests/data/minimal.py -c 'print(__spec__)'
-ispl --ispl tests/data/card_games.ispl | jq . |ispl --json /dev/stdin | ispl --ispl /dev/stdin --sim
+ispl --ispl tests/data/card_games.ispl | jq . |ispl --json /dev/stdin | ispl --ispl /dev/stdin > .tmp.ispl.json 
+ispl --json .tmp.ispl.json --sim
 ispl --analyze tests/data/minimal.ispl| jq .symbols.actions
 # FIXME: breaks only in docker??
-# ispl --validate tests/data/minimal.ispl| jq .validates
-# ispl --validate tests/data/minimal.ispl| jq .advice
+# ispl --validate tests/data/minimal.ispl | jq .validates
+# ispl --validate tests/data/minimal.ispl | jq .advice
 endef
-$(call compose.import.script, def=.self.stest)
+$(call compose.import.script, def=.self.smoke_test)
 
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 docker.pymcmas.clean: #flux.NIY
-docker.pymcmas.release: docker.mcmas.build flux.NIY
-docker.pymcmas.test: docker.pymcmas.build docker.pymcmas.dispatch/self.stest
+docker.pymcmas.release: docker.pymcmas.build flux.NIY
+docker.pymcmas.test: #docker.pymcmas.build 
 	@# Runs the normal smoke-test inside the docker-image.
+	docker run \
+		-v `pwd`:/tests -w /tests \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--entrypoint make  pymcmas self.smoke_test
 
 # Docs related
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░

@@ -8,6 +8,11 @@ othersayknow = symbols.othersayknow
 know = symbols.know
 
 
+def test_multiple_symbols():
+    a, b, c = symbols["a b c"]
+    assert str(a + b + c) == "a+b+c"
+
+
 def test_basic_symbols():
     # create a symbol just by naming it
     x, y = symbols.x, symbols.y

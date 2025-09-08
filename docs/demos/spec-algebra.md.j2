@@ -3,11 +3,137 @@
 ## Specification Algebra
 <hr style="width:100%;border-bottom:2px solid black;">
 
-Specification objects used in `py-mcmas` support a kind of algebra.  
+Specifications and partial specifications that are used in `py-mcmas` support a kind of algebra.  
+
+Partly this is just a practical convenience for building specs quickly, as seen in the [pythonic ISPL demo]({{mkdocs.site_relative_url}}/demos/pythonic#more-minimal-example).  But there's other goals in mind too, such as [shuffle/remix/compress operators](#) which could be used for *evolving* new specifications from existing ones.
+
+Most operators work for each of the main specification objects, i.e. {{site.api_link('mcmas.ISPL', mkdocs=mkdocs)}} and {{site.api_link('mcmas.Agent', mkdocs=mkdocs)}}, and {{site.api_link('mcmas.Environment', mkdocs=mkdocs)}}.
+
+### Ellipsis Notation 
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=ellipsis></a>
 
 Since partial specifications are supported, one of the most common use-cases is to combine these fragments to get a ready-to-run specification that can actually be simulated.
 
-A quick example:
+Ellipsis notation helps here.  It can be used to get a *minimum viable object*.
+
+```python {.language-python}
+spec = ISPL(...)
+agent = Agent(...)
+environment = Environment(...)
+```
+
+Agents and Environments need only *validate*, but the minimum-viable ISPL specification should be able to *validate and execute*. From the command line:
+
+```bash {.cli_example}
+# Returns raw ISPL source code
+$ ispl --python --command 'ISPL(...)'
+```
+```bash {.cli_output .smaller .language-haskell}
+-- Minimal valid ISPL specification
+Agent Environment
+  Vars:
+    ticking: boolean;
+  end Vars
+  Actions = { tick };
+  Protocol:
+    Other: {tick};
+  end Protocol
+  Evolution:
+  end Evolution
+end Agent
+
+...
+```
+
+To confirm this runs, just pass the sim argument:
+
+```bash {.cli_example}
+# Run the spec
+$ ispl --python --command 'ISPL(...)' --sim
+```
+
+{#
+#### Extended Ellipsis Notation 
+<hr style="width:100%;border-bottom:1px dashed black;">
+<a name=extended-ellipsis></a>
+#}
+
+------------------------
+
+You can use **extended ellipsis notation** to add overrides *on top of* the minimal object.  For example, to obtain a minimum-viable agent with custom actions:
+
+```python {.language-python}
+agent = Agent(...)(name='card-player', actions=['hold-em', 'fold-em'])
+```
+
+As seen in the [pythonic-ISPL demo]({{mkdocs.site_relative_url}}/demos/pythonic#minimal) you can compose specs in one shot this way, or compose them incrementally as seen [here](#addition).
+
+### Constructor Notation
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=constructor></a>
+<a name=square-brackets></a>
+
+Constructor notation uses square brackets and *looks* like item-retrieval but has different semantics:
+
+```python {.language-python}
+agent = Agent[obj]
+```
+<br/>
+
+Above, `obj` can be things like: *an LLM prompt, a python function, or a pydantic agent,* and you'll get back at least a partial ISPL agent specification.  See the test-cases below for some concrete examples.  This works with Specifications and Environments in theory, but if your [AI backend]({{mkdocs.site_relative_url}}/config#ai) is using small local LLM models, in practice it's probably most useful with Agents.  For concrete examples, check out the test-cases below.
 
 {{site.embed_demo(
-    'tests/units/specification_algebra.py', github=github, type='python')}}
+    'tests/itests/agent_constructor.py', mkdocs=mkdocs, type='python')}}
+
+{#
+In theory and with a powerful [LLM backend configuration](#) you can prompt your way to a working *complete* ISPL specification for your domain model, but most likely you'll want to stick to constructing Agents and Environments, and building specifications additively.  See the next section.
+#}
+
+
+### Shuffle Notation 
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=shuffle></a>
+
+The **shuffle operator** returns a "shuffled" version of a given object.  A shuffle has the same type as the object you started with, and is based on the original object, but the result has been mutated using a simple prompt.[^1]  The shuffle operator looks like using exponentiation, and the argument used as the exponent is passed through to pydantic-ai as `top_p` and used to control nucleas sampling[^2].
+
+{{site.embed_demo(
+    'tests/itests/shuffle-notation.py', mkdocs=mkdocs, type='python')}}
+
+Shuffling is really just a proof of concept, and the prompt is very naive.  But the idea is to pave the way for stuff like using genetic-programming, with LLMs as evolutionary operators.  See the [reference zoo]({{mkdocs.site_relative_url}}/ref) for related papers / inspiration.
+
+### Completion Notation 
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=completion></a>
+
+{{site.embed_demo(
+    'tests/itests/completion.py', mkdocs=mkdocs, type='python')}}
+<br/>
+
+### Addition, Subtraction, Equality, etc
+<hr style="width:100%;border-bottom:2px solid black;">
+<a name=addition></a><a name=equality></a>
+
+{{site.embed_demo(
+    'tests/units/addition.py', mkdocs=mkdocs, type='python')}}
+<br/>
+
+{{site.embed_demo(
+    'tests/units/spec-algebra.py', mkdocs=mkdocs, type='python')}}
+
+### Other Usage Hints
+<hr style="width:100%;border-bottom:2px solid black;">
+
+Check out the test-suite for more usage hints:
+
+### References
+<hr style="width:100%;border-bottom:3px solid black;">
+
+[^1]: {{macros.repo_link('src/mcmas/templates/prompts', mkdocs=mkdocs)}}
+[^2]: A concept similar to temperature.  See [pydantic_ai.settings.ModelSettings.top_p](https://ai.pydantic.dev/api/settings/#pydantic_ai.settings.ModelSettings.top_p)
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
+	addImageToHeader('References','../img/list-details.svg')
+}, 100);});
+</script>

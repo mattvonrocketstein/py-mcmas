@@ -1,0 +1,29 @@
+Agent {{name}}
+{%-if agent.lobsvars|default(false)%}{%set lobsvars=agent.lobsvars %}{%set lobsvars=', '.join(agent.lobsvars) if type(lobsvars)==type([]) else lobsvars%}
+  Lobsvars = { {{lobsvars}} };
+{%endif-%}
+{%-if agent.vars|default(false)%}
+  Vars:
+    {%- for k,v in agent.vars.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Vars
+{%endif-%}
+{%-if agent.actions|default(false)%}{%set actions=agent.actions %}{%set actions=', '.join(agent.actions) if type(actions)==type([]) else actions%}
+  Actions = { {{actions}} };
+{%endif-%}
+{%-if agent.protocol|default(false)%}
+  Protocol:
+    {%- for k,v in agent.protocol.items() %}
+    {{k}}: {{v.lstrip()}}{{';' if not v.endswith(';') else ''}}
+    {%- endfor %}
+  end Protocol
+{%endif-%}
+{%-if agent.evolution|default(false)%}
+  Evolution:
+    {%- for line in agent.evolution %}
+    {{line}}{{';' if not line.endswith(';') else ''}}
+    {%- endfor %}
+  end Evolution
+{%endif-%}
+end Agent

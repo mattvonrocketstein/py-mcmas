@@ -1,5 +1,7 @@
 """
-mcmas.typing.
+mcmas.typing:
+
+Base types and validators for use with pydantic and elsewhere
 """
 
 import typing
@@ -36,7 +38,7 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 @pydantic.validate_call
 def ensure_list(value: typing.Any) -> typing.List:
     """
-    
+    Flexible parsing for ISPL-source.
     """
     if isinstance(value, str):
         tmp = value.replace("{", "").replace("}", "").replace(";", "")
@@ -50,7 +52,7 @@ def ensure_list(value: typing.Any) -> typing.List:
 @pydantic.validate_call
 def ensure_groups(val) -> typing.Dict:
     """
-    
+    Flexible parsing for ISPL-source.
     """
     if val is None:
         return {}
@@ -69,7 +71,7 @@ def ensure_groups(val) -> typing.Dict:
 @pydantic.validate_call
 def ensure_protocol(value) -> typing.Dict:
     """
-    
+    Flexible parsing for ISPL-source.
     """
     if isinstance(value, (list,)):
         out = {}
@@ -88,7 +90,7 @@ def ensure_protocol(value) -> typing.Dict:
 @pydantic.validate_call
 def ensure_dict(val) -> typing.Dict:
     """
-    
+    Flexible parsing for ISPL-source.
     """
     if val is None:
         return {}

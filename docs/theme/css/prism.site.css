@@ -160,20 +160,6 @@ span.se { color:mediumturquoise; font-weight:bolder; }
     color: #c92c2c;
 }
 
-span.cmk-with-statement .err{
-    color: #d83dc0;
-    font-size: bigger; font-style: bold;
-}
-span.cmk-as-statement .err{
-    color: #d83dc0;
-    font-size: bigger; font-style: bold;
-}
-
-span.cmk-recursion span.n,
-span.token.cmk-recursion {
-    color: #f7ff02;
-    font-style: italic;
-}
 .cli_example .token.selector,
 .cli_example .token.attr-name,
 .cli_example .token.string,
@@ -191,7 +177,7 @@ span.token.cmk-recursion {
 span.p {
     font-size: 105%;
     font-weight: bolder;
-    color: rgba(72, 209, 205, 0.802);
+    /* color: rgba(72, 209, 205, 0.802); */
 }
 .cli_example .token.entity,
 .cli_example .token.url
@@ -370,23 +356,21 @@ div.language-makefile pre code {
 .esc { color: #D8DEE9 } /* Escape */
 .g { color: #D8DEE9 } /* Generic */
 .k { color: #81A1C1; font-weight: bold } /* Keyword */
-.snippet .k { 
-    /* color: #81A1C1;  */
-    color: #A7B3BF;
-    font-weight: bold } /* Keyword */
 .l { color: #c3f3f9e7 ; } /* Literal */
 .n { 
     color: lightblue;
     font-weight: bolder;
-    font-size: 115%;
+    font-size: 95%;
 } /* Name */
-.snippet .n { 
-    /* color: #a7b80e90; */
-    color:thistle;
-    }
 .o { color: #81A1C1; font-weight: bold } /* Operator */
 .x { color: #D8DEE9 } /* Other */
-.p { color: #ECEFF4 } /* Punctuation */
+.token.operator .ow, .token.operator .kt, .token.punctuation, .p { 
+    /* color: #ECEFF4  */
+    /* color: #fefefe; */
+    color: #f8ff79;
+    font-weight:bolder;
+    font-size:105%;
+   } /* Punctuation */
 .ch { color: #616E87; font-style: italic } /* Comment.Hashbang */
 .cm { color: #616E87; font-style: italic } /* Comment.Multiline */
 .cp { /* Comment.Preproc */
@@ -405,16 +389,6 @@ div.language-makefile pre code {
     opacity: 70%;
 }
 /* Comment */
-.snippet .c {
-    /* color: #dfd6818b; */
-    font-size:98%;
-    color: #fdefa4b8;
-    /* background-color: #554d464d; */
-    /* font-style: italic; */
-    font-size: 98%;
-    /* font-weight: bolder; */
-    /* opacity: 70%; */
-}
 .dense .c {
     /* color: #dfd6818b; */
     /* color: #bdb56c; */
@@ -457,7 +431,16 @@ div.language-makefile pre code {
 .kn { color: #81A1C1; font-weight: bold } /* Keyword.Namespace */
 .kp { color: #81A1C1 } /* Keyword.Pseudo */
 .kr { color: #81A1C1; font-weight: bold } /* Keyword.Reserved */
-.kt { color: #81A1C1 } /* Keyword.Type */
+/* Keyword.Type */
+.ispl-keyword {
+    color:#D8DEE9;
+}
+.ispl-keyword .kt { 
+    /* color:#D8DEE9; */
+    color: #f7a8a8;
+
+    /* color: #88C0D0  */
+    } 
 .ld { color: #D8DEE9 } /* Literal.Date */
 .m { color: #90dd73; } /* Literal.Number */
 .s { color: #A3BE8C } /* Literal.String */
@@ -488,6 +471,24 @@ div.language-makefile pre code {
 .nt { color:rgba(255, 250, 250, 0.783) ; font-weight: bolder;} /* Name.Tag */
 .nv { color: #c0f4c4 } /* Name.Variable */
 
+.snippet .k { 
+    /* color: #81A1C1;  */
+    color: #A7B3BF;
+    font-weight: bold } /* Keyword */
+.snippet .n { 
+    /* color: #a7b80e90; */
+    color:thistle;
+    }
+.snippet .c {
+    /* color: #dfd6818b; */
+    font-size:98%;
+    color: #fdefa4b8;
+    /* background-color: #554d464d; */
+    /* font-style: italic; */
+    font-size: 98%;
+    /* font-weight: bolder; */
+    /* opacity: 70%; */
+}
 .snippet .nv { /* Name.Variable */
     color: #edc18b;
     /* color: #c0f4c4  */
@@ -510,7 +511,7 @@ div.language-makefile pre code {
 .sb { color: #A3BE8C } /* Literal.String.Backtick */
 .sc { color: #A3BE8C } /* Literal.String.Char */
 .dl { color: #A3BE8C } /* Literal.String.Delimiter */
-.sd { color: #616E87 } /* Literal.String.Doc */
+.sd { color: #D1DBEC; } /* Literal.String.Doc */
 .s2 { color: #b3b3b3 } /* Literal.String.Double */
 .se { color: #EBCB8B } /* Literal.String.Escape */
 .sh { color: #A3BE8C } /* Literal.String.Heredoc */
@@ -566,7 +567,7 @@ div.language-makefile pre code {
  
  :not(pre) > code[class*="language-"],
  pre[class*="language-"] {
-     background: #2b2b2b;
+     /* background: #2b2b2b; */
  }
  
  /* Inline code */
@@ -583,10 +584,6 @@ div.language-makefile pre code {
      color: #d4d0ab;
  }
  
- .token.punctuation {
-     /* color: #fefefe; */
-     color: #f8ff79;
-    }
  
 .token.property{
     color: #ffa07a;
@@ -598,6 +595,12 @@ div.language-makefile pre code {
     color: #ffa07a;
     }
 
+.ispl_keyword,
+.token.ispl-keyword,
+{
+    font-weight:bolder;font-size: larger;
+    color:red;
+}
 .token.symbol {
     color: #ffa07a;
 }

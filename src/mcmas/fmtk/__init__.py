@@ -3,10 +3,10 @@ mcmas.fmtk:
 
 A growing formal methods toolkit. This is focused on abstract base classes
 (pydantic models) that are intended to be useful for describing "specifications"
-and "simulations" in general. For py-mcmas *specifically*, of course we need to
-cover ISPL.  (See instead `mcmas.ispl` if that's what you're interested in)
+and "simulations" in general. Classes like ispl.Specification and ispl.Simulation
+extend these, but the hopefully the base classes are more reusable.
 
-Hopefully the stuff here is much more reusable and generic, and might be reused to wrap other kinds of formalisms like:
+This might be reused to wrap other kinds of formalisms like:
 
 * Other model-checkers (.. Alloy lang?)
 * SAT & SMT Provers (.. Z3?)
@@ -22,20 +22,25 @@ from pydantic import Field
 from mcmas import util
 from mcmas.typing import PathType
 
-# from mcmas.models.util import PathType
-
-
 LOGGER = util.get_logger(__name__)
 
 
 class SpecificationMetadata(pydantic.BaseModel):
     """
-    
+    Metadata for this Specification.
     """
 
-    file: PathType = Field(description="", default=None)
-    engine: str = Field(description="", default="mcmas")
-    parser: str = Field(description="", default="mcmas.parser")
+    file: PathType = Field(
+        description="File associated with this specification", default=None
+    )
+    engine: str = Field(
+        description="The engine that will be used for this specification",
+        default="mcmas",
+    )
+    parser: str = Field(
+        description="The parser that will be used for this specification",
+        default="mcmas.parser",
+    )
 
 
 SpecificationMetadataType = typing.Union[SpecificationMetadata, None]
@@ -56,10 +61,18 @@ class SpecificationFragment(pydantic.BaseModel):
             "(Updated if/when the specification is analyzed or simulated)"
         ),
         default=SpecificationMetadata(),
+        exclude=True,
     )
 
     @classmethod
-    def from_source(kls, txt) -> typing.Self:
+    def get_trivial(kls, **kwargs):
+        """
+        Subclassers must implement this.
+        """
+        raise NotImplementedError(f"{kls}")
+
+    @classmethod
+    def load_from_source(kls, txt) -> typing.Self:
         """
         Creates this piece of a specification from raw source-
         code.
@@ -67,18 +80,28 @@ class SpecificationFragment(pydantic.BaseModel):
         raise NotImplementedError(f"{kls}")
 
     def model_dump_source(self) -> str:
+        """
+        Subclassers must implement this.
+        """
         raise NotImplementedError(f"{self}")
 
     @property
-    def concrete(self):
+    def valid(self):
         """
-        True if this agent is concrete, i.e. ready to run and not
-        a fragment.
+        True if this agent is valid, i.e. ready to run and not a
+        fragment.
         """
         return not self.advice
 
+    concrete = valid
+
     @property
     def advice(self) -> list:
+        """
+        Returns a list of any problems with this object.
+
+        See also `valid` property
+        """
         required = getattr(self.__class__, "REQUIRED", [])
         if not required:
             LOGGER.warning(
@@ -92,9 +115,15 @@ class SpecificationFragment(pydantic.BaseModel):
 
     @property
     def local_advice(self) -> list:
+        """
+        Subclassers must implement this.
+        """
         return []
 
     def __add__(self, other):
+        """
+        Subclassers must implement this.
+        """
         raise TypeError(f"Cannot add {self} and {other}")
 
 
@@ -109,5 +138,5 @@ class Specification(SpecificationFragment):
 
 class SpecificationAnalysis(pydantic.BaseModel):
     """
-    
+    Base class for all Analysis results.
     """

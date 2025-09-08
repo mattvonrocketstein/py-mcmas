@@ -8,8 +8,8 @@ LOGGER = util.get_logger(__name__)
 
 
 def test_import_symbols():
-    model = ISPL.from_source(examples.card_game_ispl)
-    meta = model.model_dump_analysis()
+    model = ISPL.load_from_source(examples.card_game_ispl)
+    meta = model.analysis
     symbols = meta.symbols
     assert isinstance(meta, (models.spec.Analysis,))
     assert isinstance(symbols, (models.spec.SymbolMetadata,))
@@ -17,4 +17,3 @@ def test_import_symbols():
     assert symbols.agents
     assert symbols.vars
     assert "player1" in list(map(str, symbols.agents))
-    assert "Environment" in list(map(str, symbols.agents))

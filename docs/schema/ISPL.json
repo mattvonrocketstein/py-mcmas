@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Agent": {
-      "description": "A wrapper for ISPL Agents.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref/#agent",
+      "description": "Python wrapper for ISPL Agents.\n\nSee also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent)",
       "properties": {
         "metadata": {
           "$ref": "#/$defs/SpecificationMetadata",
@@ -45,7 +45,7 @@
         },
         "evolution": {
           "default": [],
-          "description": "",
+          "description": "Defines how an agent's local variables change in response to the actions performed by all agents.",
           "items": {
             "type": "string"
           },
@@ -57,7 +57,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "",
+          "description": "Defines the rules for when an agent can perform specific actions based on its current state",
           "title": "Protocol",
           "type": "object"
         },
@@ -93,7 +93,7 @@
       "type": "object"
     },
     "Environment": {
-      "description": "A wrapper for ISPL Environments.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref/#environment",
+      "description": "Python wrapper for ISPL Environments. Environments model the\nshared information and boundary conditions that all other\nagents can observe.\n\nSee also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#environment)",
       "properties": {
         "metadata": {
           "$ref": "#/$defs/SpecificationMetadata",
@@ -106,7 +106,7 @@
         },
         "actions": {
           "default": [],
-          "description": "",
+          "description": "Defines the set of actions an agent can perform.Visible to all other agents.",
           "items": {
             "type": "string"
           },
@@ -115,7 +115,7 @@
         },
         "evolution": {
           "default": [],
-          "description": "",
+          "description": "How variables change based on actions",
           "items": {
             "type": "string"
           },
@@ -127,7 +127,7 @@
             "type": "string"
           },
           "default": {},
-          "description": "",
+          "description": "Action selection rules",
           "title": "Protocol",
           "type": "object"
         },
@@ -144,7 +144,7 @@
             }
           ],
           "default": {},
-          "description": "",
+          "description": "Private variables. Only the Environment can access",
           "title": "Vars"
         },
         "obsvars": {
@@ -152,7 +152,7 @@
             "type": "string"
           },
           "default": {},
-          "description": "",
+          "description": "Observable variables.  Can be seen by other agents",
           "title": "Obsvars",
           "type": "object"
         }
@@ -202,18 +202,18 @@
             }
           ],
           "default": null,
-          "description": "",
+          "description": "File associated with this specification",
           "title": "File"
         },
         "engine": {
           "default": "mcmas",
-          "description": "",
+          "description": "The engine that will be used for this specification",
           "title": "Engine",
           "type": "string"
         },
         "parser": {
           "default": "mcmas.parser",
-          "description": "",
+          "description": "The parser that will be used for this specification",
           "title": "Parser",
           "type": "string"
         },
@@ -227,7 +227,7 @@
             }
           ],
           "default": null,
-          "description": "",
+          "description": "Posix exit code from the sim process",
           "title": "Exit Code"
         },
         "deadlock": {
@@ -240,7 +240,7 @@
             }
           ],
           "default": null,
-          "description": "Whether the simulation deadlocked",
+          "description": "Whether this simulation deadlocked",
           "title": "Deadlock"
         },
         "validates": {
@@ -253,7 +253,7 @@
             }
           ],
           "default": null,
-          "description": "Whether the Specification parsed successfully *and* had only has True facts",
+          "description": "Whether this specification parsed successfully *and* had only has True facts",
           "title": "Validates"
         },
         "parsed": {
@@ -318,15 +318,17 @@
           "title": "Error"
         },
         "metadata": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/SimMetadata"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
+          "$ref": "#/$defs/SimMetadata",
+          "default": {
+            "file": null,
+            "engine": "mcmas",
+            "parser": "mcmas.parser",
+            "exit_code": null,
+            "deadlock": null,
+            "validates": null,
+            "parsed": null,
+            "timing": {}
+          },
           "description": "model"
         },
         "state_space": {
@@ -336,20 +338,39 @@
           "title": "State Space",
           "type": "object"
         },
+        "witnesses": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Witnesses, counter-examples, traces.  These are obtained by parsing mcmas .info files.  By default witnesses cover as many facts as possible; Use instead `counter_examples` to limit this to only FALSE statements.",
+          "title": "Witnesses"
+        },
         "facts": {
           "$ref": "#/$defs/FormulaeResult",
           "default": {
             "true": [],
             "false": []
           },
-          "description": "facts"
+          "description": "Input formulae partitioned as true / false"
         }
       },
       "title": "Simulation",
       "type": "object"
     },
     "SpecificationMetadata": {
-      "description": "    \n    ",
+      "description": "Metadata for this Specification.",
       "properties": {
         "file": {
           "anyOf": [
@@ -365,18 +386,18 @@
             }
           ],
           "default": null,
-          "description": "",
+          "description": "File associated with this specification",
           "title": "File"
         },
         "engine": {
           "default": "mcmas",
-          "description": "",
+          "description": "The engine that will be used for this specification",
           "title": "Engine",
           "type": "string"
         },
         "parser": {
           "default": "mcmas.parser",
-          "description": "",
+          "description": "The parser that will be used for this specification",
           "title": "Parser",
           "type": "string"
         }
@@ -385,7 +406,7 @@
       "type": "object"
     }
   },
-  "description": "An A wrapper for ISPL specifications.\n\nThis permits partials or \"fragments\", i.e. the specification\nneed not be complete and ready to run.\n\nSee\nhttp://mattvonrocketstein.github.io/py-mcmas/isplref",
+  "description": "Python wrapper for ISPL specifications.\n\nThis permits partials or \"fragments\", i.e. the specification need not be complete and ready to run.\n\nSee the ISPL reference here: http://mattvonrocketstein.github.io/py-mcmas/isplref",
   "properties": {
     "metadata": {
       "$ref": "#/$defs/SpecificationMetadata",
@@ -424,13 +445,13 @@
         "type": "array"
       },
       "default": {},
-      "description": "",
+      "description": "Specifies conditions that must hold infinitely often along all execution paths, used to rule out unrealistic behaviors.",
       "title": "Fairness",
       "type": "object"
     },
     "init_states": {
       "default": [],
-      "description": "Initial states for this specification.",
+      "description": "Initial global states of the system when verification begins.",
       "items": {
         "type": "string"
       },
@@ -462,7 +483,7 @@
         }
       ],
       "default": {},
-      "description": "Group memberships.  A map of {group_name: [member1, .. ]}",
+      "description": "A map of {group_name: [member1, .. ]}Defines collections of agents for use in group-based verification formulae.",
       "title": "Groups"
     },
     "formulae": {
