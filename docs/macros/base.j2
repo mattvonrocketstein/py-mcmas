@@ -119,7 +119,7 @@ addImageToHeader('{{hdr.replace(' ','-')}}','/{{mkdocs.config.site_name}}/img/{{
 {%- endmacro -%}
 
 {% macro repo_link(fpath, name='', mkdocs={}, branch='master') -%}<a href="{{repo_url(fpath,mkdocs=mkdocs,branch=branch)}}" style="text-decoration-line:none;">{{name or fpath}}</a>{%- endmacro -%}
-{% macro repo_url(fpath, mkdocs={}, branch='master') -%}{{mkdocs.config.site_source_url}}/tree/{{branch}}/{{fpath}}{%- endmacro -%}
+{% macro repo_url(fpath, mkdocs={}, branch='master') -%}{{mkdocs.config.site_source_url|default('#')}}/tree/{{branch}}/{{fpath}}{%- endmacro -%}
 {#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
 
 {% macro subheader(label, mkdocs={},id='',onclick="") -%}
