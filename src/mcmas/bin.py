@@ -158,8 +158,9 @@ def ispl_main(
         for x in spec_names:
             if x in ns:
                 model = ns[x]
-                LOGGER.info(f"extracted specification at `{x}`:")
-                LOGGER.info(f"{model}")
+                if not quiet:
+                    LOGGER.info(f"extracted specification at `{x}`:")
+                    LOGGER.info(f"{model}")
                 return model
         if strict:
             err = f"no spec-name like {spec_names} were found in {list(ns.keys())}"
