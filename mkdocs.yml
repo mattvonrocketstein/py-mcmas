@@ -46,9 +46,10 @@ nav:
     - 'Schemas & Pydantic Models': schema/index.md
     - 'ISPL Primitives': 'isplref.md'
     - 'Logical Operators': 'opref.md'
+  - 'Extra':
     - 'Logic Overview': 'logic.md'
-    - 'Knowledge vs Belief': 'doxastic.md'
     - 'Epistemics in Model Checkers': 'epistemics-in-model-checkers.md'
+    - 'Knowledge vs Belief': 'doxastic.md'
     # - 'Intro to Epistemics': 'logic/#epistemics'
     # - 'Epistemics in Model Checkers': 'logic/#epistemics-in-model-checkers'
   - 'Resources':

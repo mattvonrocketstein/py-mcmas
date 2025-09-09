@@ -1,4 +1,3 @@
-##
 # PY-MCMAS Project Automation
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 .SHELL := bash
@@ -7,22 +6,23 @@ MAKEFLAGS += --warn-undefined-variables
 .DEFAULT_GOAL := help
 
 THIS_MAKEFILE := $(abspath $(firstword $(MAKEFILE_LIST)))
-THIS_MAKEFILE := `python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' ${THIS_MAKEFILE}`
 SRC_ROOT := $(shell dirname ${THIS_MAKEFILE})
-
+docs.root=docs/
 mcmas.docker=ghcr.io/mattvonrocketstein/mcmas:v1.3.0
 py.pkg_name=mcmas
 
 export CMK_LOG_IMPORTS?=0
 export MKDOCS_LISTEN_PORT=8003
-
 .PHONY: build docs docs/includes
 
 include .cmk/compose.mk
 $(call compose.import, file=docker-compose.yml)
-$(call mk.import.plugins, actions.mk docs.mk pdoc.mk py.mk )
+#$(call mk.import.plugins, actions.mk docs.mk pdoc.mk py.mk mcpjungle.mk)
+$(call mk.import.plugins, actions.mk docs.mk pdoc.mk py.mk)
 $(call docker.import, namespace=docker.mcmas img=${mcmas.docker})
 $(call docker.import, namespace=docker.pymcmas img=pymcmas file=Dockerfile)
+
+mcpjungle.config_root=mcp
 
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -62,7 +62,6 @@ version: py.version
 	@# Alias for py.version
 
 test: flux.stage/test py.test #docker.pymcmas.test
-
 
 # Import tox environments.
 # After tox describes/manages a virtualenv, it calls this Makefile 
@@ -125,6 +124,7 @@ ispl --python tests/data/minimal.py -c 'print(__spec__)'
 ispl --ispl tests/data/card_games.ispl | jq . |ispl --json /dev/stdin | ispl --ispl /dev/stdin > .tmp.ispl.json 
 ispl --json .tmp.ispl.json --sim
 ispl --analyze tests/data/minimal.ispl| jq .symbols.actions
+ispl --python --command 'ISPL(...)' --sim
 # FIXME: breaks only in docker??
 # ispl --validate tests/data/minimal.ispl | jq .validates
 # ispl --validate tests/data/minimal.ispl | jq .advice
@@ -163,7 +163,9 @@ docs/api: \
 docs/schema: io.print.banner/docs/schema \
 	docs.pynchon.render/docs/schema/index.md.j2 \
 	self.gen.schema/Simulation \
-	self.gen.schema/ISPL  \
+	self.gen.schema/ISPL \
+	self.gen.schema/Agent \
+	self.gen.schema/Environment \
 	io.print.banner/fin-docs/schema
 self.gen.schema/%:
 	$(call log.io, ${@} ${sep} ${*} ${sep} ${cyan_flow_right})
@@ -172,11 +174,3 @@ self.gen.schema/%:
 self.api_docs: pdoc/mcmas
 	@# Runs inside tox `docs` environment
 	tree docs/api
-
-#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-actions.clean.img.test:
-	gh run list --workflow=img-test.yml --json databaseId,createdAt \
-	| ${jq} '.[] | select(.createdAt | fromdateiso8601 < now - (60*60*10)) | .databaseId' \
-	| xargs -I{} gh run delete {}
-	

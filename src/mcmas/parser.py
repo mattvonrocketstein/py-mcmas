@@ -3,6 +3,7 @@
 """
 
 import re
+from typing import Optional
 
 from mcmas import util
 
@@ -190,7 +191,7 @@ def extract_agents(txt: str) -> dict:
 
 
 # @validate_call
-def parser(txt, strict=False, file: str = None):
+def parser(txt, strict=False, file: Optional[str] = None):
     """NB: fname is purely informational, only txt is used."""
     # from mcmas import models
     from mcmas import ispl as ns

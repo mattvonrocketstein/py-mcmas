@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "SpecificationMetadata": {
+      "description": "Metadata for this Specification.",
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "File associated with this specification",
+          "title": "File"
+        },
+        "engine": {
+          "default": "mcmas",
+          "description": "The engine that will be used for this specification",
+          "title": "Engine",
+          "type": "string"
+        },
+        "parser": {
+          "default": "mcmas.parser",
+          "description": "The parser that will be used for this specification",
+          "title": "Parser",
+          "type": "string"
+        }
+      },
+      "title": "SpecificationMetadata",
+      "type": "object"
+    }
+  },
+  "description": "Python wrapper for ISPL Agents.\n\nSee also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent)",
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/SpecificationMetadata",
+      "default": {
+        "file": null,
+        "engine": "mcmas",
+        "parser": "mcmas.parser"
+      },
+      "description": "Known metadata about this Specification.\n\n(Updated if/when the specification is analyzed or simulated)"
+    },
+    "name": {
+      "default": "player",
+      "description": "Name of this agent",
+      "title": "Name",
+      "type": "string"
+    },
+    "actions": {
+      "default": [],
+      "description": "Defines the set of actions an agent can perform.Visible to all other agents.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Actions",
+      "type": "array"
+    },
+    "evolution": {
+      "default": [],
+      "description": "Defines how an agent's local variables change in response to the actions performed by all agents.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Evolution",
+      "type": "array"
+    },
+    "obsvars": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "description": "Observable variables.  Can be seen by other agents",
+      "title": "Obsvars",
+      "type": "object"
+    },
+    "protocol": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Action selection rules; how and when an agent can perform specific actions based on its current state",
+      "title": "Protocol",
+      "type": "object"
+    },
+    "vars": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": {},
+      "description": "Private variables. Only the Environment can access",
+      "title": "Vars"
+    },
+    "lobsvars": {
+      "default": [],
+      "description": "",
+      "items": {
+        "type": "string"
+      },
+      "title": "Lobsvars",
+      "type": "array"
+    },
+    "red_states": {
+      "default": [],
+      "description": "",
+      "items": {
+        "type": "string"
+      },
+      "title": "Red States",
+      "type": "array"
+    }
+  },
+  "title": "Agent",
+  "type": "object"
+}

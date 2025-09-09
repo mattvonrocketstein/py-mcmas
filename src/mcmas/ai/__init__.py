@@ -9,6 +9,7 @@ pydantic-ai and openai.
 import inspect
 import json
 import typing
+from typing import Optional
 
 import pydantic
 from pydantic import ValidationError
@@ -36,15 +37,15 @@ init = ollama.pull_model
 
 
 def _loop(
-    client: typing.Any = None,
-    fxn: typing.Callable = None,
+    client: Optional[typing.Any] = None,
+    fxn: Optional[typing.Callable] = None,
     max_retries: int = 3,
     temperature: float = 0.1,
     model: str = DEFAULT_MODEL_NAME,
-    query: str = None,
-    schema: typing.Type = None,
+    query: Optional[str] = None,
+    schema: Optional[typing.Type] = None,
     system_prompt: str = "You are a precise JSON generator that follows schemas exactly.",
-    user_prompt: str = None,
+    user_prompt: Optional[str] = None,
 ):
     """
     Inner loop for openai completion.
@@ -77,13 +78,13 @@ def _loop(
             if attempt == max_retries - 1:
                 raise ValueError(
                     f"Failed to generate valid JSON after {max_retries} attempts"
-                )
+                ) from None
         except ValidationError as e:
             LOGGER.critical(f"Attempt {attempt + 1}: Schema validation error - {e}")
             if attempt == max_retries - 1:
                 raise ValueError(
                     f"Failed to generate schema-compliant response after {max_retries} attempts"
-                )
+                ) from None
         except Exception as e:
             LOGGER.critical(f"Attempt {attempt + 1}: Unexpected error - {e}")
             if attempt == max_retries - 1:
@@ -110,8 +111,8 @@ Don't include any text or Markdown fencing before or after.
 
 @pydantic.validate_call
 def agent_completion(
-    fxn: typing.Callable = None,
-    query: str = None,
+    fxn: Optional[typing.Callable] = None,
+    query: Optional[str] = None,
     **kwargs,
 ) -> typing.Any:
     """
@@ -150,58 +151,8 @@ def agent_completion(
         .output
     )
     agent_spec.actions = actions
-    # sig = mcmas.util.fxn_sig.as_dict(fxn)
     LOGGER.warning(f"Built agent: {agent_spec}")
     return agent_spec
-
-
-# model_completion(schema=schema, **kwargs)
-# LOGGER.critical(f"{agent}")
-# trivial = ispl.DefaultAgent
-# assert not trivial.advice
-# templ = trivial.model_dump()
-# for k in list(
-#     set(list(trivial.model_dump().keys()) + list(agent.model_dump().keys()))
-# ):
-#     discovered = getattr(agent, k, None)
-#     if discovered:
-#         templ[k] = discovered
-# templ["actions"] = list(set(agent.actions + trivial.actions))
-# agent = ispl.Agent(**templ)
-# LOGGER.critical(f"after merged with trivial {agent}")
-# # parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
-# if agent.advice:
-#     LOGGER.critical(
-#         f"\n\nexpecting a completed agent in {agent}\n\nbut found advice {agent.advice}"
-#     )
-#     agent.protocol = trivial.protocol
-#     agent.evolution = trivial.evolution
-# # import IPython; IPython.embed(confirm_exit=False)
-# return agent
-
-
-@pydantic.validate_call
-def call_completion(
-    fxn: typing.Union[typing.Callable, None] = None,
-    query: str = "",
-    schema: typing.Type = None,
-    system_prompt: str = "You are a JSON generator.",
-    **kwargs,
-) -> typing.Any:
-    """
-    See module doc-string.
-    """
-    if util.accepts_posargs(fxn):
-        err = f"call_completion: expected kwargs-only function, but {fxn} uses posargs"
-        LOGGER.critical(err)
-        raise RuntimeError(err)
-    prompt_t = rendering.get_template("prompts/function-call-generator.md")
-    user_prompt = prompt_t.render(
-        user_query=query,
-        function_sig=util.fxn_sig(fxn),
-    )
-    parsed_json = _loop(system_prompt=system_prompt, user_prompt=user_prompt, **kwargs)
-    return parsed_json
 
 
 @pydantic.validate_call
@@ -236,7 +187,7 @@ def model_completion(
 
 
 @pydantic.validate_call
-def model_shuffle(
+def model_mutation(
     query: str = "",
     # schema: typing.Type = None,
     obj=None,
@@ -260,7 +211,7 @@ def model_shuffle(
             ),
         )
         .run_sync(
-            rendering.get_template("prompts/shuffle-model.md").render(),
+            rendering.get_template("prompts/model-mutate.md").render(),
             model_settings=model_settings,
         )
         .output
@@ -332,7 +283,7 @@ class Society:
                 self._society = util.find_instances(Agent)
 
         else:
-            raise Exception(f"niy {[type(module), module]}")
+            raise TypeError(f"niy {[type(module), module]}")
 
     def __iter__(self):
         return iter(self._society)

@@ -92,42 +92,42 @@ end InitStates
 Formulae
     -- EPISTEMIC: Alice knows when the coin is heads
     -- Equivalent doxastic: 
-    --   K_alice(coin_is_heads) -> coin_is_heads (knowledge implies truth)
+    --   K(alice,coin_is_heads) -> coin_is_heads (knowledge implies truth)
     K(alice, alice_knows_heads) -> alice_knows_heads;
     
     -- DOXASTIC: Alice can believe it's sunny even when it's not
     -- Equivalent doxastic: 
-    --   B_alice(sunny) ∧ ¬sunny (belief doesn't require truth)
-    -- alice_believes_sunny and not actually_sunny;
+    --   B(alice,sunny) ∧ ¬sunny (belief doesn't require truth)
+    EF(alice_believes_sunny and !actually_sunny);
     
     -- KNOWLEDGE IMPLIES TRUTH: Alice's knowledge about coin is always correct
     -- Equivalent doxastic: 
-    --   □(K_alice(coin_heads) -> coin_heads) (knowledge axiom T)
+    --   □(K(alice,coin_heads) -> coin_heads) (knowledge axiom T)
     AG(K(alice, alice_knows_heads) -> alice_knows_heads);
     
     -- BELIEF DOESN'T IMPLY TRUTH: Alice can believe sunny when it's cloudy
     -- Equivalent doxastic: 
-    --   ◊(B_alice(sunny) ∧ ¬sunny) (beliefs can be false)
+    --   ◊(B(alice,sunny) ∧ ¬sunny) (beliefs can be false)
     EF(alice_believes_sunny and actually_cloudy);
     
     -- INTROSPECTION: Alice knows what she believes (positive introspection)
     -- Equivalent doxastic: 
-    --   B_alice(p) -> K_alice(B_alice(p)) (agents know their beliefs)
+    --   B(alice,p) -> K(alice,B(alice,p)) (agents know their beliefs)
     AG(alice_believes_sunny -> K(alice, alice_believes_sunny));
     
     -- BELIEF CONSISTENCY: Alice doesn't hold contradictory beliefs simultaneously
-    -- Equivalent doxastic: ¬(B_alice(p) ∧ B_alice(¬p)) (belief consistency)
+    -- Equivalent doxastic: ¬(B(alice,p) ∧ B(alice,¬p)) (belief consistency)
     -- AG(not (alice_believes_sunny and alice_believes_cloudy));
     
     -- BELIEF REVISION: Beliefs can change based on new information
-    -- Equivalent doxastic: B_alice(p) ∧ ◊¬B_alice(p) (beliefs are revisable)
-    -- EF(alice_believes_sunny and EF(not alice_believes_sunny));
+    -- Equivalent doxastic: B(alice,p) ∧ ◊¬B(alice,p) (beliefs are revisable)
+    EF(alice_believes_sunny and EF(! alice_believes_sunny));
     
     -- KNOWLEDGE PERSISTENCE: Knowledge persists (if true facts don't change)
-    -- Equivalent doxastic: K_alice(p) -> □K_alice(p) (knowledge is stable)
-    AG(K(alice, alice_knows_heads) -> AG(K(alice, alice_knows_heads)));
+    -- Equivalent doxastic: K(alice,p) -> □K(alice,p) (knowledge is stable)
+    -- AG(K(alice, alice_knows_heads) -> AG(K(alice, alice_knows_heads)));
     
     -- BELIEF vs KNOWLEDGE: Agent can believe p without knowing p
-    -- Equivalent doxastic: B_alice(p) ∧ ¬K_alice(p) (belief is weaker than knowledge)
-    -- EF(alice_believes_sunny and not K(alice, actually_sunny));
+    -- Equivalent doxastic: B(alice,p) ∧ ¬K(alice,p) (belief is weaker than knowledge)
+    EF(alice_believes_sunny and !K(alice, actually_sunny));
 end Formulae

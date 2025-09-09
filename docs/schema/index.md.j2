@@ -11,7 +11,7 @@ Starting from pydantic models makes it easy to generate JSON-Schema or OpenAPI.
 
 The [Simulation model]({{mkdocs.site_relative_url}}/lib#simulation) is the result of running [the engine]({{mkdocs.site_relative_url}}/lib#engine).
 
-{{site.embed_demo('docs/schema/Simulation.json', mkdocs=mkdocs, type='json')}}
+{{site.embed_demo('docs/schema/Simulation.json', github=github, type='json')}}
 
 ### ISPL Specification Schema
 <hr style="width:100%;border-bottom:3px solid black;">
@@ -21,7 +21,28 @@ The [Simulation model]({{mkdocs.site_relative_url}}/lib#simulation) is the resul
 
 The [ISPL model](#) is the central abstraction for wrapping ISPL expressions and programs.  You can run such a model using [the engine]({{mkdocs.site_relative_url}}/lib#engine).
 
-{{site.embed_demo('docs/schema/ISPL.json', mkdocs=mkdocs, type='json')}}
+{{site.embed_demo('docs/schema/ISPL.json', github=github, type='json')}}
+
+### Agent Schema
+<hr style="width:100%;border-bottom:3px solid black;">
+<a name=spec></a><a name=ispl></a><a name=specification></a>
+
+{#<hr style="width:95%;border-bottom:1px dashed black;">#}
+
+The [Agent model](#) implements the [Agent primitive](#).  
+
+{{site.embed_demo('docs/schema/Agent.json', github=github, type='json')}}
+
+### Environment Schema
+<hr style="width:100%;border-bottom:3px solid black;">
+<a name=spec></a><a name=ispl></a><a name=specification></a>
+
+{#<hr style="width:95%;border-bottom:1px dashed black;">#}
+
+The [Environment model](#) implements the [Environment primitive](#).  
+
+{{site.embed_demo('docs/schema/Environment.json', github=github, type='json')}}
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {

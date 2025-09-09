@@ -11,8 +11,7 @@ You'll probably prefer to write [pythonic ISPL]({{mkdocs.site_relative_url}}/dem
 
 The goal for this example is to exercise the mcmas engine as **a solver for simple logic**, basically ignoring the ISPL language capabilities for other things like agents and time-evolution.  Nevertheless we *need an agent and rules for time-evolution anyway* just to have legal ISPL, so this sets up enough scaffolding for a "trivial" Agent that does nothing, then validates a few simple logical expressions.
 
-{{site.embed_demo(
-    'tests/data/minimal.ispl', mkdocs=mkdocs, type='haskell')}}
+{{site.embed_demo('tests/data/minimal.ispl', github=github, type='haskell')}}
 
 [The pythonic equivalent]({{mkdocs.site_relative_url}}/demos/pythonic) is more succinct and flexible, but the verbose version here illustrates more of the primitives.  See the ISPL Reference for: {% for x in 'environment agent evaluation init-states formulae'.split() %} [{{x.title()}}]({{mkdocs.site_relative_url}}/isplref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
 
@@ -29,13 +28,13 @@ Introducing agents and knowledge with Muddy-children is traditional.
 
 **Logic Operator Reference:** {% for x in 'ag k'.split() %} [`{{x.upper()}}(..)`]({{mkdocs.site_relative_url}}/opref#{{x}}){%if not loop.last%},{%endif%}{% endfor %}
 
-{{site.embed_demo('tests/data/muddy_children.ispl', mkdocs=mkdocs, type='haskell')}}
+{{site.embed_demo('tests/data/muddy_children.ispl', github=github, type='haskell')}}
 
 ### References
 <hr style="width:100%;border-bottom:3px solid black;">
 
 [^1]: [ISPL examples that ship with the engine source]({{jinja.vars.mcmas_examples}})
-[^2]: [Reasoning about Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al
+[^2]: [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {

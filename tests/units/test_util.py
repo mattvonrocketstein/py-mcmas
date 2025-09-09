@@ -20,34 +20,38 @@ def test_find_instances():
     assert set(actual) == set(expected)
 
 
-def foo(a, b, c="d", **kwargs) -> typing.Dict: # noqa
+def foo(a, b, c="d", **kwargs) -> typing.Dict:  # noqa
     return a + b + c
 
 
-def test_fxn_sig(): # noqa
+def test_fxn_sig():  # noqa
     tmp = mcmas.util.fxn_sig(foo)
     assert tmp.startswith("def foo"), "function name is missing"
     assert 'c="d"' in tmp, "function args missing"
     assert "-> Dict" in tmp, "return annotation detail is missing"
 
 
-def func1(a: int, b: str, c: float = 3.14) -> bool: # noqa
-    return True
+def func1(a: int, b: str, c: float = 3.14) -> bool:  # noqa
+    return bool([a, b, c])
 
 
-def func2(x, y: str, z: int = 10): # noqa
+def func2(x, y: str, z: int = 10):  # noqa
     # Test function 2: Mixed annotations
-    pass
+    return [x, y, z]
 
 
-def func3(arg1, arg2="default"): # noqa
+def func3(arg1, arg2="default"):  # noqa
     # Test function 3: No annotations
-    pass
+    return [arg1, arg2]
 
 
-def func4(items: typing.List[str], mapping: typing.Dict[str, int], optional: typing.Optional[bool] = None,): # noqa
+def func4(
+    items: typing.List[str],
+    mapping: typing.Dict[str, int],
+    optional: typing.Optional[bool] = None,
+):  # noqa
     # Test function 4: Complex types
-    pass
+    return [items, mapping, optional]
 
 
 def test_fxn_sig_dict():

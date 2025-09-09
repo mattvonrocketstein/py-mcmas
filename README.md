@@ -1,36 +1,3 @@
+&nbsp;<a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docker-build.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docker-build.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/integration-test.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/integration-test.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/python-publish.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/python-publish.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docs-build.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docs-build.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/python-test.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/python-test.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docs.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docs.yml/badge.svg"></a><a href="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docker-build-push.yml"><img src="https://github.com/mattvonrocketstein/py-mcmas/actions/workflows/docker-build-push.yml/badge.svg"></a>&nbsp; 
+
 See the main documentation: [https://mattvonrocketstein.github.io/py-mcmas/](https://mattvonrocketstein.github.io/py-mcmas/)
-
-&nbsp;<a href="None/actions/workflows/docker-build.yml"><img src="None/actions/workflows/docker-build.yml/badge.svg"></a><a href="None/actions/workflows/integration-test.yml"><img src="None/actions/workflows/integration-test.yml/badge.svg"></a><a href="None/actions/workflows/python-publish.yml"><img src="None/actions/workflows/python-publish.yml/badge.svg"></a><a href="None/actions/workflows/docs-build.yml"><img src="None/actions/workflows/docs-build.yml/badge.svg"></a><a href="None/actions/workflows/python-test.yml"><img src="None/actions/workflows/python-test.yml/badge.svg"></a><a href="None/actions/workflows/docs.yml"><img src="None/actions/workflows/docs.yml/badge.svg"></a><a href="None/actions/workflows/docker-build-push.yml"><img src="None/actions/workflows/docker-build-push.yml/badge.svg"></a>&nbsp; 
-
-
-<p class=" " align="center"><a href="/py-mcmas/img/logo.png"><img width="90%" src="/py-mcmas/img/logo.png"></a></p>
-
-## MCMAS & ISPL
-<hr style="width:100%;border-bottom:3px solid black;">
-
-MCMAS[^1] is a model checker for multi-agent systems that supports temporal epistemic logic.  MAS models are written in ISPL, which is an agent-based language, inspired by interpreted systems and using popular semantics[^2].  ISPL works with primitives like: agents, groups, environments, states, evolutions, protocols, and fairness.  Temporal logic operators include AG/EF/AX. Epistemic logic supports K/GK/GCK/DK.
-
-## PY-MCMAS
-
-This is a python wrapper for the MCMAS model-checking engine.  Currently it just fixes usability issues with the upstream project, and this this is **not** real bindings or direct access to the engine API yet.
-
-To avoid platform-specific details for building and running the `mcmas` CLI, `py-mcmas` uses a *containerized version* of the engine (see [docker-mcmas.git](https://github.com/mattvonrocketstein/docker-mcmas)).
-
-
-In addition to wrapping the CLI, support is added for these other uses-cases:
-
-* Executes ISPL with the engine directly
-* Executes ISPL and return results as JSON
-* JSON -> ISPL conversion
-* Python dictionary -> ISPL conversion
-* Python classes -> ISPL *(WIP)*
-
-For the MCMAS source/manual, see the [official page at SAIL](https://sail.doc.ic.ac.uk/software/mcmas/) or this [unofficial mirror](https://github.com/mattvonrocketstein/mcmas).  For a look at the container py-mcmas uses, see [docker-mcmas.git](https://github.com/mattvonrocketstein/docker-mcmas).
-
-## External Docs
-<hr style="width:100%;border-bottom:3px solid black;">
-
-[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
-[^2]: [Reasoning about Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al 1995
-[^3]: [wiki/Binary_decision_diagram](https://en.wikipedia.org/wiki/Binary_decision_diagram)
-[^4]: [wiki/Dynamic_epistemic_logic/Syntax](https://en.wikipedia.org/wiki/Dynamic_epistemic_logic#Syntax)[matt:~/code/mattvonrocketstein/py-mcmas]

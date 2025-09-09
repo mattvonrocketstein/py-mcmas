@@ -1,8 +1,8 @@
 from mcmas.logic.complexity import analyzer
 
 simple_expr = analyzer("p")
-nested_expr = analyzer("GCK({a1,a2,a3,a4}, K(a1, AF(p)))")
-very_nested_expr = analyzer("AG(EF(GCK({a1,a2,a3}, K(a1, p))))")
+nested_expr = analyzer("GCK(<g1>, K(a1, AF(p)))")
+very_nested_expr = analyzer("AG(EF(GCK(<g1>, K(a1, p))))")
 
 
 def test_simple_prop():

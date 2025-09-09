@@ -2,9 +2,10 @@
 mcmas.fmtk:
 
 A growing formal methods toolkit. This is focused on abstract base classes
-(pydantic models) that are intended to be useful for describing "specifications"
-and "simulations" in general. Classes like ispl.Specification and ispl.Simulation
-extend these, but the hopefully the base classes are more reusable.
+(pydantic models) that are intended to be useful for describing things like
+"specifications" and "simulations" in general. Classes like ispl.Specification
+and ispl.Simulation extend these, but the hopefully the base classes are more
+reusable.
 
 This might be reused to wrap other kinds of formalisms like:
 
@@ -50,7 +51,7 @@ class SpecificationFragment(pydantic.BaseModel):
     """
     A Fragment of a Specification.
 
-    Incomplete by definition.
+    NB: Fragments are incomplete by definition.
     """
 
     logger: typing.ClassVar = LOGGER
@@ -68,20 +69,25 @@ class SpecificationFragment(pydantic.BaseModel):
     def get_trivial(kls, **kwargs):
         """
         Subclassers must implement this.
+
+        Returns the trivial fragment for this type.
         """
         raise NotImplementedError(f"{kls}")
 
     @classmethod
     def load_from_source(kls, txt) -> typing.Self:
         """
-        Creates this piece of a specification from raw source-
-        code.
+        Subclassers must implement this.
+
+        Creates spec-fragment from raw source-code.
         """
         raise NotImplementedError(f"{kls}")
 
     def model_dump_source(self) -> str:
         """
         Subclassers must implement this.
+
+        Dumps raw source-code for this fragment.
         """
         raise NotImplementedError(f"{self}")
 
@@ -91,7 +97,9 @@ class SpecificationFragment(pydantic.BaseModel):
         True if this agent is valid, i.e. ready to run and not a
         fragment.
         """
-        return not self.advice
+        return not any(
+            [self.__class__.__name__ == "SpecificationFragment", self.advice]
+        )
 
     concrete = valid
 
@@ -126,6 +134,18 @@ class SpecificationFragment(pydantic.BaseModel):
         """
         raise TypeError(f"Cannot add {self} and {other}")
 
+    def __and__(self, other):
+        """
+        Subclassers must implement this.
+        """
+        raise TypeError(f"Cannot `and` {self} and {other}")
+
+    def __or__(self, other):
+        """
+        Subclassers must implement this.
+        """
+        raise TypeError(f"Cannot `or` {self} and {other}")
+
 
 Fragment = SpecificationFragment
 
@@ -134,6 +154,45 @@ class Specification(SpecificationFragment):
     """
     Pydantic models for a Specification.
     """
+
+
+#####################
+from mcmas import typing
+
+
+class AnalysisMeta(pydantic.BaseModel):
+    """
+    Metadata for a Specification Analysis.
+    """
+
+    formula_index: int = Field(default=-1)
+    base_complexity: float = Field(default=0.0)
+    nesting_coefficient: int = Field(default=1)
+    raw_score: float = Field(default=0.0)
+
+
+class SymbolMetadata(pydantic.BaseModel):
+    """
+    Result of running ISPL Analysis.
+
+    This extracts details about symbols, namespaces, etc.
+    """
+
+    actions: typing.SymbolList2 = Field(
+        default=[],
+        description="Actions list",
+    )
+    agents: typing.SymbolList2 = Field(
+        default=[],
+        description="Agents list",
+    )
+    vars: typing.SymbolList2 = Field(
+        default=[],
+        description="Var list",
+    )
+
+
+#########################
 
 
 class SpecificationAnalysis(pydantic.BaseModel):

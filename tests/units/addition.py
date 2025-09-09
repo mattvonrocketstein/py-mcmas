@@ -15,6 +15,16 @@ def test_add():
     assert "bob" in spec.agents
 
 
+def test_subtract():
+    """subtracting agents from spec removes it, if present"""
+    alice = Agent(name="alice")
+    bob = Agent(name="bob")
+    spec = ISPL() + alice + bob
+    assert all([alice in spec, bob in spec])
+    spec -= alice
+    assert alice not in spec
+
+
 def test_iadd():
     """incremental addition also works as expected"""
     spec = ISPL()
