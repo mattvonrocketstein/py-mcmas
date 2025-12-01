@@ -108,7 +108,7 @@ In theory and with a powerful [LLM backend configuration](#) you can prompt your
 
 The **mutation operator** returns a "mutationd" version of a given object.  A mutation has the same type as the object you started with, and is based on the original object, but the result has been mutated using a simple prompt.[^1]  The mutation operator looks like using exponentiation, and the argument used as the exponent is passed through to pydantic-ai as `top_p` and used to control nucleas sampling[^2].
 
-{{site.embed_demo('tests/itests/mutation-notation.py', github=github, type='python')}}
+{#{site.embed_demo('tests/itests/mutation-notation.py', github=github, type='python')}#}
 
 Shuffling is really just a proof of concept, and the prompt is very naive.  But the idea is to pave the way for stuff like using genetic-programming, with LLMs as evolutionary operators.  See the [reference zoo]({{mkdocs.site_relative_url}}/ref) for related papers / inspiration.
 
