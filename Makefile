@@ -13,6 +13,7 @@ py.pkg_name=mcmas
 
 export CMK_LOG_IMPORTS?=0
 export MKDOCS_LISTEN_PORT=8003
+py.pkg_optional_extras=.[dev],.[testing],.[publish]
 .PHONY: build docs docs/includes
 
 include .cmk/compose.mk
