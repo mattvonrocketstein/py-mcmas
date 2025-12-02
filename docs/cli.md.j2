@@ -9,7 +9,7 @@ Installing `py-mcmas` makes the CLIs for `mcmas` and `ispl` available.
 * The [`mcmas` CLI](#mcmas) basically wraps the dockerized entrypoint[^1] for the official engine, proxying commands to the container.  
 * The [`ispl` CLI](#ispl) adds lots of additional functionality that's more specific to `py-mcmas`, including support for JSON I/O, support for pure-python specifications, etc.
 
-## ISPL Introduction
+### ISPL CLI
 <hr style="width:100%;border-bottom:3px solid black;">
 
 **The `ispl` CLI** does most of what `mcmas` does, but also provides various helpers for ISPL/JSON conversion, and optionally allows for things like simulating the input spec, evaluating a command, or dropping into a REPL with the context.  
@@ -18,7 +18,7 @@ Installing `py-mcmas` makes the CLIs for `mcmas` and `ispl` available.
 
 Without other instructions, the default action is to handle conversion between supported formats.
 
-```bash  {.cli_example} {.command-line}
+```bash  {.cli_example .command-line}
 # Load JSON-based ISPL, converting to raw ISPL
 $ ispl --json file.json
 
@@ -35,7 +35,7 @@ Explicit flags for input-format are usually optional, but required in case of no
 
 Given a specification in any format, typical actions are to actually *run* that specification, or *validate* it, or *analyze* it.  All actions return JSON.
 
-```
+```bash  {.cli_example .command-line}
 # Simulate the specification
 $ ispl --sim file.ispl
 
@@ -49,59 +49,15 @@ $ ispl --witness file.ispl
 $ ispl --analyze file.ispl
 ```
 
+See the [analysis & witnesses demo]({{mkdocs.site_relative_url}}/demos/analysis) for more details.
+
 <hr style="width:95%;border-bottom:1px dashed black;">
 
-See the full CLI help [here](#ispl).
 
-## MCMAS Introduction
-<hr style="width:100%;border-bottom:3px solid black;">
-
-{#
-```bash {.cli_output .smaller}
-..
-```
-### `mcmas`
-<hr style="width:100%;border-bottom:3px solid black;">
-#}
-
-```bash  {.cli_example} {.command-line}
-# Proxies commands to container
-$ mcmas ..arguments..
-
-# Equivalently, 
-$ python -m mcmas ..arguments..
-
-# Run specification file
-$ mcmas tests/data/card_games.ispl
-...
-```
-
-See the full CLI help [here](#).
-
-Besides the default interface for `mcmas`, for convenience you can request output in JSON, via the [Simulation schema]({{mkdocs.site_relative_url}}/schema/#simulation-schema), *without* using [the `ispl` CLI](#ispl)
-
-```bash  {.cli_example} {.command-line}
-# One additional argument: asking for JSON output
-$ mcmas --json tests/data/card_games.ispl
-...
-```
-
-```bash  {.cli_example} {.command-line}
-$ mcmas -h
-```
-```bash {.cli_output .smaller}
-{% include "includes/cli/mcmas-help.txt" %}
-```
-
-When this is used to run a .ispl file, a docker-volume is used to ensure the container can access it.
-
-### `ispl`
-<hr style="width:100%;border-bottom:3px solid black;">
-
-```bash  {.cli_example} {.command-line}
+```bash  {.cli_example .command-line}
 $ ispl --help
 ```
-```bash {.cli_output .smaller}
+```bash {.cli_output .command-line .smaller}
 {% include "includes/cli/ispl-help.txt" %}
 ```
 
@@ -109,7 +65,7 @@ Typically you want to pass enough information to load a specification.
 
 For example you can convert between JSON / raw ISPL source:
 
-```bash  {.cli_example} {.command-line}
+```bash  {.cli_example .command-line}
 # Convert ISPL source to JSON
 $ ispl --ispl tests/data/muddy_children.ispl | jq . 
 $ ispl --ispl tests/data/muddy_children.ispl > tests/data/muddy_children.json
@@ -156,6 +112,48 @@ $ ispl -q --sim --json tests/data/muddy_children.json
   }
 }
 ```
+
+### MCMAS CLI
+<hr style="width:100%;border-bottom:3px solid black;">
+
+{#
+```bash {.cli_output .smaller}
+..
+```
+### `mcmas`
+<hr style="width:100%;border-bottom:3px solid black;">
+#}
+
+```bash  {.cli_example} {.command-line}
+# Proxies commands to container
+$ mcmas ..arguments..
+
+# Equivalently, 
+$ python -m mcmas ..arguments..
+
+# Run specification file
+$ mcmas tests/data/card_games.ispl
+...
+```
+
+See the full CLI help [here](#).
+
+Besides the default interface for `mcmas`, for convenience you can request output in JSON, via the [Simulation schema]({{mkdocs.site_relative_url}}/schema/#simulation-schema), *without* using [the `ispl` CLI](#ispl)
+
+```bash  {.cli_example} {.command-line}
+# One additional argument: asking for JSON output
+$ mcmas --json tests/data/card_games.ispl
+...
+```
+
+```bash  {.cli_example} {.command-line}
+$ mcmas -h
+```
+```bash {.cli_output .smaller}
+{% include "includes/cli/mcmas-help.txt" %}
+```
+
+When this is used to run a .ispl file, a docker-volume is used to ensure the container can access it.
 
 {#
 ```bash  {.cli_example} {.command-line}
@@ -264,13 +262,18 @@ Options:
 {{site.embed_demo('tests/units/test_all.py', mkdocs=mkdocs, type='python')}}
 #}
 
-## References
+### References
 <hr style="width:100%;border-bottom:3px solid black;">
 
 [^1]: See [docker-mcmas.git]({{jinja.vars.mcmas_docker}}) for the default container, see [environment variables]({{mkdocs.site_relative_url}}/config) for control over default image.
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
-	//addImageToHeader('translation','../img/reflection.svg')
+  {{macros.header_images([
+		['References','../img/list-details'],
+		['ispl cli','../img/terminal'],
+		['mcmas cli','../img/terminal'],
+	], mkdocs)}}
 }, 100);});
 </script>

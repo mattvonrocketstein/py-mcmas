@@ -1,15 +1,9 @@
 
 There's not a ton of ISPL to train on, so LLMs aren't great at generating it.  There's a chicken and egg aspect, because if you could generate **synthetic data** easily, you'd have more to train on.  Here's the idea:
 
-1. Build ISPL expressions pythonically, with [mcmas.ispl]({{mkdocs.site_relative_url}}/demos/) *(pydantic models)* and [mcmas.logic.symbols]({{mkdocs.site_relative_url}}/demos/) *(sympy expressions)*.  
-1. Use any method to generate, recombine, and permute expression-trees programmatically, outside of ISPL.  
-1. Generate source from expression trees, then train on new source
+1. Build ISPL expressions in python
+1. Use any method to generate, recombine, and permute  those trees programmatically  
+1. Generate ISPL source from trees, then train on new source
 
-**Avoiding raw ISPL source as the preferred representation** is another option.  This could fare better with LLMs in general, without any need for fine-tuning.  For this to work, 
-
-1. Leverage pydantic-ai [^17] and / or JSON-schema to constrain LLM output.  
-1. Enjoy "completion" of ISPL fragments or full specifications, converting to ISPL-source only to validate or simulate them
-
-What's actually the input for LM's in this scenario?  In the spirit of [simulation wrangling,](#simulation-wrangling) you can try your luck [autocomplete system specifications from natural language]({{mkdocs.site_relative_url}}/demos/).
-
+Actually **avoiding raw ISPL source as the preferred representation** is another option.  This could fare better with LLMs in general, without any need for fine-tuning.  In this version, you use pydantic-ai and / or JSON-schema to constrain LLM output, then run completion directly on ISPL *object fragments*, converting to ISPL-source only to validate or simulate them.
 

@@ -4,7 +4,12 @@
 # References
 <hr style="width:100%;border-bottom:3px solid black;">
 
+A dumping ground for interesting references.  Don't expect a lot of organization! 😅
+
 ### Footnotes per Page
+<hr style="width:100%;border-bottom:3px solid black;">
+
+All references from all pages.
 
 {% for k,v in bash('make docs.footnotes',load_json=True).items() %}
 ##### [/{{k}}]({{mkdocs.site_relative_url}}/{{k}})
@@ -14,63 +19,74 @@
 {%endfor%}
 
 ### Misc Links
+<hr style="width:100%;border-bottom:3px solid black;">
 
 {#Technische Universiteit Eindhoven, in collaboration with the University of Twente.#}
 {#parallel rhapsody https://suno.com/song/e90327be-a900-4fc3-82b2-8365cc837cfc#}
 ---------------
 
-* **Foundational Stuff:**
-	* [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
-	* [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al 1995
+**Foundational Stuff:**
 
-* **Languages, Engines, Tools, Resources for Model Checking**
-	* [wiki://model checking](https://en.wikipedia.org/wiki/Model_checking)
-	* [wiki://Binary_decision_diagram](https://en.wikipedia.org/wiki/Binary_decision_diagram)
-	* **Tools:**
-		* [github://johnyf/tool_lists](https://github.com/johnyf/tool_lists/blob/main/verification_synthesis.md): index of tools for verification and games
-		* [github://albertocasagrande/pymodelchecking](https://github.com/albertocasagrande/pyModelChecking)
-		* [github://marcusm117/mctk](https://github.com/marcusm117/mctk): kripke structures / model checking logic from scratch in python 
-	**Engines:**
-		* [wiki://tla+](https://en.wikipedia.org/wiki/TLA%2B)
-		* [Prism model checker](https://www.prismmodelchecker.org/), uses PCTL
-		* **mCRL2**
-			* formal-spec toolset: [https://www.mcrl2.org/web/index.html](#) 
-			*[mcrl2 algebra](https://www.mcrl2.org/web/user_manual/fundamentals/basic_modelling.html)
-	* **Papers/Lectures:**
-		* **MCK** 
-			* Gammie, Peter, and Ron Van Der Meyden, ‘MCK: Model checking the logic of knowledge’, in Computer Aided Verification, Springer, 2004,
-			* [MCK solver whitepaper](https://cgi.cse.unsw.edu.au/~meyden/research/mck-white-paper.pdf) (an alternative to MCMAS also supporting epistemic logic)
-		* [montanari lecture slides](https://users.dimi.uniud.it/~angelo.montanari/Intro-MC.pdf), with an intro to model checkers 
-		* [SMV language](https://www.cs.cmu.edu/~emc/15414-f11/lecture/lec13_SMV.pdf), mentioned as inspiration for ISPL.
+* [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
+* Halpern, Joseph Y, Reasoning about uncertainty, The MIT Press, 2003.
+* [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al 1995
 
-* **Logic Focused**:
-	* [Reasoning About Knowledge](https://www.cs.rice.edu/~vardi/papers/book.pdf), Fagin et al 1995
-	* [A Computationally Grounded, Weighted Doxastic Logic](https://chentaolue.github.io/pub-papers/sl16.pdf) Chen et al
-	* Halpern, Joseph Y, Reasoning about uncertainty, The MIT Press, 2003.
+**Languages, Engines, Tools, Resources for Model Checking**
 
-* **Related Topics in Formal Models, Games, & Simulation**
-	* [wiki://mean-field-game-theory](https://en.wikipedia.org/wiki/Mean-field_game_theory)
-	* [rtd://mfglib](https://mfglib.readthedocs.io/en/latest/index.html)
+* [wiki://model checking](https://en.wikipedia.org/wiki/Model_checking)
+* [wiki://Binary_decision_diagram](https://en.wikipedia.org/wiki/Binary_decision_diagram)
+* **Tools:**
+	* [github://johnyf/tool_lists](https://github.com/johnyf/tool_lists/blob/main/verification_synthesis.md): index of tools for verification and games
+	* [github://albertocasagrande/pymodelchecking](https://github.com/albertocasagrande/pyModelChecking)
+	* [github://marcusm117/mctk](https://github.com/marcusm117/mctk): kripke structures / model checking logic from scratch in python 
+	* [ELVis: Epistemic logic visualizer](https://nomuras.github.io/ELVis/)
+	* [A cheatsheet/overview](https://mluckcuck.github.io/model-checking-cheatsheet) of the popular stuff, including SPIN, PRISM, etc.
+	* [ghio://tyche](https://tychelibrary.github.io/), a library for aleatoric description logic
+**Engines:**
+	* [wiki://tla+](https://en.wikipedia.org/wiki/TLA%2B)
+	* [Prism model checker](https://www.prismmodelchecker.org/), uses PCTL
+	* **mCRL2**
+		* formal-spec toolset: [https://www.mcrl2.org/web/index.html](#) 
+		*[mcrl2 algebra](https://www.mcrl2.org/web/user_manual/fundamentals/basic_modelling.html)
+	* [gh://jrclogic/SMCDEL](https://github.com/jrclogic/SMCDEL) model checker with [PAL]({{mkdocs.site_relative_url}}/opref#PAL) support
+	* [gh://sysulic/MEPK](https://github.com/sysulic/MEPK) A general multi-agent epistemic planner based on higher-order belief change
+	* [gh://msakai/haskell-decision-diagrams](https://github.com/msakai/haskell-decision-diagrams) BDDs lib in haskell
+* **Papers/Lectures/Etc:**
+	* **MCK** 
+		* Gammie, Peter, and Ron Van Der Meyden, ‘MCK: Model checking the logic of knowledge’, in Computer Aided Verification, Springer, 2004,
+		* [MCK solver whitepaper](https://cgi.cse.unsw.edu.au/~meyden/research/mck-white-paper.pdf) (an alternative to MCMAS also supporting epistemic logic)
+	* [Montanari lecture slides](https://users.dimi.uniud.it/~angelo.montanari/Intro-MC.pdf), with an intro to model checkers 
+	* [SMV language lectures](https://www.cs.cmu.edu/~emc/15414-f11/lecture/lec13_SMV.pdf), mentioned as inspiration for ISPL. (2011)
+	* [Scaling Multi-Agent Epistemic Planning through GNN-Derived Heuristics](https://arxiv.org/abs/2508.12840) (2025)
+	* [A process algebraic framework for multi-agent dynamic epistemic systems](https://arxiv.org/abs/2407.17537) (2024)
+	* [A Computationally Grounded, Weighted Doxastic Logic](https://chentaolue.github.io/pub-papers/sl16.pdf) Chen et al 2015
+	* Intro to [PAL / Public Announcement Logic](https://builds.openlogicproject.org/content/applied-modal-logic/epistemic-logic/public-announcement-logic-lang.pdf)
+	* [Kh logics](https://ar5iv.labs.arxiv.org/html/2106.11504), i.e. Know-how vs Know-that. Wang, Li, 2021
+	* Resources for [MCAPL](https://autonomy-and-verification.github.io/tools/mcapl) (model checking agent programming language) ~2023
+	
+**Related Topics in Formal Models, Games, & Simulation**
+* [wiki://mean-field-game-theory](https://en.wikipedia.org/wiki/Mean-field_game_theory)
+* [rtd://mfglib](https://mfglib.readthedocs.io/en/latest/index.html)
 
-* **Agentic AI, LLMs, MCP:**
-	* **Papers**:
-		* [dynasaur: LLAgents beyond predefined actions](https://arxiv.org/pdf/2411.01747)
-		* camel agents
-			* [camel agents](https://arxiv.org/pdf/2303.17760)
-			* [code](https://docs.camel-ai.org/key_modules/agents)
-		* [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) Park et al 2023	
-		* Genetic programming with LLMs as evolutionary operators
-			* [Evolving Code with A Large Language Model](https://arxiv.org/abs/2401.07102)
-			* [code](https://github.com/ALFA-group/Tutorial_GP-LLM)
-	* **Small LLM models focused on tool-calling:**
-		* https://github.com/ollama/ollama/blob/main/docs/linux.md
-		* https://medium.com/data-science-in-your-pocket/smollm3-the-best-small-llm-for-everything-3fa53713ebb7
-		* https://ollama.com/driaforall/tiny-agent-a
-		* https://ollama.com/library/granite3-dense
-	* **Standards etc**
-		* [pydantic-ai-mcp](https://datastud.dev/posts/pydantic-ai-mcp)
-		* [github://bstuddard/simple-mcp-example](https://github.com/bstuddard/python-examples/tree/master/simple-mcp-example)
-
+**Agentic AI, LLMs, MCP:**
+* **Papers**:
+	* [dynasaur: LLAgents beyond predefined actions](https://arxiv.org/pdf/2411.01747)
+	* Camel agents
+		* [camel agents](https://arxiv.org/pdf/2303.17760)
+		* [code](https://docs.camel-ai.org/key_modules/agents)
+	* [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) Park et al 2023	
+	* Genetic programming with LLMs as evolutionary operators
+		* [Evolving Code with A Large Language Model](https://arxiv.org/abs/2401.07102)
+		* [code](https://github.com/ALFA-group/Tutorial_GP-LLM)
+* **Small LLMs focused on tool-calling:**
+	* https://github.com/ollama/ollama/blob/main/docs/linux.md
+	* https://medium.com/data-science-in-your-pocket/smollm3-the-best-small-llm-for-everything-3fa53713ebb7
+	* https://ollama.com/driaforall/tiny-agent-a
+	* https://ollama.com/library/granite3-dense
+* **Standards etc**
+	* [pydantic-ai-mcp](https://datastud.dev/posts/pydantic-ai-mcp)
+	* [github://bstuddard/simple-mcp-example](https://github.com/bstuddard/python-examples/tree/master/simple-mcp-example)
+[gh://projectmesa/mesa](https://github.com/projectmesa/mesa) Agent-based modeling in Python
 {#
 https://www.vincirufus.com/posts/agi-is-engineering-problem/
 https://cpmpy.readthedocs.io/en/latest/
@@ -78,14 +94,15 @@ https://www.anthropic.com/news/model-context-protocol
 * [rtd://mesa/agents](https://mesa.readthedocs.io/latest/apis/agent.html#)
 * [rtd://simpy/Environments](https://simpy.readthedocs.io/en/latest/topical_guides/environments.html)
 * [rtd://cpmpy](https://cpmpy.readthedocs.io/en/latest/) CPMpy: Constraint Programming and Modeling in Python
+
+GDL-iii https://www.ijcai.org/proceedings/2017/0177.pdf
+
+JEPA https://medium.com/data-reply-it-datatech/beyond-generative-models-the-joint-embedding-predictive-architecture-3e7771978a5a
 #}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {
-	addImageToHeader('examples','../img/abc.svg')
-	addImageToHeader('references','../img/list-details')
+	addImageToHeader('foot notes','../img/abc.svg')
+	addImageToHeader('misc links','../img/abc.svg')
 }, 100);});
 </script>
-
-{#[^1]: [MCMAS: an open-source model checker for the verification of multi-agent systems](https://d-nb.info/1125527056/34), Lomuscio et al 2015
-#}

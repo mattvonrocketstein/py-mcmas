@@ -117,11 +117,11 @@ class ExpressionAnalyzer:
 
         return max_depth
 
-    def count_operator_occurrences(self, expression: str) -> OpStats:
+    def count_operator_occurrences(self, expression: str) -> OperatorStatistics:
         """
         Count occurrences of each operator type.
         """
-        op_stats = OpStats()
+        op_stats = OperatorStatistics()
         for op_type, pattern in PATTERNS.items():
             matches = re.findall(pattern, expression, re.IGNORECASE)
             setattr(op_stats, op_type, len(matches))
@@ -241,12 +241,13 @@ class ExpressionAnalyzer:
         final_score = self.normalize_score(raw_score)
 
         # Prepare analysis details
+        from mcmas import fmtk
         from mcmas.models import spec  # logic import complexity
 
         return spec.ComplexityAnalysis(
             score=final_score,
             formula=expression,
-            metadata=AnalysisMeta(
+            metadata=fmtk.AnalysisMeta(
                 formula_index=index,
                 base_complexity=base_complexity,
                 nesting_coefficient=nesting_coefficient,

@@ -8,6 +8,7 @@ import inspect
 import json
 import os
 import sys
+from typing import Optional
 
 import pydantic
 from pydantic import Field
@@ -39,6 +40,36 @@ def check_slice(*args):
 
 
 ###############################################################################
+ObsvarsField = Field(
+    default={},
+    description=("Observable variables.  Can be seen by other agents"),
+)
+VarsField = Field(
+    default={},
+    description=("Private variables. Only the Environment can access"),
+)
+ActionsField = Field(
+    default=[],
+    description=(
+        "Defines the set of actions an agent can perform."
+        "Visible to all other agents."
+    ),
+)
+ProtocolField = Field(
+    description=(
+        "Action selection rules; how and when an agent can perform "
+        "specific actions based on its current state"
+    ),
+    default=[],
+)
+EvolutionField = Field(
+    default=[],
+    description=(
+        "Defines how an agent's local variables change in "
+        "response to the actions performed by all agents."
+    ),
+)
+###############################################################################
 
 
 class Fragment(fmtk.Fragment):
@@ -50,6 +81,7 @@ class Fragment(fmtk.Fragment):
     """
 
     PROMPT_HINTS: typing.ClassVar = ""
+    logger: typing.ClassVar = LOGGER
 
     def __init__(self, *args, **kwargs):
         """
@@ -69,6 +101,20 @@ class Fragment(fmtk.Fragment):
         for k, v in kwargs.items():
             setattr(self, k, v)
         return self
+
+    def __lt__(self, other) -> bool:
+        """
+        Specification algebra.
+        """
+        if not isinstance(other, self.__class__):
+            raise TypeError(f"Cannot compare {type(self)} and {type(other)}")
+        return self.COMPARATOR(self) < self.COMPARATOR(other)
+
+    def __gt__(self, other) -> bool:
+        """
+        Specification algebra.
+        """
+        return not self.__lt__(other)
 
     def __class_getitem__(kls, other):
         """
@@ -153,7 +199,8 @@ class Fragment(fmtk.Fragment):
     @pydantic.validate_call
     def spec_validate(self) -> typing.Dict:
         """
-        
+        Full validation output for this fragment (not a simple
+        bool!)
         """
         return dict(
             metadata=self.metadata.model_dump(),
@@ -172,9 +219,6 @@ class Fragment(fmtk.Fragment):
             raise NotImplementedError(err)
 
 
-###############################################################################
-
-
 class Environment(Fragment):
     """
     Python wrapper for ISPL Environments. Environments model the
@@ -186,6 +230,33 @@ class Environment(Fragment):
 
     REQUIRED: typing.ClassVar = ["protocol", "actions"]
     DefaultEnvironment: typing.ClassVar
+    actions: typing.ActionsType = ActionsField
+    vars: typing.VarsType = VarsField
+    obsvars: typing.ObsVarsType = ObsvarsField
+    evolution: typing.EvolType = EvolutionField
+    protocol: typing.ProtocolType = ProtocolField
+
+    def __len__(self):
+        """
+        Specification Algebra.
+
+        The length of an agent is the number of items in the
+        description length
+        """
+        return sum(
+            map(
+                len,
+                [
+                    self.actions,
+                    self.evolution,
+                    self.obsvars,
+                    self.protocol,
+                    self.vars,
+                    getattr(self, "lobsvars", []),
+                    getattr(self, "red_states", []),
+                ],
+            )
+        )
 
     @util.classproperty
     def DefaultEnvironment(kls):
@@ -212,30 +283,6 @@ class Environment(Fragment):
         assert env is not None
         return Environment(**env)
 
-    actions: typing.ActionsType = Field(
-        default=[],
-        description=(
-            "Defines the set of actions an agent can perform."
-            "Visible to all other agents."
-        ),
-    )
-    evolution: typing.EvolType = Field(
-        default=[],
-        description="How variables change based on actions",
-    )
-    protocol: typing.ProtocolType = Field(
-        default={},
-        description="Action selection rules",
-    )
-    vars: typing.VarsType = Field(
-        default={},
-        description=("Private variables. Only the Environment can access"),
-    )
-    obsvars: typing.ObsVarsType = Field(
-        default={},
-        description=("Observable variables.  Can be seen by other agents"),
-    )
-
 
 class Agent(Fragment):
     """
@@ -244,6 +291,7 @@ class Agent(Fragment):
     See also the relevant [ISPL reference](http://mattvonrocketstein.github.io/py-mcmas/isplref/#agent)
     """
 
+    COMPARATOR: typing.ClassVar = len
     DefaultAgent: typing.ClassVar
     REQUIRED: typing.ClassVar = ["protocol", "evolution", "actions"]
     parser: typing.ClassVar
@@ -252,33 +300,12 @@ class Agent(Fragment):
         default="player",
         description=("Name of this agent"),
     )
-    actions: typing.ActionsType = Field(
-        default=[],
-        description=("Set of actions that are available to this agent"),
-    )
+    actions: typing.ActionsType = ActionsField
+    evolution: typing.EvolType = EvolutionField
+    obsvars: typing.ObsVarsType = ObsvarsField
+    protocol: typing.ProtocolType = ProtocolField
+    vars: typing.VarsType = VarsField
 
-    vars: typing.VarsType = Field(
-        default={},
-        description="",
-    )
-    evolution: typing.EvolType = Field(
-        default=[],
-        description=(
-            "Defines how an agent's local variables change in "
-            "response to the actions performed by all agents."
-        ),
-    )
-    protocol: typing.ProtocolType = Field(
-        description=(
-            "Defines the rules for when an agent can perform "
-            "specific actions based on its current state"
-        ),
-        default=[],
-    )
-    obsvars: typing.ObsVarsType = Field(
-        description="",
-        default={},
-    )
     lobsvars: typing.LobsvarsType = Field(
         description="",
         default=[],
@@ -288,8 +315,13 @@ class Agent(Fragment):
         default=[],
     )
 
+    __len__ = Environment.__len__
+
     @util.classproperty
     def DefaultAgent(kls):
+        """
+        Returns the trivial agent.
+        """
         return kls(...)
 
     @classmethod
@@ -297,14 +329,21 @@ class Agent(Fragment):
         """
         Create ISPL agent from the given pydantic agent.
         """
-        out = None
+        kls.logger.info(f"_load_from_pydantic_ai_agent: {pagent}")
         from mcmas import util
 
+        name = pagent.name or f"Agent_{id(pagent)}"
         actions = list(pagent._function_toolset.tools.keys())
-        tool = list(pagent._function_toolset.tools.values())[0]
-        vars = util.fxn_sig.as_dict(tool.function)
+        tools = list(pagent._function_toolset.tools.values())
+        tool = tools[0]
+        if len(tools) > 1:
+            kls.logger.warning(f"pydantic agent `{name}` has multiple tools!")
+            kls.logger.warning(f"using just the first one: {tool}")
+        # naive conversion from function signature to ISPL types.
+        vars = util.fxn_sig.as_ispl_types(tool.function)
+        vars.pop("ctx", None)
         return Agent(
-            name=pagent.name,
+            name=name,
             actions=actions,
             vars=vars,
             metadata=dict(
@@ -350,7 +389,7 @@ class Agent(Fragment):
         """
         from mcmas import ai
 
-        return ai.model_shuffle(obj=self, model_settings=dict(top_p=other))
+        return ai.model_mutation(obj=self, model_settings=dict(top_p=other))
 
     def __invert__(self) -> typing.Self:
         """
@@ -493,6 +532,7 @@ class ISPL(Fragment):
         )
 
     # Metadata: typing.ClassVar = fmtk.SpecificationMetadata
+    COMPARATOR: typing.ClassVar = abs
     REQUIRED: typing.ClassVar = ["agents", "evaluation", "formulae"]
     parser: typing.ClassVar
     title: str = Field(
@@ -552,6 +592,24 @@ class ISPL(Fragment):
         ),
     )
 
+    def __contains__(self, other):
+        """
+        Specification algebra.
+        """
+        if isinstance(other, Agent):
+            return other in self.agents.values()
+        else:
+            raise TypeError(f"__contains__ undefined for {[type(self), type(other)]}")
+
+    def __abs__(self) -> float:
+        """
+        Specification algebra.
+
+        Used in __lt__ and __gt__. For ISPL specifications this
+        is the cumulative sum of formulae complexity
+        """
+        return sum([c.score for c in self.analyze_complexity()])
+
     def __iadd__(self, other):
         """
         Specification algebra.
@@ -562,12 +620,30 @@ class ISPL(Fragment):
         self.update(upd.model_dump())
         return self
 
+    def __sub__(self, other):
+        """
+        Specification algebra.
+
+        ISPL - agent => removes agent from this agent list, if present.
+        """
+        # if isinstance(other, (ISPL,)):
+        #     return self.model_copy(update=other.model_dump())
+        # if isinstance(other, (Environment,)):
+        #     return self.model_copy(update=dict(environment=other))
+        if isinstance(other, (Agent,)):
+            agents = {}
+            for a in self.agents.values():
+                if a.name != other.name:
+                    agents[a.name] = a
+            return self.model_copy(update=dict(agents=agents))
+        raise TypeError(f"Cannot add {type(self)} and {type(other)}")
+
     def __add__(self, other):
         """
         Specification algebra.
 
-        ISPL + agent => adds agent to spec ISPL + ISPL => update
-        1st with 2nd ISPL+ environment => adds agent to
+        ISPL + agent => adds agent to spec ISPL + ISPL =>
+        overrides first spec with values from 2nd
         """
         if isinstance(other, (ISPL,)):
             return self.model_copy(update=other.model_dump())
@@ -577,8 +653,7 @@ class ISPL(Fragment):
             agents = self.agents
             agents.update(**{other.name: other})
             return self.model_copy(update=dict(agents=agents))
-        if isinstance(other, (ISPL,)):
-            raise Exception(f"niy {type(other)}")
+        raise TypeError(f"Cannot add {type(self)} and {type(other)}")
 
     def model_dump_source(self):
         """
@@ -622,7 +697,7 @@ class ISPL(Fragment):
     @pydantic.validate_call
     def load_from_ispl_file(
         kls,
-        file: str = None,
+        file: Optional[str] = None,
     ):
         """
         Return ISPL object from contents of given file.
@@ -656,7 +731,7 @@ class ISPL(Fragment):
 
     @classmethod
     @pydantic.validate_call
-    def load_from_json_file(kls, file: str = None, text=None):
+    def load_from_json_file(kls, file: Optional[str] = None, text=None):
         """
         Return ISPL object from the contents of given file.
 

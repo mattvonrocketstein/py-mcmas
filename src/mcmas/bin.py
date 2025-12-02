@@ -14,7 +14,6 @@ import click
 from pydantic import validate_call
 
 from mcmas import engine, util
-from mcmas.ispl import ISPL
 from mcmas.sim import Simulation
 from mcmas.util.lme import get_logger
 
@@ -169,14 +168,17 @@ def ispl_main(
 
     witness = witness or counter_example
     sim = any([sim, witness])
-    PYDANTIC_MODELS = ["ISPL", "Simulation"]
+    PYDANTIC_MODELS = ["ISPL", "Simulation", "Agent", "Environment"]
     path = fname and Path(fname)
     if schema and fname:
+        import mcmas
+
         schema = schema and fname
         fname = None
+        schema = schema.title()
         assert schema in PYDANTIC_MODELS
-        mdl = ISPL if schema == "ISPL" else Simulation
-        print(json_module.dumps(mdl.model_json_schema(), indent=2))
+        model = getattr(mcmas, schema, None)
+        print(json_module.dumps(model.model_json_schema(), indent=2))
         raise SystemExit(0)
 
     if list_pydantic_models:

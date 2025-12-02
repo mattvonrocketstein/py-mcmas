@@ -2,17 +2,17 @@
 {#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}
 {% import 'macros/base.j2' as macros -%}
 
-{% macro embed_demo(fname, mkdocs={}, 
+{% macro embed_demo(fname, github={}, 
     bottom_middle='', bottom_right='',
     small=False, type='python', title='', 
     extra_label='', class="")-%}{% set class=(class+' .small') if small else class %}{% set link_prefix=macros.normalize_fname(fname) %}
 <a id="{{link_prefix}}"></a>{% set use_type= (type=='ispl' and 'haskell') or type %}{{macros.code_table(fname, 
-    type=type, mkdocs=mkdocs, 
+    type=type, github=github, 
     link_prefix=link_prefix, code_table_2=extra_label, class=class)}}<details id="{{link_prefix}}_details" open><summary style="display:none;">Summary</summary>
 ```{{use_type}} {%raw%}{{%endraw%}{{class}} {{'.language-' + use_type}} {%raw%}}{%endraw%}
 {{open(fname,'r').read().strip()}}
 ```
-{{macros.code_table_bottom(fname, bottom_middle=bottom_middle,bottom_right=bottom_right, title=title, link_prefix=link_prefix, type=type, mkdocs=mkdocs, class=class)}}<a id="{{link_prefix}}_bottom"></a></details>{%- endmacro -%}
+{{macros.code_table_bottom(fname, bottom_middle=bottom_middle,bottom_right=bottom_right, title=title, link_prefix=link_prefix, type=type, github=github, class=class)}}<a id="{{link_prefix}}_bottom"></a></details>{%- endmacro -%}
 
 {## API links ##}
 {#░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░#}

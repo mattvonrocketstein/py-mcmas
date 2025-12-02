@@ -8,6 +8,7 @@ and LLM prompts
 import functools
 import os
 from pathlib import Path
+from typing import Optional
 
 import jinja2
 import pydantic
@@ -101,9 +102,9 @@ def get_jinja_globals():
 
 @pydantic.validate_call
 def get_template(
-    template_name: typing.Union[str, Path] = None,
+    template_name: Optional[typing.Union[str, Path]] = None,
     env=None,
-    from_string: str = None,
+    from_string: Optional[str] = None,
     **jinja_context,
 ) -> jinja2.Template:
     """
@@ -163,7 +164,7 @@ def get_template_from_string(content, **kwargs):
 
 
 def get_template_from_file(
-    file: str = None,
+    file: Optional[str] = None,
     **kwargs,
 ):
     """

@@ -113,16 +113,30 @@ def parse_engine_output(text: str, file=None, exit_code=None) -> sim.Simulation:
                 },
             }
         )
+        if not metadata.validates:
+            _hint = f"{metadata.file}:"
+            errors = [
+                ":".join(line[line.find(_hint) :].split(":")[1:])
+                for line in text.split("\n")
+                if _hint in line
+            ]
+            del metadata.timing
+        else:
+            errors = []
+            data.update(
+                facts={"true": true_props, "false": false_props},
+                state_space={
+                    "reachable_states": reachable_states,
+                    "memory": {"bdd": bdd_memory},
+                },
+            )
         data.update(
             metadata=metadata,
             text=text if not error else None,
-            facts={"true": true_props, "false": false_props},
-            state_space={
-                "reachable_states": reachable_states,
-                "memory": {"bdd": bdd_memory},
-            },
+            error=errors,
         )
     out = sim.Simulation(**data)
+
     return out
 
 

@@ -18,8 +18,10 @@ def tool2(ctx, first_kwarg: int = 1, **kwargs) -> str:
 
 
 def test_agent_from_pydantic():
-    # Using square-brackets notation, construct
-    # an agent spec from an agent implementation
+    """
+    Using square-brackets notation, construct
+    an agent spec from an agent implementation
+    """
     alice_prime = mcmas.ispl.Agent[alice]
     assert isinstance(alice_prime, (mcmas.Agent,))
 

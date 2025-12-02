@@ -46,7 +46,7 @@ If omitted, MultiAssignment is used by default.
 ### Environment
 <hr style="width:100%;border-bottom:3px solid black;">
 
-Models the shared infrastructure and boundary conditions that all standard agents can observe.
+Models the shared state and boundary conditions that all standard agents can observe.
 
 The Environment is a special agent that represents the system's external conditions, communication channels, or shared resources. Unlike standard agents, the Environment can have **observable variables** that other agents can read (but not modify).
 
@@ -143,6 +143,7 @@ variableName : boolean;
 variableName : {value1, value2, value3};
 ```
 <br/>
+
 * Values: Any of the specified enumeration constants
 * Comparisons: `=`, `!=`
 * Two enumeration types are comparable if one is a subset of the other
@@ -153,6 +154,7 @@ variableName : {value1, value2, value3};
 variableName : lowerBound .. upperBound;
 ```
 <br/>
+
 * Values: Integers within the specified range
 * Supports arithmetic operations: `+`, `-`, `*`, `/`
 * Comparisons: `=`, `!=`, `<`, `<=`, `>`, `>=`

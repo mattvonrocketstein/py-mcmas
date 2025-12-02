@@ -7,6 +7,7 @@ import gc
 import inspect
 import os
 import re
+import sys
 import typing
 from typing import Any, get_type_hints
 
@@ -82,9 +83,6 @@ class classproperty:
         self.__doc__ = fxn.__doc__
 
     def __get__(self, obj, owner) -> OptionalAny:  # noqa
-        """
-        
-        """
         return self.fxn(owner)
 
 
@@ -96,9 +94,6 @@ class classproperty_cached(classproperty):
     CLASSPROP_CACHES = {}
 
     def __get__(self, obj, owner) -> OptionalAny:  # noqa
-        """
-        
-        """
         result = self.__class__.CLASSPROP_CACHES.get(self.fxn, self.fxn(owner))
         self.__class__.CLASSPROP_CACHES[self.fxn] = result
         return self.__class__.CLASSPROP_CACHES[self.fxn]
@@ -164,14 +159,7 @@ def fxn_sig(func: typing.Callable) -> typing.Dict[str, typing.Dict[str, typing.A
 
 def fxn_sig_as_dict(func) -> typing.Dict[str, typing.Any]:
     """
-    Extract function signature as a dictionary of parameter names
-    to their types.
-
-    Args:
-        func: The function to inspect
-
-    Returns:
-        Dict mapping parameter names to their type annotations
+    Extract function signature as a { param_name: type }
     """
     sig = inspect.signature(func)
     signature_dict = {}
@@ -193,4 +181,29 @@ def fxn_sig_as_dict(func) -> typing.Dict[str, typing.Any]:
     return signature_dict
 
 
+def fxn_sig_as_ispl_types(func: typing.Callable):
+    """
+    Converts python type-signatures to something closer to ISPL.
+    """
+    sig = fxn_sig_as_dict(func)
+    vars = {}
+    for k, v in sig.items():
+        conversion = None
+        if v in (bool,):
+            conversion = "boolean"
+        elif v in (int,):
+            _type = f"0..{sys.maxsize}"
+            LOGGER.warning(
+                f"detected that {k} is an unbounded integer, setting type={_type}"
+            )
+            conversion = _type
+        else:
+            LOGGER.warning(f"could not convert type to ISPL: {v}")
+            conversion = v
+        vars[k] = conversion
+    return vars
+
+
+# FIXME: real object/class
 fxn_sig.as_dict = fxn_sig_as_dict
+fxn_sig.as_ispl_types = fxn_sig_as_ispl_types

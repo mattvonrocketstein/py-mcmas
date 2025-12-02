@@ -1,4 +1,4 @@
-# See the demo docs: https://robot-wranglers.github.io/compose.mk/demos/RAG
+# See the demo docs: https://mattvonrocketstein.github.io/py-mcmas/
 services:
   ollama: &base
     build:
@@ -16,6 +16,7 @@ services:
       - /usr/share/ollama/.ollama:/root/.ollama
       # Share the hosts working directory- this is for document ingestion
       - ${PWD}:/workspace
+  
   integration_tests: 
     <<: *base
     entrypoint: python3
@@ -30,3 +31,17 @@ services:
       #   RUN pip install --no-cache-dir ollama==0.4.7
       #   RUN apt-get update -qq && apt-get install -qq -y \
       #     make procps curl iputils-ping curl
+
+  # ispl_mcp:
+  #   <<: *mcpjungle_base
+  #   build:
+  #     context: .
+  #     dockerfile_inline: |
+  #       FROM mcpjungle:local
+  #       COPY . /opt/py-mcmas
+  #       RUN cd /opt/py-mcmas && pip install -e . --break-system-packages
+  #   depends_on:
+  #     mcpjungle:
+  #       condition: service_completed_successfully
+  #     db:
+  #       condition: service_healthy

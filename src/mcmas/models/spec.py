@@ -9,40 +9,17 @@ from mcmas import fmtk, typing, util
 
 LOGGER = util.get_logger(__name__)  # noqa
 
-
-class SymbolMetadata(pydantic.BaseModel):
-    """
-    Result of running ISPL Analysis.
-
-    This extracts details about symbols, namespaces, etc.
-    """
-
-    actions: typing.SymbolList2 = Field(
-        default=[],
-        description="Actions list",
-    )
-    agents: typing.SymbolList2 = Field(
-        default=[],
-        description="Agents list",
-    )
-    vars: typing.SymbolList2 = Field(
-        default=[],
-        description="Var list",
-    )
-
-
+# from mcmas.fmtk import SymbolMetadata
+SymbolMetadata = fmtk.SymbolMetadata
 # Details about logical operators that are used in specification's formulae.
 # Coarse detail about operators can be used to derive information about time/space complexity.
-
 FormulaAnalysisDetails = typing.Dict[str, typing.Any]
 ComplexityScore = float
 FormulaAnalysis = FormulaAnalysisDetails
-# FormulaAnalysis = typing.Tuple[ComplexityScore, FormulaAnalysisDetails]
-
-ComplexityAnalysis = typing.Dict[str, typing.Any]
+# ComplexityAnalysis = typing.Dict[str, typing.Any]
 
 
-class OpStats(pydantic.BaseModel):
+class OperatorStatistics(pydantic.BaseModel):
     """
     
     """
@@ -69,20 +46,10 @@ class OpStats(pydantic.BaseModel):
         return out
 
 
-class AnalysisMeta(pydantic.BaseModel):
-    """
-    
-    """
-
-    formula_index: int = Field(default=-1)
-    base_complexity: float = Field(default=0.0)
-    nesting_coefficient: int = Field(default=1)
-    raw_score: float = Field(default=0.0)
-
-
 class CoalitionStats(pydantic.BaseModel):
     """
-    
+    Main docs:
+        https://mattvonrocketstein.github.io/py-mcmas/demos/analysis/
     """
 
     max_coalition_size: int = Field(default=0)
@@ -97,11 +64,12 @@ class CoalitionStats(pydantic.BaseModel):
 
 class ComplexityStats(pydantic.BaseModel):
     """
-    
+    Main docs:
+        https://mattvonrocketstein.github.io/py-mcmas/demos/analysis/
     """
 
     coalitions: CoalitionStats = Field(default=CoalitionStats())
-    operators: OpStats = Field(default=OpStats().model_dump())
+    operators: OperatorStatistics = Field(default=OperatorStatistics())
 
     def model_dump(self, *args, **kwargs):
         return dict(
@@ -112,12 +80,13 @@ class ComplexityStats(pydantic.BaseModel):
 
 class ComplexityAnalysis(pydantic.BaseModel):
     """
-    
+    Main docs:
+        https://mattvonrocketstein.github.io/py-mcmas/demos/analysis/
     """
 
     score: float = Field(default=0.0)
     formula: str = Field(default="")
-    metadata: AnalysisMeta = Field(default=AnalysisMeta())
+    metadata: fmtk.AnalysisMeta = Field(default=fmtk.AnalysisMeta())
     statistics: ComplexityStats = Field(default=ComplexityStats())
 
     def model_dump(self, *args, **kwargs):
@@ -137,9 +106,9 @@ class Analysis(fmtk.SpecificationAnalysis):
     operators that are used
     """
 
-    symbols: SymbolMetadata = Field(
+    symbols: fmtk.SymbolMetadata = Field(
         description="Symbols (includes vars+actions)",
-        default=SymbolMetadata(),
+        default=fmtk.SymbolMetadata(),
     )
     complexity: typing.List[ComplexityAnalysis] = Field(
         default={},
